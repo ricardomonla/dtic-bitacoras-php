@@ -1,0 +1,408 @@
+/* DTIC Bitácoras - Estilos personalizados para Bootstrap 5 */
+
+/* Variables CSS personalizadas */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --dark-color: #343a40;
+    --light-color: #f8f9fa;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --border-radius: 8px;
+    --transition: all 0.3s ease;
+}
+
+/* Estilos generales */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    padding-top: 76px; /* Ajustar para el navbar fijo */
+}
+
+.container {
+    max-width: 1200px;
+}
+
+/* Navbar personalizada */
+.navbar {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    box-shadow: var(--shadow);
+    border-bottom: 3px solid var(--primary-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    transition: transform 0.3s ease-in-out;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: white !important;
+}
+
+.navbar-brand:hover {
+    color: var(--light-color) !important;
+    transform: scale(1.05);
+    transition: var(--transition);
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: var(--transition);
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.nav-link:hover {
+    color: white !important;
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+}
+
+/* Cards del dashboard */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    background: white;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+    padding: 1rem 1.25rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+}
+
+.card-text {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 0;
+    text-align: center;
+}
+
+/* Estados de tareas */
+.task-pending { color: var(--warning-color); }
+.task-in-progress { color: var(--info-color); }
+.task-completed { color: var(--success-color); }
+.task-cancelled { color: var(--danger-color); }
+
+/* Botones personalizados */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: var(--transition);
+    border: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    color: white;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+}
+
+/* Tabla responsiva */
+.table {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.table thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    transition: var(--transition);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+/* Formularios */
+.form-control {
+    border-radius: var(--border-radius);
+    border: 2px solid #e9ecef;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+/* Alertas */
+.alert {
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--shadow);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    color: #856404;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+}
+
+/* Loading spinner */
+.spinner-border {
+    color: var(--primary-color);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .card-text {
+        font-size: 2rem;
+    }
+
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+
+    .container {
+        padding: 0 15px;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Estilos para el dashboard principal */
+.dashboard-header {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-subtitle {
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+    margin-bottom: 0;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: rgba(255, 255, 255, 0.8);
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    margin-top: 3rem;
+}
+
+/* Utilidades */
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shadow-custom {
+    box-shadow: var(--shadow) !important;
+}
+
+.border-radius-custom {
+    border-radius: var(--border-radius) !important;
+}
+
+/* Mini Calendar Styles */
+.mini-calendar {
+    font-size: 0.875rem;
+}
+
+.mini-calendar .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.mini-calendar .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.mini-calendar .day-name {
+    text-align: center;
+    padding: 0.25rem;
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.75rem;
+}
+
+.mini-calendar .day-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.mini-calendar .day-cell:hover {
+    background-color: #f8f9fa;
+}
+
+.mini-calendar .day-cell.today {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+}
+
+.mini-calendar .day-cell.other-month {
+    color: #adb5bd;
+}
+
+.mini-calendar .day-cell.has-events::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background-color: #28a745;
+    border-radius: 50%;
+}
+
+.mini-calendar .day-cell.selected {
+    background-color: #17a2b8;
+    color: white;
+}
+
+/* Upcoming Events in Dashboard */
+.dashboard-upcoming-event {
+    padding: 0.75rem;
+    border-left: 3px solid;
+    margin-bottom: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.dashboard-upcoming-event.event-maintenance {
+    border-left-color: #28a745;
+}
+
+.dashboard-upcoming-event.event-special {
+    border-left-color: #17a2b8;
+}
+
+.dashboard-upcoming-event.event-training {
+    border-left-color: #ffc107;
+}
+
+.dashboard-upcoming-event.event-meeting {
+    border-left-color: #6c757d;
+}
+
+.dashboard-upcoming-event .event-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.dashboard-upcoming-event .event-time {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.dashboard-upcoming-event .event-details {
+    font-size: 0.75rem;
+    color: #495057;
+    margin-top: 0.25rem;
+}

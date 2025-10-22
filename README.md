@@ -1,27 +1,207 @@
-# DTIC Bitácoras PHP - Nueva Arquitectura HTML/JS/PHP/MySQL
+# DTIC Bitácoras PHP - Arquitectura HTML/JS/PHP/MySQL
 
 ## Descripción del Proyecto
 
-Este proyecto representa el desarrollo desde cero del sistema DTIC Bitácoras utilizando una arquitectura moderna basada en HTML, JavaScript, PHP y MySQL. El sistema implementará todas las funcionalidades requeridas con un enfoque en la escalabilidad, seguridad y facilidad de mantenimiento.
+Este proyecto representa el desarrollo desde cero del sistema DTIC Bitácoras utilizando una arquitectura moderna basada en HTML, JavaScript, PHP y MySQL. El sistema está diseñado exclusivamente para el uso de técnicos autorizados del DTIC, implementando todas las funcionalidades requeridas con un enfoque en la escalabilidad, seguridad y facilidad de mantenimiento. Los usuarios externos no tienen acceso directo al sistema; solo los técnicos pueden gestionar tareas, recursos y eventos a través de una interfaz web segura.
 
 ## Metodología de Desarrollo
 
 El proyecto se desarrollará en etapas claramente definidas para asegurar una implementación ordenada y funcional:
 
-### Etapa 1: Preparación del Entorno Docker
+### Etapa 1: Preparación del Entorno Docker ✅ COMPLETADA
 Configuración completa del contenedor Docker con PHP, MySQL y permisos necesarios para el desarrollo.
 
-### Etapa 2: Maquetación de la Interfaz
-Creación del dashboard y pantalla inicial con diseño visual responsivo y elementos básicos de UI.
+#### Sub-items Completados:
+- ✅ Dockerfile con PHP 8.1 y Apache
+- ✅ docker-compose.yml con servicios MySQL y PHP
+- ✅ Configuración de extensiones PHP (PDO, MySQLi)
+- ✅ Permisos de directorios configurados
+- ✅ Variables de entorno definidas
+- ✅ Página de verificación de estado del proyecto
+
+### Etapa 2: Maquetación de la Interfaz ✅ COMPLETADA
+Creación del dashboard y pantalla inicial con diseño visual responsivo y elementos básicos de UI. Incluye funcionalidades avanzadas como auto-hide del navbar, datos de ejemplo en "Próximos Eventos" y "Actividad Reciente", y calendario integrado.
+
+#### Sub-items Completados:
+- ✅ Dashboard principal con estadísticas y navegación
+- ✅ Páginas de gestión: Técnicos, Usuarios, Tareas, Recursos, Reportes
+- ✅ Calendario interactivo con FullCalendar.js
+- ✅ Auto-hide navbar con animaciones CSS
+- ✅ Sección "Próximos Eventos" con datos de ejemplo
+- ✅ Sección "Actividad Reciente" con historial simulado
+- ✅ Diseño responsivo con Bootstrap 5
+- ✅ Navegación consistente entre todas las páginas
+- ✅ Estilos CSS personalizados y animaciones
+- ✅ JavaScript del dashboard con funcionalidades avanzadas
 
 ### Etapa 3: Implementación del Backend PHP
 Desarrollo de la lógica backend en PHP para conectar con MySQL y manejar las operaciones del sistema.
 
+#### Sub-items Pendientes:
+- 🔄 Configuración de conexión a base de datos MySQL
+- 🔄 Creación del esquema de base de datos
+- 🔄 APIs para gestión de tareas (CRUD)
+- 🔄 APIs para gestión de recursos (CRUD)
+- 🔄 APIs para gestión de técnicos (CRUD)
+- 🔄 APIs para gestión de usuarios operativos (CRUD)
+- 🔄 Sistema de autenticación básico
+- 🔄 Validación de datos y sanitización
+- 🔄 Manejo de sesiones PHP
+
 ### Etapa 4: Desarrollo de Funcionalidades JavaScript
 Implementación de la interactividad del frontend con JavaScript para una experiencia de usuario fluida.
 
-### Etapa 5: Pruebas y Despliegue Final
-Testing completo del sistema y configuración para despliegue en producción.
+#### Sub-items Pendientes:
+- 🔄 AJAX para comunicación con APIs del backend
+- 🔄 Formularios dinámicos con validación
+- 🔄 Actualización en tiempo real de datos
+- 🔄 Manejo de estados de carga (loading states)
+- 🔄 Gestión de errores del lado cliente
+- 🔄 Implementación de modales y popups
+- 🔄 Funcionalidad de búsqueda y filtrado
+- 🔄 Paginación de resultados
+
+### Etapa 5: Implementación del Calendario Interactivo
+Desarrollo e integración del calendario interactivo con funcionalidades avanzadas de gestión de eventos, sub-tareas dependientes, asignación de técnicos y control de conflictos de horarios.
+
+#### Sub-items Pendientes:
+- 🔄 Gestión avanzada de eventos (crear, editar, eliminar)
+- 🔄 Sub-tareas dependientes con horarios específicos
+- 🔄 Asignación de técnicos a eventos
+- 🔄 Asociación de recursos a eventos
+- 🔄 Control de conflictos de horarios
+- 🔄 Alertas y recordatorios automáticos
+- 🔄 Filtros avanzados por técnico/recurso/tipo
+- 🔄 Exportación a PDF/CSV
+- 🔄 Permisos de edición por roles
+- 🔄 Sincronización con cambios en tareas/recursos
+
+### Etapa 6: Pruebas y Despliegue Final
+Testing completo del sistema incluyendo calendario, auto-hide navbar, datos de ejemplo en dashboard, y configuración para despliegue en producción.
+
+#### Sub-items Pendientes:
+- 🔄 Testing unitario de funciones PHP
+- 🔄 Testing de integración de APIs
+- 🔄 Testing de interfaz de usuario
+- 🔄 Testing de compatibilidad cross-browser
+- 🔄 Testing de rendimiento y carga
+- 🔄 Validación de seguridad (OWASP)
+- 🔄 Configuración de producción
+- 🔄 Documentación de despliegue
+- 🔄 Optimización de assets y código
+
+## Entidades del Sistema
+
+### Recursos
+Los **recursos** son los elementos físicos o digitales que utiliza el DTIC para realizar sus tareas operativas. Cada recurso tiene características específicas y puede estar asignado a usuarios para su utilización.
+
+**Características principales:**
+- **ID único**: Identificador alfanumérico único (ej: RES-001)
+- **Nombre**: Descripción clara del recurso
+- **Categoría**: Clasificación jerárquica (Hardware, Software, Redes, Seguridad, Herramientas)
+- **Estado**: Disponible, Asignado, Mantenimiento, Retirado
+- **Ubicación**: Lugar físico donde se encuentra el recurso
+- **Información técnica**: Modelo, serie, especificaciones técnicas
+- **Historial de uso**: Registro de tareas en las que ha sido utilizado
+- **Última tarea**: Información de la tarea más reciente donde participó
+
+**Ejemplos de recursos:**
+- Laptops, proyectores, servidores (Hardware)
+- Licencias de software, antivirus (Software)
+- Routers, switches, cables (Redes)
+- Certificados, firewalls (Seguridad)
+- Kits de herramientas, testers (Herramientas)
+
+### Técnicos
+Los **técnicos** son los profesionales especializados del DTIC que resuelven las tareas asignadas al departamento. Son los responsables directos de ejecutar y completar las actividades del sistema.
+
+**Características principales:**
+- **ID único**: Identificador único del técnico
+- **Información personal**: Nombre, apellido, email, teléfono
+- **Rol**: Administrador, Técnico, Visualizador
+- **Departamento**: Área específica dentro del DTIC
+- **Estado**: Activo, Inactivo
+- **Tareas asignadas**: Número y lista de tareas bajo su responsabilidad
+- **Historial de actividad**: Registro de tareas completadas y en progreso
+- **Permisos**: Nivel de acceso al sistema según su rol
+
+**Roles definidos:**
+- **Administrador**: Acceso completo, gestión de usuarios y configuración
+- **Técnico**: Ejecución de tareas, gestión de recursos asignados
+- **Visualizador**: Solo lectura, acceso a reportes y consultas
+
+### Usuarios
+Los **usuarios** son las personas que trabajan con los recursos del DTIC en sus actividades diarias. A diferencia de los técnicos, no resuelven tareas del sistema sino que utilizan los recursos asignados para realizar su trabajo operativo.
+
+**Características principales:**
+- **ID único**: Identificador único del usuario
+- **Información personal**: Nombre, apellido, email, teléfono
+- **Rol operativo**: Operador, Supervisor, Analista, Invitado
+- **Departamento**: Área específica donde opera
+- **Estado**: Activo, Inactivo
+- **Recursos asignados**: Lista de recursos bajo su responsabilidad
+- **Historial de uso**: Registro de recursos utilizados
+
+**Roles operativos:**
+- **Operador**: Uso básico de recursos asignados
+- **Supervisor**: Coordinación de recursos y supervisión de operadores
+- **Analista**: Análisis de datos y reportes usando recursos específicos
+- **Invitado**: Acceso limitado a recursos específicos por tiempo determinado
+
+### Tareas
+Las **tareas** son las actividades específicas que debe realizar el DTIC, asignadas a técnicos para su resolución. Cada tarea tiene un ciclo de vida completo desde su creación hasta su finalización.
+
+**Características principales:**
+- **ID único**: Identificador alfanumérico único (ej: TSK-001)
+- **Título**: Descripción breve de la tarea
+- **Descripción**: Detalles completos de lo que se debe realizar
+- **Estado**: Pendiente, En Progreso, Completada, Cancelada
+- **Prioridad**: Baja, Media, Alta, Urgente
+- **Técnico asignado**: Profesional responsable de la ejecución
+- **Fechas**: Creación, inicio, vencimiento, finalización
+- **Historial de actividad**: Registro detallado de todos los movimientos
+- **Recursos utilizados**: Lista de recursos que participaron en la tarea
+
+**Estados del ciclo de vida:**
+- **Pendiente**: Esperando asignación de técnico
+- **En Progreso**: Siendo ejecutada por el técnico asignado
+- **Completada**: Finalizada exitosamente
+- **Cancelada**: Terminada sin completar por diversos motivos
+
+### Categorías
+Las **categorías** proporcionan una estructura jerárquica para organizar tanto recursos como tareas en el sistema. Permiten una clasificación lógica y facilitan la búsqueda y filtrado.
+
+**Características principales:**
+- **Estructura jerárquica**: Categorías padre/hijo (árbol)
+- **Tipo**: Recursos o Tareas
+- **Nombre**: Descripción clara de la categoría
+- **Descripción**: Detalles adicionales
+- **Estado**: Activa, Inactiva
+- **Ícono**: Representación visual opcional
+
+**Ejemplos de categorías:**
+- **Recursos**: Hardware → Computadoras → Laptops
+- **Tareas**: Mantenimiento → Preventivo → Sistemas
+
+### Historial de Auditoría
+El **historial de auditoría** registra todas las acciones realizadas en el sistema para mantener un registro completo de cambios y actividades.
+
+**Características principales:**
+- **Usuario**: Quién realizó la acción
+- **Acción**: Tipo de operación (crear, modificar, eliminar, consultar)
+- **Entidad**: Objeto afectado (tarea, recurso, usuario, etc.)
+- **Fecha/Hora**: Timestamp preciso de la acción
+- **Detalles**: Información específica de lo que cambió
+- **IP**: Dirección desde donde se realizó la acción
+
+### Reportes
+Los **reportes** son consultas estructuradas que permiten analizar el estado y rendimiento del sistema DTIC Bitácoras.
+
+**Tipos de reportes:**
+- **Tareas**: Estado, productividad, tiempos de resolución
+- **Recursos**: Utilización, disponibilidad, mantenimiento
+- **Usuarios**: Actividad, asignaciones, rendimiento
+- **Sistema**: Estadísticas generales, logs de auditoría
 
 ## Arquitectura del Sistema
 
@@ -33,9 +213,18 @@ dtic-bitacoras-php/
 ├── .env                   # Variables de entorno (producción)
 ├── public/                # Archivos públicos accesibles por web
 │   ├── index.html        # Página principal del dashboard
+│   ├── tecnicos.html     # Gestión de técnicos del sistema
+│   ├── usuarios.html     # Gestión de usuarios operativos
+│   ├── tareas.html       # Gestión de tareas del DTIC
+│   ├── recursos.html     # Gestión de recursos del sistema
+│   ├── calendario.html   # Calendario interactivo de eventos
+│   ├── reportes.html     # Reportes y estadísticas
+│   ├── estadoproyecto.html # Estado del proyecto
 │   ├── css/
 │   │   └── styles.css    # Estilos CSS personalizados
 │   └── js/               # JavaScript del frontend (por etapa)
+│       ├── dashboard.js  # Lógica básica del dashboard
+│       └── calendar.js   # Lógica del calendario interactivo
 ├── js/                   # JavaScript del frontend
 │   ├── auth.js          # Funciones de autenticación
 │   ├── api.js           # Comunicación con APIs
@@ -45,10 +234,12 @@ dtic-bitacoras-php/
 │   ├── auth.php         # API de autenticación
 │   ├── tasks.php        # API de gestión de tareas
 │   ├── resources.php    # API de gestión de recursos
+│   ├── technicians.php  # API de gestión de técnicos
+│   ├── users.php        # API de gestión de usuarios operativos
+│   ├── calendar.php     # API de gestión del calendario
 │   ├── categories.php   # API de gestión de categorías
-│   ├── users.php        # API de gestión de usuarios
 │   ├── history.php      # API de historial de auditoría
-│   └── export.php       # API de exportación CSV
+│   └── export.php       # API de exportación CSV/PDF
 ├── config/               # Configuración del sistema
 │   ├── database.php     # Conexión a base de datos MySQL
 │   └── config.php       # Configuración general
@@ -77,6 +268,7 @@ dtic-bitacoras-php/
 - **HTML5**: Estructura de páginas
 - **CSS3 + Bootstrap 5**: Estilos y diseño responsivo
 - **Vanilla JavaScript (ES6+)**: Lógica del cliente
+- **FullCalendar.js**: Biblioteca de calendario interactivo
 - **Fetch API**: Comunicación AJAX con el backend
 
 ### Seguridad (Implementado por Etapas)
@@ -203,11 +395,11 @@ dtic-bitacoras-php/
 - Contenedor PHP con Apache corriendo en puerto 8080
 - Base de datos MySQL corriendo en puerto 3306
 - Entorno listo para desarrollo con permisos configurados
-- Página de prueba en `public/index.php` para verificar funcionamiento
+- Página de prueba en `public/estadoproyecto.html` para verificar funcionamiento
 
 #### Verificación de la Etapa 1
 Después de completar la configuración, puedes verificar que todo funciona correctamente accediendo a:
-- **URL de prueba**: http://localhost:8080
+- **URL de prueba**: http://localhost:8080/estadoproyecto.html
 - **Estado de contenedores**: `docker compose ps`
 - **Logs de contenedores**: `docker compose logs`
 
@@ -224,11 +416,19 @@ La página de prueba mostrará:
 - Implementar layout básico con navegación
 - Establecer estructura HTML/CSS base
 
-#### Archivos a Crear
+#### Archivos Creados
 
-1. **public/index.html** - Página principal del dashboard
-2. **public/css/styles.css** - Estilos CSS con Bootstrap
-3. **public/js/dashboard.js** - Lógica básica del dashboard
+1. **public/index.html** - Página principal del dashboard ✅
+2. **public/tecnicos.html** - Gestión de técnicos del sistema ✅
+3. **public/usuarios.html** - Gestión de usuarios operativos ✅
+4. **public/tareas.html** - Gestión de tareas del DTIC ✅
+5. **public/recursos.html** - Gestión de recursos del sistema ✅
+6. **public/calendario.html** - Calendario interactivo de eventos ✅
+7. **public/reportes.html** - Reportes y estadísticas ✅
+8. **public/estadoproyecto.html** - Estado del proyecto ✅
+9. **public/css/styles.css** - Estilos CSS con Bootstrap y auto-hide navbar ✅
+10. **public/js/dashboard.js** - Lógica avanzada del dashboard con auto-hide y datos de ejemplo ✅
+11. **public/js/calendar.js** - Funcionalidad del calendario interactivo ✅
 
 #### Estructura del Dashboard
 
@@ -307,11 +507,21 @@ La página de prueba mostrará:
 </html>
 ```
 
-#### Resultado Esperado de la Etapa 2
-- Dashboard funcional con navegación responsiva
-- Cards con estadísticas básicas (inicialmente en 0)
-- Diseño moderno con Bootstrap 5
+#### Resultado Esperado de la Etapa 2 ✅ COMPLETADA
+- Dashboard funcional con navegación responsiva y auto-hide inteligente
+- Páginas completas para todas las secciones del menú:
+  - Gestión de Técnicos (tecnicos.html)
+  - Gestión de Usuarios (usuarios.html)
+  - Gestión de Tareas (tareas.html)
+  - Gestión de Recursos (recursos.html)
+  - Calendario Interactivo (calendario.html)
+  - Reportes y Estadísticas (reportes.html)
+- Cards con estadísticas básicas y datos de ejemplo realistas
+- Secciones "Próximos Eventos" y "Actividad Reciente" con datos de ejemplo
+- Diseño moderno con Bootstrap 5 y animaciones CSS
 - Estructura preparada para futuras funcionalidades
+- Distinción clara entre las distinas entidades como por ejemplo Técnicos (resuelven tareas) y Usuarios (trabajan con recursos)
+- Calendario integrado con navegación consistente
 
 ### Etapa 3: Implementación del Backend PHP
 
@@ -432,9 +642,30 @@ mysqldump -h localhost -P 3306 -u dtic_user -p dtic_bitacoras_php > database/bac
 - Estructura jerárquica (árbol)
 - Categorías padre/hijo
 
-### Gestión de Usuarios (Etapa 3)
-- Administración de usuarios (solo administradores)
-- Roles y permisos
+### Gestión de Técnicos (Etapa 3)
+- Administración de técnicos del sistema (solo administradores)
+- Roles: Administrador, Técnico, Visualizador
+- Asignación y seguimiento de tareas
+- Control de permisos para edición del calendario
+
+### Gestión de Usuarios Operativos (Etapa 3)
+- Administración de usuarios que trabajan con recursos
+- Roles operativos: Operador, Supervisor, Analista, Invitado
+- Asignación de recursos y seguimiento de uso
+
+### Calendario Interactivo (Etapa 5)
+- **Visualización**: Vistas mensuales, semanales y diarias con FullCalendar.js
+- **Gestión de Eventos**: Creación, edición y eliminación de eventos programados
+- **Sub-tareas Dependientes**: Tareas intermedias con horarios específicos (ej. "Hacer pruebas de sonido 1 hora antes")
+- **Asignación de Técnicos**: Vinculación de técnicos a eventos y sub-tareas
+- **Recursos de Eventos**: Asociación con recursos específicos (ej. "Evento del Auditorio")
+- **Alertas y Recordatorios**: Notificaciones automáticas antes de eventos
+- **Control de Conflictos**: Detección y advertencia de superposiciones de horarios
+- **Filtros Avanzados**: Por técnico, recurso, tipo de evento, estado
+- **Exportación**: PDF y CSV de eventos y programaciones
+- **Permisos**: Editable solo por administradores y técnicos autorizados
+- **Integración**: Actualización dinámica con cambios en tareas y recursos
+- **Ejemplo de Uso**: Evento "Preparar los equipos en el Auditorio con música y proyector" (15/10/2023, 14:00-16:00) con sub-tareas como "Hacer pruebas de sonido y video 1 hora antes" y "Verificar conectividad de proyectores 30 minutos antes"
 
 ### Historial de Auditoría (Etapa 4)
 - Registro completo de cambios

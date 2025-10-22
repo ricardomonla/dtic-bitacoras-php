@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTIC Bitácoras - Reportes y Estadísticas</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-clipboard-list me-2"></i>
+                DTIC Bitácoras
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tareas.html">
+                            <i class="fas fa-tasks me-1"></i>Tareas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="recursos.html">
+                            <i class="fas fa-boxes me-1"></i>Recursos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tecnicos.html">
+                            <i class="fas fa-user-cog me-1"></i>Técnicos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="usuarios.html">
+                            <i class="fas fa-users me-1"></i>Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="reportes.html">
+                            <i class="fas fa-chart-bar me-1"></i>Reportes
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-1">
+                            <i class="fas fa-chart-bar text-warning me-2"></i>
+                            Reportes y Estadísticas
+                        </h1>
+                        <p class="text-muted mb-0">Análisis y reportes del sistema DTIC Bitácoras</p>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-warning" id="exportReport">
+                            <i class="fas fa-download me-2"></i>Exportar
+                        </button>
+                        <button class="btn btn-outline-warning" id="printReport">
+                            <i class="fas fa-print me-2"></i>Imprimir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Filters -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Tipo de Reporte</label>
+                                <select class="form-select" id="reportType">
+                                    <option value="tasks">Tareas</option>
+                                    <option value="resources">Recursos</option>
+                                    <option value="users">Usuarios</option>
+                                    <option value="system">Sistema</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Período</label>
+                                <select class="form-select" id="reportPeriod">
+                                    <option value="today">Hoy</option>
+                                    <option value="week">Esta semana</option>
+                                    <option value="month" selected>Este mes</option>
+                                    <option value="quarter">Este trimestre</option>
+                                    <option value="year">Este año</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Fecha Desde</label>
+                                <input type="date" class="form-control" id="dateFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Fecha Hasta</label>
+                                <input type="date" class="form-control" id="dateTo">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button class="btn btn-primary me-2" id="generateReport">
+                                    <i class="fas fa-chart-line me-2"></i>Generar Reporte
+                                </button>
+                                <button class="btn btn-outline-secondary" id="resetFilters">
+                                    <i class="fas fa-times me-1"></i>Limpiar Filtros
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Estado de Tareas
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="tasksChart" width="400" height="300"></canvas>
+                        </div>
+                        <div class="row text-center mt-3">
+                            <div class="col-3">
+                                <div class="text-warning">
+                                    <div class="h5 mb-0" id="chartPending">12</div>
+                                    <small>Pendientes</small>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="text-info">
+                                    <div class="h5 mb-0" id="chartInProgress">8</div>
+                                    <small>En Progreso</small>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="text-success">
+                                    <div class="h5 mb-0" id="chartCompleted">25</div>
+                                    <small>Completadas</small>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="text-danger">
+                                    <div class="h5 mb-0" id="chartCancelled">3</div>
+                                    <small>Canceladas</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Productividad por Día
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="productivityChart" width="400" height="300"></canvas>
+                        </div>
+                        <div class="text-center mt-3">
+                            <small class="text-muted">Tareas completadas en los últimos 7 días</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Reports -->
+        <div class="row">
+            <!-- Tasks Report -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="fas fa-tasks me-2"></i>
+                        Reporte de Tareas
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Métrica</th>
+                                        <th>Valor</th>
+                                        <th>Cambio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Total de Tareas</td>
+                                        <td><strong>48</strong></td>
+                                        <td><span class="badge bg-success">+12%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tareas Completadas</td>
+                                        <td><strong>25</strong></td>
+                                        <td><span class="badge bg-success">+8%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tiempo Promedio</td>
+                                        <td><strong>3.2 días</strong></td>
+                                        <td><span class="badge bg-warning">-5%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tasa de Éxito</td>
+                                        <td><strong>85%</strong></td>
+                                        <td><span class="badge bg-success">+3%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resources Report -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="fas fa-boxes me-2"></i>
+                        Reporte de Recursos
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th>Total</th>
+                                        <th>Asignados</th>
+                                        <th>Disponibles</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Hardware</td>
+                                        <td><strong>15</strong></td>
+                                        <td><strong>8</strong></td>
+                                        <td><strong>7</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Software</td>
+                                        <td><strong>12</strong></td>
+                                        <td><strong>5</strong></td>
+                                        <td><strong>7</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Redes</td>
+                                        <td><strong>8</strong></td>
+                                        <td><strong>4</strong></td>
+                                        <td><strong>4</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Herramientas</td>
+                                        <td><strong>13</strong></td>
+                                        <td><strong>3</strong></td>
+                                        <td><strong>10</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Report -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-history me-2"></i>
+                        Actividad Reciente del Sistema
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6 class="text-success mb-1">Nueva tarea completada</h6>
+                                    <p class="mb-1">"Implementar API de autenticación" finalizada por María Rodríguez</p>
+                                    <small class="text-muted">Hace 2 horas</small>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-info"></div>
+                                <div class="timeline-content">
+                                    <h6 class="text-info mb-1">Recurso asignado</h6>
+                                    <p class="mb-1">Laptop Dell Latitude 5420 asignada a Juan García</p>
+                                    <small class="text-muted">Hace 4 horas</small>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-warning"></div>
+                                <div class="timeline-content">
+                                    <h6 class="text-warning mb-1">Nuevo usuario registrado</h6>
+                                    <p class="mb-1">Ana Martínez se unió al sistema como Visualizador</p>
+                                    <small class="text-muted">Hace 1 día</small>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-danger"></div>
+                                <div class="timeline-content">
+                                    <h6 class="text-danger mb-1">Tarea cancelada</h6>
+                                    <p class="mb-1">"Migrar base de datos legacy" fue cancelada por falta de requerimientos</p>
+                                    <small class="text-muted">Hace 2 días</small>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-primary"></div>
+                                <div class="timeline-content">
+                                    <h6 class="text-primary mb-1">Mantenimiento completado</h6>
+                                    <p class="mb-1">Router Cisco RV340 reparado y devuelto a servicio</p>
+                                    <small class="text-muted">Hace 3 días</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Options -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-file-export me-2"></i>
+                        Opciones de Exportación
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <button class="btn btn-success w-100" id="exportPDF">
+                                    <i class="fas fa-file-pdf fa-2x mb-2"></i><br>
+                                    Exportar PDF
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <button class="btn btn-info w-100" id="exportExcel">
+                                    <i class="fas fa-file-excel fa-2x mb-2"></i><br>
+                                    Exportar Excel
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <button class="btn btn-warning w-100" id="exportCSV">
+                                    <i class="fas fa-file-csv fa-2x mb-2"></i><br>
+                                    Exportar CSV
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <button class="btn btn-secondary w-100" id="exportJSON">
+                                    <i class="fas fa-file-code fa-2x mb-2"></i><br>
+                                    Exportar JSON
+                                </button>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Nota:</strong> Las funciones de exportación estarán disponibles cuando se implemente el backend en la Etapa 3.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="mb-0">
+                        <i class="fas fa-copyright me-1"></i>
+                        2025 DTIC - Departamento de Tecnología de la Información y Comunicación |
+                        <i class="fas fa-chart-bar me-1"></i> Reportes y Estadísticas
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Reports page specific JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📊 Página de Reportes cargada');
+
+            // Initialize charts
+            initializeCharts();
+
+            // Set default dates
+            setDefaultDates();
+
+            // Event listeners
+            setupEventListeners();
+        });
+
+        function initializeCharts() {
+            // Tasks Status Chart
+            const tasksCtx = document.getElementById('tasksChart').getContext('2d');
+            new Chart(tasksCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pendientes', 'En Progreso', 'Completadas', 'Canceladas'],
+                    datasets: [{
+                        data: [12, 8, 25, 3],
+                        backgroundColor: [
+                            '#ffc107', // warning
+                            '#17a2b8', // info
+                            '#28a745', // success
+                            '#dc3545'  // danger
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Productivity Chart
+            const productivityCtx = document.getElementById('productivityChart').getContext('2d');
+            new Chart(productivityCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Tareas Completadas',
+                        data: [3, 5, 2, 7, 4, 1, 3],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function setDefaultDates() {
+            const today = new Date();
+            const monthAgo = new Date();
+            monthAgo.setMonth(today.getMonth() - 1);
+
+            document.getElementById('dateTo').valueAsDate = today;
+            document.getElementById('dateFrom').valueAsDate = monthAgo;
+        }
+
+        function setupEventListeners() {
+            // Generate report button
+            document.getElementById('generateReport').addEventListener('click', function() {
+                showNotification('🔄 Generando reporte...', 'info');
+                setTimeout(() => {
+                    showNotification('✅ Reporte generado exitosamente', 'success');
+                }, 2000);
+            });
+
+            // Reset filters
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                document.getElementById('reportType').value = 'tasks';
+                document.getElementById('reportPeriod').value = 'month';
+                setDefaultDates();
+                showNotification('🔄 Filtros restablecidos', 'info');
+            });
+
+            // Export buttons
+            const exportButtons = ['exportPDF', 'exportExcel', 'exportCSV', 'exportJSON', 'exportReport', 'printReport'];
+            exportButtons.forEach(btnId => {
+                document.getElementById(btnId).addEventListener('click', function() {
+                    showNotification('📄 Función de exportación disponible en Etapa 3', 'warning');
+                });
+            });
+        }
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            `;
+
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

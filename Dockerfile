@@ -19,7 +19,7 @@ WORKDIR /var/www/html
 COPY . /var/www/html/
 
 # Configurar Apache para servir desde public/
-RUN echo '<VirtualHost *:80>\n    DocumentRoot /var/www/html/public\n    <Directory /var/www/html/public>\n        AllowOverride All\n        Require all granted\n    </Directory>\n</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+RUN echo '<VirtualHost *:80>\n    DocumentRoot /var/www/html/public\n    <Directory /var/www/html/public>\n        AllowOverride All\n        Require all granted\n        DirectoryIndex index.html index.php\n    </Directory>\n</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www/html/

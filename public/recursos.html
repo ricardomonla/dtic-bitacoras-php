@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTIC Bitácoras - Gestión de Recursos</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-clipboard-list me-2"></i>
+                DTIC Bitácoras
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tareas.html">
+                            <i class="fas fa-tasks me-1"></i>Tareas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="recursos.html">
+                            <i class="fas fa-boxes me-1"></i>Recursos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="calendario.html">
+                            <i class="fas fa-calendar-alt me-1"></i>Calendario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tecnicos.html">
+                            <i class="fas fa-user-cog me-1"></i>Técnicos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="usuarios.html">
+                            <i class="fas fa-users me-1"></i>Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reportes.html">
+                            <i class="fas fa-chart-bar me-1"></i>Reportes
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-1">
+                            <i class="fas fa-boxes text-success me-2"></i>
+                            Gestión de Recursos
+                        </h1>
+                        <p class="text-muted mb-0">Administra el inventario de recursos del sistema DTIC Bitácoras</p>
+                    </div>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addResourceModal">
+                        <i class="fas fa-plus me-2"></i>Nuevo Recurso
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resource Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 text-primary mb-2" id="totalResources">48</div>
+                        <h6 class="card-title">Total Recursos</h6>
+                        <small class="text-muted">En inventario</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 text-success mb-2" id="availableResources">35</div>
+                        <h6 class="card-title">Disponibles</h6>
+                        <small class="text-muted">Listos para asignar</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 text-warning mb-2" id="assignedResources">10</div>
+                        <h6 class="card-title">Asignados</h6>
+                        <small class="text-muted">En uso actualmente</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 text-danger mb-2" id="maintenanceResources">3</div>
+                        <h6 class="card-title">En Mantenimiento</h6>
+                        <small class="text-muted">Fuera de servicio</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories and Filters -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="searchResources" placeholder="Buscar recursos...">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="filterCategory">
+                                    <option value="">Todas las categorías</option>
+                                    <option value="hardware">Hardware</option>
+                                    <option value="software">Software</option>
+                                    <option value="network">Redes</option>
+                                    <option value="security">Seguridad</option>
+                                    <option value="tools">Herramientas</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="filterStatus">
+                                    <option value="">Todos los estados</option>
+                                    <option value="available">Disponible</option>
+                                    <option value="assigned">Asignado</option>
+                                    <option value="maintenance">Mantenimiento</option>
+                                    <option value="retired">Retirado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-secondary w-100" id="clearFilters">
+                                    <i class="fas fa-times me-1"></i>Limpiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources Grid -->
+        <div class="row" id="resourcesGrid">
+            <!-- Resource Card 1 -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-laptop me-2"></i>Laptop Dell Latitude 5420
+                            </h6>
+                            <span class="badge bg-success">Disponible</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <i class="fas fa-laptop fa-3x text-primary mb-2"></i>
+                            </div>
+                            <div class="col-8">
+                                <p class="mb-2"><strong>ID:</strong> RES-001</p>
+                                <p class="mb-2"><strong>Categoría:</strong> Hardware</p>
+                                <p class="mb-2"><strong>Modelo:</strong> Dell Latitude 5420</p>
+                                <p class="mb-2"><strong>Serie:</strong> DL5420-2025-001</p>
+                                <p class="mb-0"><strong>Ubicación:</strong> Oficina Principal</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Última tarea realizada:</small>
+                            <small class="fw-bold">Configurar servidor de desarrollo (TSK-001)</small><br>
+                            <small>Completada el 18/10/2025 por Juan García</small>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-outline-primary btn-sm" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" title="Asignar">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resource Card 2 -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-warning text-dark">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-projector me-2"></i>Proyector Epson EB-S41
+                            </h6>
+                            <span class="badge bg-info">Asignado</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <i class="fas fa-projector fa-3x text-warning mb-2"></i>
+                            </div>
+                            <div class="col-8">
+                                <p class="mb-2"><strong>ID:</strong> RES-002</p>
+                                <p class="mb-2"><strong>Categoría:</strong> Hardware</p>
+                                <p class="mb-2"><strong>Modelo:</strong> Epson EB-S41</p>
+                                <p class="mb-2"><strong>Serie:</strong> EP-S41-2025-002</p>
+                                <p class="mb-0"><strong>Asignado a:</strong> Juan García</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Última tarea realizada:</small>
+                            <small class="fw-bold">Presentación proyecto DTIC (TSK-007)</small><br>
+                            <small>En progreso desde 15/10/2025 por Juan García</small>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-outline-primary btn-sm" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" title="Liberar">
+                                <i class="fas fa-user-minus"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resource Card 3 -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-shield-alt me-2"></i>Antivirus Bitdefender Total Security
+                            </h6>
+                            <span class="badge bg-success">Disponible</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <i class="fas fa-shield-alt fa-3x text-success mb-2"></i>
+                            </div>
+                            <div class="col-8">
+                                <p class="mb-2"><strong>ID:</strong> RES-003</p>
+                                <p class="mb-2"><strong>Categoría:</strong> Software</p>
+                                <p class="mb-2"><strong>Tipo:</strong> Licencia Corporativa</p>
+                                <p class="mb-2"><strong>Licencias:</strong> 25 usuarios</p>
+                                <p class="mb-0"><strong>Vence:</strong> 15/12/2025</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Última tarea realizada:</small>
+                            <small class="fw-bold">Implementar API de autenticación (TSK-002)</small><br>
+                            <small>Completada el 20/10/2025 por María Rodríguez</small>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-outline-primary btn-sm" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" title="Asignar">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resource Card 4 -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-info text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-router me-2"></i>Router Cisco RV340
+                            </h6>
+                            <span class="badge bg-secondary">Mantenimiento</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <i class="fas fa-router fa-3x text-info mb-2"></i>
+                            </div>
+                            <div class="col-8">
+                                <p class="mb-2"><strong>ID:</strong> RES-004</p>
+                                <p class="mb-2"><strong>Categoría:</strong> Redes</p>
+                                <p class="mb-2"><strong>Modelo:</strong> Cisco RV340</p>
+                                <p class="mb-2"><strong>IP:</strong> 192.168.1.1</p>
+                                <p class="mb-0"><strong>Estado:</strong> En reparación</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Última tarea realizada:</small>
+                            <small class="fw-bold">Configurar red corporativa (TSK-008)</small><br>
+                            <small>Cancelada el 12/10/2025 por Carlos López</small>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-outline-primary btn-sm" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" title="Marcar OK">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resource Card 5 -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-danger text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-tools me-2"></i>Kit de Herramientas de Red
+                            </h6>
+                            <span class="badge bg-success">Disponible</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <i class="fas fa-tools fa-3x text-danger mb-2"></i>
+                            </div>
+                            <div class="col-8">
+                                <p class="mb-2"><strong>ID:</strong> RES-005</p>
+                                <p class="mb-2"><strong>Categoría:</strong> Herramientas</p>
+                                <p class="mb-2"><strong>Contenido:</strong> Tester, cables, conectores</p>
+                                <p class="mb-2"><strong>Cantidad:</strong> 15 items</p>
+                                <p class="mb-0"><strong>Ubicación:</strong> Depósito Técnico</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Última tarea realizada:</small>
+                            <small class="fw-bold">Cableado oficina nueva (TSK-009)</small><br>
+                            <small>Completada el 16/10/2025 por Carlos López</small>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-outline-primary btn-sm" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" title="Asignar">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resource Card 6 -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-secondary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-key me-2"></i>Licencia Windows Server 2022
+                            </h6>
+                            <span class="badge bg-info">Asignado</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <i class="fas fa-key fa-3x text-secondary mb-2"></i>
+                            </div>
+                            <div class="col-8">
+                                <p class="mb-2"><strong>ID:</strong> RES-006</p>
+                                <p class="mb-2"><strong>Categoría:</strong> Software</p>
+                                <p class="mb-2"><strong>Producto:</strong> Windows Server 2022 Standard</p>
+                                <p class="mb-2"><strong>Licencia:</strong> WS2022-STD-001</p>
+                                <p class="mb-0"><strong>Asignado a:</strong> Servidor Principal</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Última tarea realizada:</small>
+                            <small class="fw-bold">Actualizar servidor principal (TSK-010)</small><br>
+                            <small>Completada el 19/10/2025 por Ana Martínez</small>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-outline-primary btn-sm" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" title="Liberar">
+                                <i class="fas fa-user-minus"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Resource Modal -->
+    <div class="modal fade" id="addResourceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>Nuevo Recurso
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addResourceForm">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="resourceName" class="form-label">Nombre del Recurso *</label>
+                                    <input type="text" class="form-control" id="resourceName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="resourceCategory" class="form-label">Categoría *</label>
+                                    <select class="form-select" id="resourceCategory" required>
+                                        <option value="">Seleccionar...</option>
+                                        <option value="hardware">Hardware</option>
+                                        <option value="software">Software</option>
+                                        <option value="network">Redes</option>
+                                        <option value="security">Seguridad</option>
+                                        <option value="tools">Herramientas</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="resourceModel" class="form-label">Modelo/Marca</label>
+                                    <input type="text" class="form-control" id="resourceModel">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="resourceSerial" class="form-label">Número de Serie</label>
+                                    <input type="text" class="form-control" id="resourceSerial">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="resourceValue" class="form-label">Valor ($)</label>
+                                    <input type="number" class="form-control" id="resourceValue" step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="resourceAcquisitionDate" class="form-label">Fecha de Adquisición</label>
+                                    <input type="date" class="form-control" id="resourceAcquisitionDate">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="resourceLocation" class="form-label">Ubicación</label>
+                            <input type="text" class="form-control" id="resourceLocation" placeholder="Ej: Oficina Principal, Depósito Técnico">
+                        </div>
+                        <div class="mb-3">
+                            <label for="resourceDescription" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="resourceDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="saveResourceBtn">
+                        <i class="fas fa-save me-2"></i>Guardar Recurso
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="mb-0">
+                        <i class="fas fa-copyright me-1"></i>
+                        2025 DTIC - Departamento de Tecnología de la Información y Comunicación |
+                        <i class="fas fa-boxes me-1"></i> Gestión de Recursos
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Resources page specific JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📦 Página de Gestión de Recursos cargada');
+
+            // Search functionality
+            const searchInput = document.getElementById('searchResources');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const resourceCards = document.querySelectorAll('#resourcesGrid .card');
+
+                resourceCards.forEach(card => {
+                    const title = card.querySelector('.card-header h6').textContent.toLowerCase();
+                    const description = card.querySelector('.card-body').textContent.toLowerCase();
+
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
+            // Filter functionality
+            const categoryFilter = document.getElementById('filterCategory');
+            const statusFilter = document.getElementById('filterStatus');
+            const clearFiltersBtn = document.getElementById('clearFilters');
+
+            function applyFilters() {
+                const categoryValue = categoryFilter.value;
+                const statusValue = statusFilter.value;
+                const resourceCards = document.querySelectorAll('#resourcesGrid .card');
+
+                resourceCards.forEach(card => {
+                    let showCard = true;
+
+                    // Category filter
+                    if (categoryValue) {
+                        const cardCategory = card.querySelector('.card-body').textContent.toLowerCase();
+                        const categoryMap = {
+                            'hardware': 'hardware',
+                            'software': 'software',
+                            'network': 'redes',
+                            'security': 'seguridad',
+                            'tools': 'herramientas'
+                        };
+                        if (!cardCategory.includes(categoryMap[categoryValue])) {
+                            showCard = false;
+                        }
+                    }
+
+                    // Status filter
+                    if (statusValue && showCard) {
+                        const cardStatus = card.querySelector('.badge').textContent.toLowerCase();
+                        const statusMap = {
+                            'available': 'disponible',
+                            'assigned': 'asignado',
+                            'maintenance': 'mantenimiento',
+                            'retired': 'retirado'
+                        };
+                        if (!cardStatus.includes(statusMap[statusValue])) {
+                            showCard = false;
+                        }
+                    }
+
+                    card.style.display = showCard ? 'block' : 'none';
+                });
+            }
+
+            categoryFilter.addEventListener('change', applyFilters);
+            statusFilter.addEventListener('change', applyFilters);
+
+            clearFiltersBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                categoryFilter.value = '';
+                statusFilter.value = '';
+                const resourceCards = document.querySelectorAll('#resourcesGrid .card');
+                resourceCards.forEach(card => card.style.display = 'block');
+            });
+
+            // Save resource functionality (mock)
+            document.getElementById('saveResourceBtn').addEventListener('click', function() {
+                const name = document.getElementById('resourceName').value;
+                const category = document.getElementById('resourceCategory').value;
+
+                if (name && category) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addResourceModal'));
+                    modal.hide();
+
+                    // Show success message
+                    showNotification('✅ Recurso "' + name + '" agregado exitosamente', 'success');
+
+                    // Reset form
+                    document.getElementById('addResourceForm').reset();
+                } else {
+                    showNotification('❌ Por favor complete todos los campos requeridos', 'danger');
+                }
+            });
+        });
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            `;
+
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
