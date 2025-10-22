@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./logs:/var/www/html/logs
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=dtic_bitacoras_php
+      - DB_USER=dtic_user
+      - DB_PASSWORD=dtic_password
+    networks:
+      - dtic-network
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+       MYSQL_ROOT_PASSWORD: rootpassword
+       MYSQL_DATABASE: dtic_bitacoras_php
+       MYSQL_USER: dtic_user
+       MYSQL_PASSWORD: dtic_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - dtic-network
+
+volumes:
+  mysql_data:
+
+networks:
+  dtic-network:
+    driver: bridge

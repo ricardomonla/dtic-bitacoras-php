@@ -203,6 +203,19 @@ dtic-bitacoras-php/
 - Contenedor PHP con Apache corriendo en puerto 8080
 - Base de datos MySQL corriendo en puerto 3306
 - Entorno listo para desarrollo con permisos configurados
+- Página de prueba en `public/index.php` para verificar funcionamiento
+
+#### Verificación de la Etapa 1
+Después de completar la configuración, puedes verificar que todo funciona correctamente accediendo a:
+- **URL de prueba**: http://localhost:8080
+- **Estado de contenedores**: `docker compose ps`
+- **Logs de contenedores**: `docker compose logs`
+
+La página de prueba mostrará:
+- ✅ PHP 8.1 funcionando correctamente
+- ✅ Extensiones PDO, PDO_MySQL y MySQLi cargadas
+- ✅ Conexión exitosa a la base de datos MySQL
+- 📅 Información del servidor y fecha/hora
 
 ### Etapa 2: Maquetación de la Interfaz
 
