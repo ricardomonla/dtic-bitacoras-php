@@ -4,7 +4,19 @@
 
 Este proyecto representa el desarrollo desde cero del sistema DTIC Bitácoras utilizando una arquitectura moderna basada en HTML, JavaScript, PHP y MySQL. El sistema está diseñado exclusivamente para el uso de técnicos autorizados del DTIC, implementando todas las funcionalidades requeridas con un enfoque en la escalabilidad, seguridad y facilidad de mantenimiento. Los usuarios externos no tienen acceso directo al sistema; solo los técnicos pueden gestionar tareas, recursos y eventos a través de una interfaz web segura.
 
+**Autor:** Lic. Ricardo MONLA
+
 ## Metodología de Desarrollo
+
+El proyecto se desarrollará siguiendo un estilo de programación autogenerativo, donde el código PHP genera dinámicamente el contenido HTML basado en estructuras de datos organizadas. Este enfoque permite fácil mantenimiento y actualización del contenido sin modificar directamente el HTML.
+
+**Características del estilo de programación:**
+- **Estructura modular**: Código dividido en archivos con responsabilidades claras
+- **Generación dinámica de HTML**: Uso de funciones que retornan strings HTML con here-doc syntax
+- **Arrays multidimensionales**: Organización de datos en estructuras jerárquicas
+- **Constantes de configuración**: Definición de constantes para URLs, configuración y datos de aplicación
+- **Comentarios distintivos**: Uso de «®» como delimitadores para secciones importantes
+- **Nombres de variables concisos**: Preferencia por nombres cortos y descriptivos
 
 El proyecto se desarrollará en etapas claramente definidas para asegurar una implementación ordenada y funcional:
 
@@ -35,7 +47,7 @@ Creación del dashboard y pantalla inicial con diseño visual responsivo y eleme
 - ✅ JavaScript del dashboard con funcionalidades avanzadas
 
 ### Etapa 3: Implementación del Backend PHP
-Desarrollo de la lógica backend en PHP para conectar con MySQL y manejar las operaciones del sistema.
+Desarrollo de la lógica backend en PHP siguiendo el estilo autogenerativo, donde las APIs generan dinámicamente respuestas JSON/HTML basadas en estructuras de datos organizadas y consultas a MySQL.
 
 #### Sub-items Pendientes:
 - 🔄 Configuración de conexión a base de datos MySQL
@@ -49,7 +61,7 @@ Desarrollo de la lógica backend en PHP para conectar con MySQL y manejar las op
 - 🔄 Manejo de sesiones PHP
 
 ### Etapa 4: Desarrollo de Funcionalidades JavaScript
-Implementación de la interactividad del frontend con JavaScript para una experiencia de usuario fluida.
+Implementación de la interactividad del frontend con JavaScript vanilla, manteniendo la separación clara entre la lógica autogenerativa del backend PHP y la manipulación dinámica del DOM en el cliente.
 
 #### Sub-items Pendientes:
 - 🔄 AJAX para comunicación con APIs del backend
@@ -212,14 +224,12 @@ dtic-bitacoras-php/
 ├── docker-compose.yml     # Orquestación de servicios Docker
 ├── .env                   # Variables de entorno (producción)
 ├── public/                # Archivos públicos accesibles por web
-│   ├── index.html        # Página principal del dashboard
-│   ├── tecnicos.html     # Gestión de técnicos del sistema
-│   ├── usuarios.html     # Gestión de usuarios operativos
-│   ├── tareas.html       # Gestión de tareas del DTIC
-│   ├── recursos.html     # Gestión de recursos del sistema
-│   ├── calendario.html   # Calendario interactivo de eventos
-│   ├── reportes.html     # Reportes y estadísticas
-│   ├── estadoproyecto.html # Estado del proyecto
+│   ├── index.php         # Punto de entrada autogenerativo único
+│   ├── includes/         # Archivos PHP autogenerativos
+│   │   ├── appApDATs.php # Constantes y configuración del sistema
+│   │   ├── appBbPaginas.php # Base de datos de páginas y navegación
+│   │   ├── appFxGetHTMLs.php # Funciones generadoras de HTML comunes
+│   │   └── appFxPaginas.php # Funciones generadoras de contenido por página
 │   ├── css/
 │   │   └── styles.css    # Estilos CSS personalizados
 │   └── js/               # JavaScript del frontend (por etapa)
@@ -230,26 +240,32 @@ dtic-bitacoras-php/
 │   ├── api.js           # Comunicación con APIs
 │   ├── dashboard.js     # Lógica del dashboard
 │   └── app.js           # Lógica principal de la aplicación
-├── api/                  # Endpoints PHP del backend
-│   ├── auth.php         # API de autenticación
-│   ├── tasks.php        # API de gestión de tareas
-│   ├── resources.php    # API de gestión de recursos
-│   ├── technicians.php  # API de gestión de técnicos
-│   ├── users.php        # API de gestión de usuarios operativos
-│   ├── calendar.php     # API de gestión del calendario
-│   ├── categories.php   # API de gestión de categorías
-│   ├── history.php      # API de historial de auditoría
-│   └── export.php       # API de exportación CSV/PDF
+├── api/                  # Endpoints PHP autogenerativos del backend
+│   ├── auth.php         # API de autenticación autogenerativa
+│   ├── tasks.php        # API de gestión de tareas autogenerativa
+│   ├── resources.php    # API de gestión de recursos autogenerativa
+│   ├── technicians.php  # API de gestión de técnicos autogenerativa
+│   ├── users.php        # API de gestión de usuarios operativos autogenerativa
+│   ├── calendar.php     # API de gestión del calendario autogenerativa
+│   ├── categories.php   # API de gestión de categorías autogenerativa
+│   ├── history.php      # API de historial de auditoría autogenerativa
+│   └── export.php       # API de exportación CSV/PDF autogenerativa
 ├── config/               # Configuración del sistema
 │   ├── database.php     # Conexión a base de datos MySQL
 │   └── config.php       # Configuración general
-├── includes/             # Funciones y clases compartidas
-│   ├── functions.php    # Funciones utilitarias
-│   └── security.php     # Funciones de seguridad
+├── includes/             # Funciones y clases compartidas autogenerativas
+│   ├── functions.php    # Funciones utilitarias autogenerativas
+│   └── security.php     # Funciones de seguridad autogenerativas
 ├── database/             # Base de datos y esquemas
 │   └── schema.sql       # Esquema de base de datos MySQL
-└── logs/                 # Archivos de log del sistema
-    └── audit.log
+├── logs/                 # Archivos de log del sistema
+│   └── audit.log
+└── _hist/                # Historial de estilos de programación
+    └── EstiloProg/      # Ejemplos de estilo autogenerativo
+        ├── index.php
+        ├── appApDATs.php
+        ├── appBbAulas.php
+        └── appFxGetHTMLs.php
 ```
 
 ## Tecnologías Utilizadas
@@ -395,11 +411,12 @@ dtic-bitacoras-php/
 - Contenedor PHP con Apache corriendo en puerto 8080
 - Base de datos MySQL corriendo en puerto 3306
 - Entorno listo para desarrollo con permisos configurados
-- Página de prueba en `public/estadoproyecto.html` para verificar funcionamiento
+- Punto de entrada único en `public/index.php` con sistema autogenerativo
 
 #### Verificación de la Etapa 1
 Después de completar la configuración, puedes verificar que todo funciona correctamente accediendo a:
-- **URL de prueba**: http://localhost:8080/estadoproyecto.html
+- **URL principal**: http://localhost:8080/index.php
+- **Estado del proyecto**: http://localhost:8080/index.php?page=estadoproyecto
 - **Estado de contenedores**: `docker compose ps`
 - **Logs de contenedores**: `docker compose logs`
 
@@ -418,17 +435,14 @@ La página de prueba mostrará:
 
 #### Archivos Creados
 
-1. **public/index.html** - Página principal del dashboard ✅
-2. **public/tecnicos.html** - Gestión de técnicos del sistema ✅
-3. **public/usuarios.html** - Gestión de usuarios operativos ✅
-4. **public/tareas.html** - Gestión de tareas del DTIC ✅
-5. **public/recursos.html** - Gestión de recursos del sistema ✅
-6. **public/calendario.html** - Calendario interactivo de eventos ✅
-7. **public/reportes.html** - Reportes y estadísticas ✅
-8. **public/estadoproyecto.html** - Estado del proyecto ✅
-9. **public/css/styles.css** - Estilos CSS con Bootstrap y auto-hide navbar ✅
-10. **public/js/dashboard.js** - Lógica avanzada del dashboard con auto-hide y datos de ejemplo ✅
-11. **public/js/calendar.js** - Funcionalidad del calendario interactivo ✅
+1. **public/index.php** - Punto de entrada autogenerativo único ✅
+2. **public/includes/appApDATs.php** - Constantes y configuración del sistema ✅
+3. **public/includes/appBbPaginas.php** - Base de datos de páginas y navegación ✅
+4. **public/includes/appFxGetHTMLs.php** - Funciones generadoras de HTML comunes ✅
+5. **public/includes/appFxPaginas.php** - Funciones generadoras de contenido por página ✅
+6. **public/css/styles.css** - Estilos CSS con Bootstrap y auto-hide navbar ✅
+7. **public/js/dashboard.js** - Lógica avanzada del dashboard con auto-hide y datos de ejemplo ✅
+8. **public/js/calendar.js** - Funcionalidad del calendario interactivo ✅
 
 #### Estructura del Dashboard
 
@@ -509,13 +523,13 @@ La página de prueba mostrará:
 
 #### Resultado Esperado de la Etapa 2 ✅ COMPLETADA
 - Dashboard funcional con navegación responsiva y auto-hide inteligente
-- Páginas completas para todas las secciones del menú:
-  - Gestión de Técnicos (tecnicos.html)
-  - Gestión de Usuarios (usuarios.html)
-  - Gestión de Tareas (tareas.html)
-  - Gestión de Recursos (recursos.html)
-  - Calendario Interactivo (calendario.html)
-  - Reportes y Estadísticas (reportes.html)
+- Sistema autogenerativo completo con todas las secciones del menú:
+  - Gestión de Técnicos (index.php?page=tecnicos)
+  - Gestión de Usuarios (index.php?page=usuarios)
+  - Gestión de Tareas (index.php?page=tareas)
+  - Gestión de Recursos (index.php?page=recursos)
+  - Calendario Interactivo (index.php?page=calendario)
+  - Reportes y Estadísticas (index.php?page=reportes)
 - Cards con estadísticas básicas y datos de ejemplo realistas
 - Secciones "Próximos Eventos" y "Actividad Reciente" con datos de ejemplo
 - Diseño moderno con Bootstrap 5 y animaciones CSS
