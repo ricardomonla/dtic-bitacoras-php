@@ -1,118 +1,441 @@
 <?php
-function getDashboardContent(){
+function generateContentFromArray($pageId, $section = null) {
+	global $bdPags;
+
+	if (!isset($bdPags[$pageId])) {
+		return "<div class='alert alert-danger'>Página no encontrada: $pageId</div>";
+	}
+
+	$pageData = $bdPags[$pageId];
+
+	// If section is specified, return only that section
+	if ($section && isset($pageData[$section])) {
+		return generateSectionHTML($pageData[$section], $section);
+	}
+
+	// Generate full page content
+	$content = '';
+
+	// Add page header if exists
+	if (isset($pageData['Main Content']['Page Header'])) {
+		$content .= generatePageHeader($pageData['Main Content']['Page Header']);
+	}
+
+	// Add statistics if exists
+	if (isset($pageData['Main Content']['Resource Statistics']) ||
+		isset($pageData['Main Content']['Task Statistics']) ||
+		isset($pageData['Main Content']['User Statistics'])) {
+		$content .= generateStatisticsSection($pageData['Main Content']);
+	}
+
+	// Add filters and search if exists
+	if (isset($pageData['Main Content']['Filters and Search'])) {
+		$content .= generateFiltersSection($pageData['Main Content']['Filters and Search']);
+	}
+
+	// Add lists/grids if exists
+	if (isset($pageData['Main Content']['Tasks List']) ||
+		isset($pageData['Main Content']['Resources Grid']) ||
+		isset($pageData['Main Content']['Users List'])) {
+		$content .= generateListSection($pageData['Main Content']);
+	}
+
+	return $content;
+}
+
+function generatePageHeader($headerData) {
+	$title = $headerData['Title'] ?? 'Sin título';
+	$icon = $headerData['Icon'] ?? 'fas fa-file';
+	$description = $headerData['Description'] ?? '';
+	$buttonText = $headerData['New Task Button'] ?? $headerData['New Resource Button'] ?? $headerData['New Technician Button'] ?? $headerData['New User Button'] ?? '';
+
+	$buttonHTML = '';
+	if ($buttonText) {
+		$buttonHTML = "<button class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#addModal'>
+			<i class='fas fa-plus me-2'></i>$buttonText
+		</button>";
+	}
+
 	return <<<HTML
+	<div class="row mb-4">
+		<div class="col-12">
+			<div class="d-flex justify-content-between align-items-center">
+				<div>
+					<h1 class="h2 mb-1">
+						<i class="$icon"></i>
+						$title
+					</h1>
+					<p class="text-muted mb-0">$description</p>
+				</div>
+				$buttonHTML
+			</div>
+		</div>
+	</div>
+HTML;
+}
+
+function generateStatisticsSection($mainContent) {
+	$content = '';
+
+	// Task Statistics
+	if (isset($mainContent['Task Statistics'])) {
+		$stats = $mainContent['Task Statistics'];
+		$content .= '<div class="row mb-4">';
+		foreach ($stats as $key => $stat) {
+			$count = $stat['Count'] ?? '0';
+			$label = $stat['Label'] ?? $key;
+			$desc = $stat['Description'] ?? '';
+			$colorClass = match($key) {
+				'Pending' => 'warning',
+				'In Progress' => 'info',
+				'Completed' => 'success',
+				'Cancelled' => 'danger',
+				default => 'primary'
+			};
+
+			$content .= <<<HTML
+			<div class="col-md-3 mb-3">
+				<div class="card text-center h-100">
+					<div class="card-body">
+						<div class="display-4 text-$colorClass mb-2">$count</div>
+						<h6 class="card-title">$label</h6>
+						<small class="text-muted">$desc</small>
+					</div>
+				</div>
+			</div>
+HTML;
+		}
+		$content .= '</div>';
+	}
+
+	// Resource Statistics
+	if (isset($mainContent['Resource Statistics'])) {
+		$stats = $mainContent['Resource Statistics'];
+		$content .= '<div class="row mb-4">';
+		foreach ($stats as $key => $stat) {
+			$count = $stat['Count'] ?? '0';
+			$label = $stat['Label'] ?? $key;
+			$desc = $stat['Description'] ?? '';
+			$colorClass = match($key) {
+				'Total Resources' => 'primary',
+				'Available' => 'success',
+				'Assigned' => 'warning',
+				'Maintenance' => 'danger',
+				default => 'primary'
+			};
+
+			$content .= <<<HTML
+			<div class="col-md-3 mb-3">
+				<div class="card text-center h-100">
+					<div class="card-body">
+						<div class="display-4 text-$colorClass mb-2">$count</div>
+						<h6 class="card-title">$label</h6>
+						<small class="text-muted">$desc</small>
+					</div>
+				</div>
+			</div>
+HTML;
+		}
+		$content .= '</div>';
+	}
+
+	// User Statistics
+	if (isset($mainContent['User Statistics'])) {
+		$stats = $mainContent['User Statistics'];
+		$content .= '<div class="row mb-4">';
+		foreach ($stats as $key => $stat) {
+			$count = $stat['Count'] ?? '0';
+			$label = $stat['Label'] ?? $key;
+			$desc = $stat['Description'] ?? '';
+			$colorClass = match($key) {
+				'Total Technicians', 'Total Users' => 'primary',
+				'Active' => 'success',
+				'Inactive' => 'warning',
+				'Administrators', 'Assigned' => 'info',
+				default => 'primary'
+			};
+
+			$content .= <<<HTML
+			<div class="col-md-3 mb-3">
+				<div class="card text-center h-100">
+					<div class="card-body">
+						<div class="display-4 text-$colorClass mb-2">$count</div>
+						<h6 class="card-title">$label</h6>
+						<small class="text-muted">$desc</small>
+					</div>
+				</div>
+			</div>
+HTML;
+		}
+		$content .= '</div>';
+	}
+
+	return $content;
+}
+
+function generateFiltersSection($filtersData) {
+	$content = '<div class="row mb-4"><div class="col-12"><div class="card"><div class="card-body"><div class="row g-3">';
+
+	// Search input
+	if (isset($filtersData['Search Input'])) {
+		$placeholder = $filtersData['Search Input'];
+		$content .= <<<HTML
+		<div class="col-md-4">
+			<input type="text" class="form-control" id="searchInput" placeholder="$placeholder">
+		</div>
+HTML;
+	}
+
+	// Filter selects
+	$filterCount = 0;
+	foreach (['Role Filter', 'Status Filter', 'Priority Filter', 'Assigned Filter', 'Category Filter', 'Department Filter'] as $filterType) {
+		if (isset($filtersData[$filterType])) {
+			$filterCount++;
+			$options = $filtersData[$filterType]['Options'] ?? [];
+			$selectHTML = '<option value="">' . ($filterType === 'Role Filter' ? 'Todos los roles' :
+							($filterType === 'Status Filter' ? 'Todos los estados' :
+							($filterType === 'Priority Filter' ? 'Todas las prioridades' :
+							($filterType === 'Assigned Filter' ? 'Todos los usuarios' :
+							($filterType === 'Category Filter' ? 'Todas las categorías' :
+							'Todos los deptos'))))) . '</option>';
+
+			foreach ($options as $option) {
+				$selectHTML .= "<option value='" . strtolower(str_replace(' ', '', $option)) . "'>$option</option>";
+			}
+
+			$content .= <<<HTML
+			<div class="col-md-2">
+				<select class="form-select" id="filter$filterCount">
+					$selectHTML
+				</select>
+			</div>
+HTML;
+		}
+	}
+
+	// Clear filters button
+	if (isset($filtersData['Clear Filters'])) {
+		$content .= <<<HTML
+		<div class="col-md-2">
+			<button class="btn btn-outline-secondary w-100" id="clearFilters">
+				<i class="fas fa-times me-1"></i>{$filtersData['Clear Filters']}
+			</button>
+		</div>
+HTML;
+	}
+
+	$content .= '</div></div></div></div>';
+
+	return $content;
+}
+
+function generateListSection($mainContent) {
+	$content = '<div class="row"><div class="col-12"><div class="card"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="mb-0">Lista</h5>';
+
+	// View mode toggles
+	if (isset($mainContent['Tasks List']['View Modes']) ||
+		isset($mainContent['Users List']['View Modes'])) {
+		$content .= <<<HTML
+		<div class="btn-group" role="group">
+			<input type="radio" class="btn-check" name="viewMode" id="cardView" autocomplete="off" checked>
+			<label class="btn btn-outline-primary btn-sm" for="cardView">
+				<i class="fas fa-th"></i>
+			</label>
+			<input type="radio" class="btn-check" name="viewMode" id="tableView" autocomplete="off">
+			<label class="btn btn-outline-primary btn-sm" for="tableView">
+				<i class="fas fa-list"></i>
+			</label>
+		</div>
+HTML;
+	}
+
+	$content .= '</div><div class="card-body">';
+
+	// Sample data
+	if (isset($mainContent['Tasks List']['Sample Tasks'])) {
+		$content .= '<div id="cardViewContainer" class="row">';
+		foreach ($mainContent['Tasks List']['Sample Tasks'] as $taskId => $task) {
+			$title = $task['Title'] ?? 'Sin título';
+			$id = $task['ID'] ?? '';
+			$status = $task['Status'] ?? 'pending';
+			$priority = $task['Priority'] ?? 'medium';
+			$assigned = $task['Assigned'] ?? '';
+			$created = $task['Created'] ?? '';
+			$due = $task['Due'] ?? '';
+
+			$statusColor = match($status) {
+				'Pendiente' => 'warning',
+				'En Progreso' => 'info',
+				'Completada' => 'success',
+				'Cancelada' => 'secondary',
+				default => 'warning'
+			};
+
+			$priorityColor = match($priority) {
+				'Baja' => 'success',
+				'Media' => 'warning',
+				'Alta' => 'danger',
+				'Urgente' => 'danger',
+				default => 'warning'
+			};
+
+			$content .= <<<HTML
+			<div class="col-md-6 col-lg-4 mb-3">
+				<div class="card h-100 border-start border-$statusColor border-4">
+					<div class="card-header bg-light">
+						<div class="d-flex justify-content-between align-items-start">
+							<div>
+								<h6 class="card-title mb-1">$title</h6>
+								<small class="text-muted">ID: $id</small>
+							</div>
+							<span class="badge bg-$statusColor">$status</span>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="row text-center">
+							<div class="col-6">
+								<small class="text-muted d-block">Prioridad</small>
+								<span class="badge bg-$priorityColor">$priority</span>
+							</div>
+							<div class="col-6">
+								<small class="text-muted d-block">Asignado</small>
+								<span class="fw-bold">$assigned</span>
+							</div>
+						</div>
+						<hr>
+						<small class="text-muted">Creado: $created | Vence: $due</small>
+					</div>
+					<div class="card-footer bg-transparent">
+						<div class="btn-group w-100" role="group">
+							<button class="btn btn-outline-primary btn-sm" title="Editar">
+								<i class="fas fa-edit"></i>
+							</button>
+							<button class="btn btn-outline-success btn-sm" title="Iniciar">
+								<i class="fas fa-play"></i>
+							</button>
+							<button class="btn btn-outline-danger btn-sm" title="Eliminar">
+								<i class="fas fa-trash"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+HTML;
+		}
+		$content .= '</div>';
+	}
+
+	$content .= '</div></div></div>';
+
+	return $content;
+}
+
+function getDashboardContent(){
+	global $bdPags;
+
+	if (!isset($bdPags['Dashboard']['index']['Main Content'])) {
+		return "<div class='alert alert-danger'>Error: Dashboard data not found in configuration</div>";
+	}
+
+	$dashboardData = $bdPags['Dashboard']['index']['Main Content'];
+	$content = '';
+
+	// Dashboard Header
+	if (isset($dashboardData['Dashboard Header'])) {
+		$header = $dashboardData['Dashboard Header'];
+		$content .= <<<HTML
 		<div class="dashboard-header fade-in">
 			<h1 class="dashboard-title">
 				<i class="fas fa-chart-line me-3"></i>
-				Dashboard DTIC Bitácoras
+				{$header['Title']}
 			</h1>
 			<p class="dashboard-subtitle">
-				Sistema de Gestión de Tareas y Recursos - Departamento de Tecnología de la Información y Comunicación
+				{$header['Subtitle']}
 			</p>
 			<div class="row mt-4">
 				<div class="col-md-3">
 					<div class="text-center">
 						<div id="current-date" class="h5 text-muted"></div>
-						<small class="text-secondary">Fecha Actual</small>
+						<small class="text-secondary">{$header['Current Date']}</small>
 					</div>
 				</div>
 				<div class="col-md-3">
 					<div class="text-center">
 						<div id="current-time" class="h5 text-muted"></div>
-						<small class="text-secondary">Hora Actual</small>
+						<small class="text-secondary">{$header['Current Time']}</small>
 					</div>
 				</div>
 				<div class="col-md-3">
 					<div class="text-center">
 						<div id="system-status" class="h5 text-success">
-							<i class="fas fa-circle text-success me-1"></i>Online
+							<i class="fas fa-circle text-success me-1"></i>{$header['System Status']}
 						</div>
 						<small class="text-secondary">Estado del Sistema</small>
 					</div>
 				</div>
 				<div class="col-md-3">
 					<div class="text-center">
-						<div id="active-users" class="h5 text-primary">1</div>
+						<div id="active-users" class="h5 text-primary">{$header['Active User']}</div>
 						<small class="text-secondary">Usuario Activo</small>
 					</div>
 				</div>
 			</div>
 		</div>
+HTML;
+	}
 
-		<div class="row mb-4">
+	// Statistics Cards
+	if (isset($dashboardData['Statistics Cards'])) {
+		$content .= '<div class="row mb-4">';
+		foreach ($dashboardData['Statistics Cards'] as $cardKey => $card) {
+			$content .= <<<HTML
 			<div class="col-md-3 mb-3">
 				<div class="card h-100">
 					<div class="card-header">
-						<i class="fas fa-clock text-warning me-2"></i>
-						Tareas Pendientes
+						<i class="{$card['Icon']}"></i>
+						{$card['Title']}
 					</div>
 					<div class="card-body text-center">
-						<div class="card-text task-pending" id="pending-tasks">0</div>
-						<small class="text-muted">Esperando asignación</small>
+						<div class="card-text task-pending" id="pending-tasks">{$card['Count']}</div>
+						<small class="text-muted">{$card['Description']}</small>
 					</div>
 				</div>
 			</div>
-			<div class="col-md-3 mb-3">
-				<div class="card h-100">
-					<div class="card-header">
-						<i class="fas fa-play-circle text-info me-2"></i>
-						En Progreso
-					</div>
-					<div class="card-body text-center">
-						<div class="card-text task-in-progress" id="in-progress-tasks">0</div>
-						<small class="text-muted">Actualmente trabajando</small>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-3 mb-3">
-				<div class="card h-100">
-					<div class="card-header">
-						<i class="fas fa-check-circle text-success me-2"></i>
-						Completadas
-					</div>
-					<div class="card-body text-center">
-						<div class="card-text task-completed" id="completed-tasks">0</div>
-						<small class="text-muted">Esta semana</small>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-3 mb-3">
-				<div class="card h-100">
-					<div class="card-header">
-						<i class="fas fa-times-circle text-danger me-2"></i>
-						Canceladas
-					</div>
-					<div class="card-body text-center">
-						<div class="card-text task-cancelled" id="cancelled-tasks">0</div>
-						<small class="text-muted">Esta semana</small>
-					</div>
-				</div>
-			</div>
-		</div>
+HTML;
+		}
+		$content .= '</div>';
+	}
 
-		<div class="row">
+	// Recent Activity & Upcoming Events
+	if (isset($dashboardData['Recent Activity & Upcoming Events'])) {
+		$content .= '<div class="row">';
+		foreach ($dashboardData['Recent Activity & Upcoming Events'] as $sectionKey => $section) {
+			if ($sectionKey === 'Recent Tasks') {
+				$content .= <<<HTML
 			<div class="col-md-6 mb-4">
 				<div class="card">
 					<div class="card-header">
-						<i class="fas fa-history me-2"></i>
-						Actividad Reciente
+						<i class="{$section['Icon']} me-2"></i>
+						{$section['Title']}
 					</div>
 					<div class="card-body">
 						<div id="recent-activity" class="text-center text-muted py-4">
 							<i class="fas fa-inbox fa-3x mb-3"></i>
-							<p>No hay actividad reciente para mostrar.</p>
+							<p>{$section['Content']}</p>
 							<small>Las actividades aparecerán aquí una vez que se implemente el backend.</small>
 						</div>
 					</div>
 				</div>
 			</div>
-
+HTML;
+			} elseif ($sectionKey === 'Upcoming Events') {
+				$content .= <<<HTML
 			<div class="col-md-6 mb-4">
 				<div class="card">
 					<div class="card-header d-flex justify-content-between align-items-center">
 						<div>
-							<i class="fas fa-calendar-check me-2"></i>
-							Próximos Eventos
+							<i class="{$section['Icon']} me-2"></i>
+							{$section['Title']}
 						</div>
 						<a href="index.php?page=calendario" class="btn btn-sm btn-outline-primary">
 							<i class="fas fa-external-link-alt"></i>
@@ -125,45 +448,42 @@ function getDashboardContent(){
 					</div>
 				</div>
 			</div>
-		</div>
+HTML;
+			}
+		}
+		$content .= '</div>';
+	}
 
+	// Quick Actions
+	if (isset($dashboardData['Quick Actions'])) {
+		$actions = $dashboardData['Quick Actions'];
+		$content .= <<<HTML
 		<div class="row">
 			<div class="col-12 mb-4">
 				<div class="card">
 					<div class="card-header">
-						<i class="fas fa-bolt me-2"></i>
-						Acciones Rápidas
+						<i class="{$actions['Icon']} me-2"></i>
+						{$actions['Title']}
 					</div>
 					<div class="card-body">
 						<div class="row">
+HTML;
+
+		foreach ($actions['Actions'] as $actionKey => $action) {
+			$disabled = isset($action['Disabled']) && $action['Disabled'] ? 'disabled' : '';
+			$onclick = isset($action['Link']) ? "onclick=\"window.location.href='{$action['Link']}'\"" : '';
+			$content .= <<<HTML
 							<div class="col-md-3">
 								<div class="d-grid gap-2">
-									<button class="btn btn-primary" id="btn-new-task" disabled>
-										<i class="fas fa-plus me-2"></i>Nueva Tarea
+									<button class="btn btn-primary" id="btn-{$actionKey}" $disabled $onclick>
+										<i class="{$action['Icon']} me-2"></i>{$action['Text']}
 									</button>
 								</div>
 							</div>
-							<div class="col-md-3">
-								<div class="d-grid gap-2">
-									<button class="btn btn-success" id="btn-new-resource" disabled>
-										<i class="fas fa-box me-2"></i>Nuevo Recurso
-									</button>
-								</div>
-							</div>
-							<div class="col-md-3">
-								<div class="d-grid gap-2">
-									<button class="btn btn-info" onclick="window.location.href=\'index.php?page=calendario\'">
-										<i class="fas fa-calendar-plus me-2"></i>Nuevo Evento
-									</button>
-								</div>
-							</div>
-							<div class="col-md-3">
-								<div class="d-grid gap-2">
-									<button class="btn btn-warning" id="btn-reports" disabled>
-										<i class="fas fa-chart-bar me-2"></i>Ver Reportes
-									</button>
-								</div>
-							</div>
+HTML;
+		}
+
+		$content .= <<<HTML
 						</div>
 						<hr>
 						<div class="text-center">
@@ -176,52 +496,51 @@ function getDashboardContent(){
 				</div>
 			</div>
 		</div>
+HTML;
+	}
 
+	// System Information
+	if (isset($dashboardData['System Information'])) {
+		$sysInfo = $dashboardData['System Information'];
+		$content .= <<<HTML
 		<div class="row">
 			<div class="col-12">
 				<div class="card">
 					<div class="card-header">
-						<i class="fas fa-server me-2"></i>
-						Información del Sistema
+						<i class="{$sysInfo['Icon']} me-2"></i>
+						{$sysInfo['Title']}
 					</div>
 					<div class="card-body">
 						<div class="row">
+HTML;
+
+		foreach ($sysInfo['Items'] as $itemKey => $item) {
+			$linkHTML = isset($item['Link']) ? "<a href=\"index.php?page={$item['Link']}\" class=\"text-decoration-none\">" : '';
+			$linkClose = isset($item['Link']) ? '</a>' : '';
+
+			$content .= <<<HTML
 							<div class="col-md-3">
 								<div class="text-center">
-									<i class="fas fa-code fa-2x text-primary mb-2"></i>
-									<div class="h6">PHP 8.1</div>
-									<small class="text-muted">Versión del servidor</small>
+									$linkHTML
+									<i class="{$item['Icon']} fa-2x text-primary mb-2"></i>
+									<div class="h6">{$item['Version']}</div>
+									<small class="text-muted">{$item['Description']}</small>
+									$linkClose
 								</div>
 							</div>
-							<div class="col-md-3">
-								<div class="text-center">
-									<i class="fas fa-database fa-2x text-success mb-2"></i>
-									<div class="h6">MySQL 8.0</div>
-									<small class="text-muted">Base de datos</small>
-								</div>
-							</div>
-							<div class="col-md-3">
-								<div class="text-center">
-									<i class="fas fa-calendar-alt fa-2x text-warning mb-2"></i>
-									<div class="h6">Calendario</div>
-									<small class="text-muted">Gestión de eventos</small>
-								</div>
-							</div>
-							<div class="col-md-3">
-								<div class="text-center">
-									<a href="index.php?page=estadoproyecto" class="text-decoration-none">
-										<i class="fas fa-info-circle fa-2x text-info mb-2"></i>
-										<div class="h6 text-info">Estado del Proyecto</div>
-										<small class="text-muted">Ver progreso</small>
-									</a>
-								</div>
-							</div>
+HTML;
+		}
+
+		$content .= <<<HTML
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 HTML;
+	}
+
+	return $content;
 }
 
 function getTecnicosContent(){

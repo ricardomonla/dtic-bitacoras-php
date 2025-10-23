@@ -12,31 +12,31 @@
 	switch ($currentPage) {
 		case 'tecnicos':
 			$titulo = getPagInfo('tecnicos', 'titulo');
-			$contenido = getTecnicosContent();
+			$contenido = generateContentFromArray('Gestión', 'tecnicos');
 			break;
 		case 'usuarios':
 			$titulo = getPagInfo('usuarios', 'titulo');
-			$contenido = getUsuariosContent();
+			$contenido = generateContentFromArray('Gestión', 'usuarios');
 			break;
 		case 'tareas':
 			$titulo = getPagInfo('tareas', 'titulo');
-			$contenido = getTareasContent();
+			$contenido = generateContentFromArray('Gestión', 'tareas');
 			break;
 		case 'recursos':
 			$titulo = getPagInfo('recursos', 'titulo');
-			$contenido = getRecursosContent();
+			$contenido = generateContentFromArray('Gestión', 'recursos');
 			break;
 		case 'calendario':
 			$titulo = getPagInfo('calendario', 'titulo');
-			$contenido = getCalendarioContent();
+			$contenido = generateContentFromArray('Herramientas', 'calendario');
 			break;
 		case 'reportes':
 			$titulo = getPagInfo('reportes', 'titulo');
-			$contenido = getReportesContent();
+			$contenido = generateContentFromArray('Herramientas', 'reportes');
 			break;
 		case 'estadoproyecto':
 			$titulo = getPagInfo('estadoproyecto', 'titulo');
-			$contenido = getEstadoProyectoContent();
+			$contenido = generateContentFromArray('Sistema', 'estadoproyecto');
 			break;
 		default:
 			$titulo = 'Dashboard DTIC Bitácoras';
