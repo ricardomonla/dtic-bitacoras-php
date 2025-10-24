@@ -237,8 +237,8 @@ class TecnicosManager {
                             <button class="btn btn-outline-warning btn-sm" title="Editar" data-action="edit" data-id="${technician.id}">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-outline-info btn-sm" title="Permisos" data-action="permissions" data-id="${technician.id}">
-                                <i class="fas fa-key"></i>
+                            <button class="btn btn-outline-danger btn-sm" title="Eliminar técnico" data-action="delete" data-id="${technician.id}">
+                                <i class="fas fa-trash"></i>
                             </button>
                             <button class="btn btn-outline-${technician.is_active == 1 ? 'danger' : 'success'} btn-sm" title="${technician.is_active == 1 ? 'Desactivar' : 'Reactivar'}" data-action="${technician.is_active == 1 ? 'deactivate' : 'activate'}" data-id="${technician.id}">
                                 <i class="fas fa-${technician.is_active == 1 ? 'ban' : 'check'}"></i>
@@ -271,6 +271,9 @@ class TecnicosManager {
                         </button>
                         <button class="btn btn-outline-warning btn-sm" title="Editar" data-action="edit" data-id="${technician.id}">
                             <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" title="Eliminar técnico" data-action="delete" data-id="${technician.id}">
+                            <i class="fas fa-trash"></i>
                         </button>
                         <button class="btn btn-outline-${technician.is_active == 1 ? 'danger' : 'success'} btn-sm" title="${technician.is_active == 1 ? 'Desactivar' : 'Reactivar'}" data-action="${technician.is_active == 1 ? 'deactivate' : 'activate'}" data-id="${technician.id}">
                             <i class="fas fa-${technician.is_active == 1 ? 'ban' : 'check'}"></i>
@@ -324,6 +327,9 @@ class TecnicosManager {
                         break;
                     case 'edit':
                         this.editTechnician(id);
+                        break;
+                    case 'delete':
+                        this.deleteTechnician(id);
                         break;
                     case 'deactivate':
                         this.toggleTechnicianStatus(id, 0);
@@ -931,6 +937,39 @@ class TecnicosManager {
     isValidEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
+    }
+
+    async deleteTechnician(id) {
+        if (!confirm('¿Está seguro de eliminar este técnico? Esta acción no se puede deshacer.')) {
+            return;
+        }
+
+        try {
+            this.showLoading();
+
+            const response = await fetch(`${this.apiUrl}?id=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.showNotification('Técnico eliminado exitosamente', 'success');
+                this.loadTechnicians();
+                this.loadStatistics();
+            } else {
+                this.showNotification(data.message || 'Error al eliminar técnico', 'danger');
+            }
+        } catch (error) {
+            console.error('Error deleting technician:', error);
+            this.showNotification('Error de conexión', 'danger');
+        } finally {
+            this.hideLoading();
+        }
     }
 
     showPermissions(id) {
