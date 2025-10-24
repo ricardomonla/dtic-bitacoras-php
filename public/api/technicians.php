@@ -246,6 +246,9 @@ function createTechnician(): void {
         // Sanitizar datos
         $data = sanitizeData($data);
 
+        // Convertir apellido a mayúsculas (conversión completa a mayúsculas)
+        $data['last_name'] = mb_strtoupper($data['last_name'], 'UTF-8');
+
         // Generar DTIC ID único
         $dticId = generateDTICId('TEC');
 
@@ -317,6 +320,11 @@ function updateTechnician(int $id): void {
 
         // Sanitizar datos
         $data = sanitizeData($data);
+
+        // Convertir apellido a mayúsculas si se está actualizando
+        if (isset($data['last_name'])) {
+            $data['last_name'] = mb_strtoupper($data['last_name'], 'UTF-8');
+        }
 
         // Verificar email único (si se está cambiando)
         if (isset($data['email']) && $data['email'] !== $existing['email']) {
