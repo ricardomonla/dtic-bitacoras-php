@@ -144,11 +144,14 @@ function getTechnicians(): void {
 
         // Obtener total para paginación
         $countSql = "SELECT COUNT(*) as total FROM technicians t WHERE 1=1";
+        $countParams = [];
         if (!empty($conditions)) {
-            $countSql .= " AND " . implode(" AND ", array_slice($conditions, 0, -2)); // Remover LIMIT y OFFSET
+            $countSql .= " AND " . implode(" AND ", $conditions);
+            // Los parámetros de las condiciones están al inicio del array $params
+            $countParams = array_slice($params, 0, count($conditions) * 4); // 4 parámetros por condición de búsqueda
         }
 
-        $countStmt = executeQuery($countSql, array_slice($params, 0, -2));
+        $countStmt = executeQuery($countSql, $countParams);
         $total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
         $response = [

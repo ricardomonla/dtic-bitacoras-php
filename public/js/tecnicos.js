@@ -9,6 +9,7 @@ class TecnicosManager {
         this.currentPage = 1;
         this.pageSize = 12;
         this.currentFilters = {};
+        this.searchTimeout = null;
 
         this.init();
     }
@@ -23,7 +24,7 @@ class TecnicosManager {
         // Filtros
         document.getElementById('searchUsers')?.addEventListener('input', (e) => {
             this.currentFilters.search = e.target.value;
-            this.loadTechnicians();
+            this.debouncedLoadTechnicians();
         });
 
         document.getElementById('filterRole')?.addEventListener('change', (e) => {
@@ -861,6 +862,20 @@ class TecnicosManager {
         this.currentFilters = {};
         this.currentPage = 1;
         this.loadTechnicians();
+    }
+
+    // Método para búsqueda con debounce
+    debouncedLoadTechnicians() {
+        // Limpiar timeout anterior
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
+
+        // Establecer nuevo timeout
+        this.searchTimeout = setTimeout(() => {
+            this.currentPage = 1; // Resetear a primera página en búsqueda
+            this.loadTechnicians();
+        }, 300); // Esperar 300ms después del último input
     }
 
     toggleView(view) {
