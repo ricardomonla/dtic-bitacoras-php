@@ -95,10 +95,8 @@ class TecnicosManager {
             });
 
             const data = await response.json();
-            console.log('API Response:', data); // Debug log
 
             if (data.success) {
-                console.log('Technicians data:', data.data.technicians); // Debug log
                 this.renderTechnicians(data.data.technicians);
                 this.renderPagination(data.data.pagination);
             } else {
@@ -150,15 +148,11 @@ class TecnicosManager {
         const tableContainer = document.getElementById('tableViewContainer');
 
         if (!cardContainer || !tableContainer) {
-            console.error('Containers not found:', { cardContainer, tableContainer });
             return;
         }
 
-        console.log('Rendering technicians:', technicians.length); // Debug log
-
         // Render cards
         const cardsHtml = technicians.map(tech => {
-            console.log('Creating card for technician:', tech.id, tech.profile_image); // Debug log
             return this.createTechnicianCard(tech);
         }).join('');
         cardContainer.innerHTML = cardsHtml;
@@ -956,6 +950,5 @@ class TecnicosManager {
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('👥 Inicializando gestión de técnicos');
     window.tecnicosManager = new TecnicosManager();
 });

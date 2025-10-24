@@ -10,8 +10,6 @@ class Dashboard {
     }
 
     init() {
-        console.log('🚀 Inicializando Dashboard DTIC Bitácoras');
-
         // Inicializar componentes cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', () => {
             this.initializeComponents();
@@ -198,8 +196,6 @@ class Dashboard {
 
         // Inicializar auto-hide navbar
         this.initializeAutoHideNavbar();
-
-        console.log('✅ Componentes del dashboard inicializados');
     }
 
     setupEventListeners() {
@@ -226,8 +222,6 @@ class Dashboard {
                 });
             }
         });
-
-        console.log('✅ Event listeners configurados');
     }
 
     updateDateTime() {
@@ -339,8 +333,6 @@ class Dashboard {
                 notification.remove();
             }
         }, 5000);
-
-        console.log(`📢 Notificación: ${message}`);
     }
 
     // Método para actualizar estadísticas (se usará en etapas posteriores)
@@ -357,7 +349,6 @@ class Dashboard {
     loadRecentActivity() {
         // Verificar que los elementos estén inicializados antes de continuar
         if (!this.elements || !this.elements.recentActivity) {
-            console.warn('Elementos del DOM no inicializados, esperando...');
             // Reintentar después de un breve delay
             setTimeout(() => this.loadRecentActivity(), 100);
             return;
@@ -522,24 +513,12 @@ class Dashboard {
             mouseInTopArea = false;
         });
 
-        console.log('✅ Auto-hide navbar inicializado');
+        // Auto-hide navbar inicializado
     }
-}
-
-// Función para mostrar información de debug en consola
-function showDebugInfo() {
-    console.log('🔍 Información de Debug DTIC Bitácoras:');
-    console.log('- User Agent:', navigator.userAgent);
-    console.log('- URL:', window.location.href);
-    console.log('- Viewport:', window.innerWidth + 'x' + window.innerHeight);
-    console.log('- Timestamp:', new Date().toISOString());
 }
 
 // Inicializar dashboard cuando se carga la página
 const dashboard = new Dashboard();
-
-// Mostrar información de debug
-showDebugInfo();
 
 // Verificar estado del sistema cada 30 segundos
 setInterval(() => {
