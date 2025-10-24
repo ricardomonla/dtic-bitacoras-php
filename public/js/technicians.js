@@ -467,11 +467,6 @@ class TechniciansManager {
                                     <div>
                                         <span class="badge bg-${technician.is_active == 1 ? 'success' : 'warning'}">${technician.is_active == 1 ? 'Activo' : 'Inactivo'}</span>
                                     </div>
-                                    <div class="mt-2">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="techniciansManager.uploadProfileImage(${technician.id})">
-                                            <i class="fas fa-camera me-1"></i>Cambiar Foto
-                                        </button>
-                                    </div>
                                 </div>
                                 <div class="col-md-8">
                                     <div class="row">
@@ -567,124 +562,6 @@ class TechniciansManager {
         this.showNotification(`Editar técnico ID: ${id}`, 'info');
     }
 
-    uploadProfileImage(id) {
-        // Crear input file oculto
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.style.display = 'none';
-
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                this.processProfileImageUpload(id, file);
-            }
-        };
-
-        // Agregar al DOM y hacer clic
-        document.body.appendChild(input);
-        input.click();
-
-        // Limpiar después de un tiempo
-        setTimeout(() => {
-            if (input.parentNode) {
-                input.parentNode.removeChild(input);
-            }
-        }, 1000);
-    }
-
-    async processProfileImageUpload(id, file) {
-        console.log('Starting image upload for technician ID:', id);
-        console.log('File:', file);
-
-        // Validar tipo de archivo
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!allowedTypes.includes(file.type)) {
-            this.showNotification('Tipo de archivo no permitido. Solo se permiten imágenes JPEG, PNG, GIF y WebP', 'danger');
-            return;
-        }
-
-        // Validar tamaño (5MB máximo)
-        const maxSize = 5 * 1024 * 1024;
-        if (file.size > maxSize) {
-            this.showNotification('La imagen es demasiado grande. Máximo 5MB permitido', 'danger');
-            return;
-        }
-
-        try {
-            this.showLoading();
-            console.log('Sending request to:', `${this.apiUrl}?id=${id}`);
-
-            const formData = new FormData();
-            formData.append('profile_image', file);
-            console.log('FormData created with file:', file.name);
-
-            const response = await fetch(`${this.apiUrl}?id=${id}`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            });
-
-            console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const responseText = await response.text();
-            console.log('Raw response text:', responseText);
-
-            let data;
-            try {
-                data = JSON.parse(responseText);
-                console.log('Response data:', data);
-            } catch (parseError) {
-                console.error('JSON parse error:', parseError);
-                console.error('Response was not valid JSON');
-                throw new Error('Server returned invalid JSON response');
-            }
-
-            if (data.success) {
-                this.showNotification('Imagen de perfil actualizada exitosamente', 'success');
-
-                // Actualizar la imagen en el modal actual si está abierto
-                const currentModal = document.querySelector('.modal.show');
-                if (currentModal && currentModal.id === 'technicianProfileModal') {
-                    const profileImage = currentModal.querySelector('img.rounded-circle');
-                    if (profileImage && data.data && data.data.profile_image) {
-                        // Forzar recarga de imagen agregando timestamp
-                        profileImage.src = data.data.profile_image + '?t=' + Date.now();
-                        console.log('Updated profile image in modal:', profileImage.src);
-                    } else {
-                        console.log('Profile image element not found or no new image data');
-                        console.log('Modal found:', currentModal);
-                        console.log('Profile image element:', profileImage);
-                        console.log('Data.data:', data.data);
-                    }
-                } else {
-                    console.log('Modal not found or not technician profile modal');
-                    console.log('Current modal:', currentModal);
-                }
-
-                // NO cerrar modal para que el usuario pueda ver la imagen actualizada
-                // El modal se mantendrá abierto para que el usuario vea el cambio
-
-                // Recargar lista de técnicos
-                this.loadTechnicians();
-                this.loadStatistics();
-            } else {
-                this.showNotification(data.message || 'Error al actualizar imagen de perfil', 'danger');
-            }
-        } catch (error) {
-            console.error('Error uploading profile image:', error);
-            this.showNotification(`Error de conexión: ${error.message}`, 'danger');
-        } finally {
-            this.hideLoading();
-        }
-    }
 
     showPermissions(id) {
         // Por ahora, solo mostrar un alert con el ID

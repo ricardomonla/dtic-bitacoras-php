@@ -43,15 +43,7 @@ switch ($method) {
     case 'POST':
         // Temporal: Permitir acceso sin autenticación para desarrollo
         // requirePermission('admin');
-        // Verificar si es una petición de imagen de perfil
-        if (isset($_FILES['profile_image']) || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'multipart/form-data') !== false) {
-            if (!$id) {
-                sendErrorResponse('ID de técnico requerido para actualización de imagen', 400);
-            }
-            updateTechnicianProfileImage($id);
-        } else {
-            createTechnician();
-        }
+        createTechnician();
         break;
 
     case 'PUT':
@@ -68,12 +60,7 @@ switch ($method) {
         if (!$id) {
             sendErrorResponse('ID de técnico requerido para actualización', 400);
         }
-        // Para debugging, verificar si es una petición de imagen
-        if (isset($_FILES['profile_image']) || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'multipart/form-data') !== false) {
-            updateTechnicianProfileImage($id);
-        } else {
-            updateTechnician($id);
-        }
+        updateTechnician($id);
         break;
 
     case 'DELETE':
@@ -366,102 +353,6 @@ function updateTechnician(int $id): void {
     }
 }
 
-/**
- * Actualiza la imagen de perfil de un técnico
- */
-function updateTechnicianProfileImage(int $id): void {
-    try {
-        // Verificar que el técnico existe
-        $existing = executeQuery("SELECT * FROM technicians WHERE id = ?", [$id])->fetch(PDO::FETCH_ASSOC);
-        if (!$existing) {
-            sendErrorResponse('Técnico no encontrado', 404);
-        }
-
-        // Debug: Verificar qué se recibió
-        error_log("METHOD: " . $_SERVER['REQUEST_METHOD']);
-        error_log("CONTENT_TYPE: " . ($_SERVER['CONTENT_TYPE'] ?? 'not set'));
-        error_log("FILES: " . print_r($_FILES, true));
-        error_log("POST: " . print_r($_POST, true));
-        error_log("REQUEST: " . print_r($_REQUEST, true));
-        // error_log("RAW_INPUT: " . file_get_contents('php://input'));
-
-        // Verificar que se recibió una imagen
-        if (!isset($_FILES['profile_image'])) {
-            sendErrorResponse('No se recibió el archivo de imagen. FILES: ' . print_r($_FILES, true), 400);
-        }
-
-        $file = $_FILES['profile_image'];
-
-        // Verificar errores de upload
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            $errorMessages = [
-                UPLOAD_ERR_INI_SIZE => 'La imagen excede el tamaño máximo permitido por el servidor',
-                UPLOAD_ERR_FORM_SIZE => 'La imagen excede el tamaño máximo permitido por el formulario',
-                UPLOAD_ERR_PARTIAL => 'La imagen se subió parcialmente',
-                UPLOAD_ERR_NO_FILE => 'No se seleccionó ningún archivo',
-                UPLOAD_ERR_NO_TMP_DIR => 'Falta el directorio temporal',
-                UPLOAD_ERR_CANT_WRITE => 'Error al escribir el archivo en el disco',
-                UPLOAD_ERR_EXTENSION => 'Una extensión de PHP detuvo la subida del archivo'
-            ];
-            $errorMessage = $errorMessages[$file['error']] ?? 'Error desconocido en la subida del archivo';
-            sendErrorResponse($errorMessage, 400);
-        }
-
-        $file = $_FILES['profile_image'];
-
-        // Validar tipo de archivo
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!in_array($file['type'], $allowedTypes)) {
-            sendErrorResponse('Tipo de archivo no permitido. Solo se permiten imágenes JPEG, PNG, GIF y WebP', 400);
-        }
-
-        // Validar tamaño (máximo 5MB)
-        $maxSize = 5 * 1024 * 1024; // 5MB
-        if ($file['size'] > $maxSize) {
-            sendErrorResponse('La imagen es demasiado grande. Máximo 5MB permitido', 400);
-        }
-
-        // Usar directorio de uploads existente
-        $uploadDir = '/var/www/html/public/uploads/profile_images/';
-        if (!is_dir($uploadDir)) {
-            sendErrorResponse('Directorio de uploads no existe: ' . $uploadDir, 500);
-        }
-
-        // Generar nombre único para el archivo
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = 'profile_' . $id . '_' . time() . '.' . $extension;
-        $filepath = $uploadDir . $filename;
-
-        // Mover archivo
-        if (!move_uploaded_file($file['tmp_name'], $filepath)) {
-            sendErrorResponse('Error al guardar la imagen', 500);
-        }
-
-        // Eliminar imagen anterior si existe
-        if (!empty($existing['profile_image'])) {
-            $oldImagePath = '/var/www/html/public/' . $existing['profile_image'];
-            if (file_exists($oldImagePath)) {
-                unlink($oldImagePath);
-            }
-        }
-
-        // Actualizar base de datos
-        $relativePath = 'uploads/profile_images/' . $filename;
-        executeQuery("UPDATE technicians SET profile_image = ? WHERE id = ?", [$relativePath, $id]);
-
-        // Registrar en auditoría
-        logAuditAction('update', 'technician', $id, $existing, ['profile_image' => $relativePath]);
-
-        sendJsonResponse(true, 'Imagen de perfil actualizada exitosamente', [
-            'profile_image' => $relativePath
-        ]);
-
-    } catch (Exception $e) {
-        error_log("Error actualizando imagen de perfil del técnico {$id}: " . $e->getMessage());
-        error_log("Stack trace: " . $e->getTraceAsString());
-        sendErrorResponse('Error interno del servidor: ' . $e->getMessage(), 500);
-    }
-}
 
 /**
  * Elimina un técnico (desactivación lógica)
