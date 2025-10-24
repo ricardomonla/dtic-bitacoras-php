@@ -184,20 +184,34 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Lista de Técnicos</h5>
-                        <div class="btn-group" role="group">
-                            <input type="radio" class="btn-check" name="viewMode" id="cardView" autocomplete="off" checked>
-                            <label class="btn btn-outline-primary btn-sm" for="cardView" title="Vista de tarjetas">
-                                <i class="fas fa-th"></i>
-                            </label>
-                            <input type="radio" class="btn-check" name="viewMode" id="tableView" autocomplete="off">
-                            <label class="btn btn-outline-primary btn-sm" for="tableView" title="Vista de tabla">
-                                <i class="fas fa-list"></i>
-                            </label>
-                            <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse" title="Buscar técnicos">
-                                <i class="fas fa-search"></i>
-                            </button>
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Lista de Técnicos</h5>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="viewMode" id="cardView" autocomplete="off" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="cardView" title="Vista de tarjetas">
+                                    <i class="fas fa-th"></i>
+                                </label>
+                                <input type="radio" class="btn-check" name="viewMode" id="tableView" autocomplete="off">
+                                <label class="btn btn-outline-primary btn-sm" for="tableView" title="Vista de tabla">
+                                    <i class="fas fa-list"></i>
+                                </label>
+                                <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse" title="Buscar técnicos">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Collapsible Search Bar -->
+                        <div class="collapse collapse-search" id="searchCollapse">
+                            <div class="input-group mt-2">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="searchUsers" placeholder="Buscar técnicos por nombre, apellido, email o ID DTIC...">
+                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
