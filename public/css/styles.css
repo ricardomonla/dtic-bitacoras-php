@@ -316,6 +316,43 @@ body {
     margin-top: 3rem;
 }
 
+/* Collapsible Search */
+.collapse-search {
+    transition: all 0.3s ease-in-out;
+}
+
+.collapse-search .input-group {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.collapse-search .input-group-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.collapse-search .form-control {
+    border-left: none;
+    border-right: none;
+}
+
+.collapse-search .form-control:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+.collapse-search .btn-outline-secondary {
+    border-left: none;
+    color: #6c757d;
+}
+
+.collapse-search .btn-outline-secondary:hover {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
 /* Utilidades */
 .text-gradient {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

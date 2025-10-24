@@ -125,16 +125,13 @@
             </div>
         </div>
 
-        <!-- Filters and Search -->
+        <!-- Filters -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
                         <div class="row g-3">
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" id="searchUsers" placeholder="Buscar técnicos...">
-                            </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <select class="form-select" id="filterRole">
                                     <option value="">Todos los roles</option>
                                     <option value="admin">Administrador</option>
@@ -142,7 +139,7 @@
                                     <option value="viewer">Visualizador</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <select class="form-select" id="filterStatus">
                                     <option value="">Todos los estados</option>
                                     <option value="active">Activo</option>
@@ -150,7 +147,7 @@
                                     <option value="pending">Pendiente</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <select class="form-select" id="filterDepartment">
                                     <option value="">Todos los deptos</option>
                                     <option value="dtic">DTIC</option>
@@ -159,10 +156,27 @@
                                     <option value="seguridad">Seguridad</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <button class="btn btn-outline-secondary w-100" id="clearFilters">
                                     <i class="fas fa-times me-1"></i>Limpiar
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- Collapsible Search Bar -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="collapse collapse-search" id="searchCollapse">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="searchUsers" placeholder="Buscar técnicos por nombre, apellido, email o ID DTIC...">
+                                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -177,12 +191,15 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Lista de Técnicos</h5>
                         <div class="btn-group" role="group">
+                            <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse" title="Buscar técnicos">
+                                <i class="fas fa-search"></i>
+                            </button>
                             <input type="radio" class="btn-check" name="viewMode" id="cardView" autocomplete="off" checked>
-                            <label class="btn btn-outline-primary btn-sm" for="cardView">
+                            <label class="btn btn-outline-primary btn-sm" for="cardView" title="Vista de tarjetas">
                                 <i class="fas fa-th"></i>
                             </label>
                             <input type="radio" class="btn-check" name="viewMode" id="tableView" autocomplete="off">
-                            <label class="btn btn-outline-primary btn-sm" for="tableView">
+                            <label class="btn btn-outline-primary btn-sm" for="tableView" title="Vista de tabla">
                                 <i class="fas fa-list"></i>
                             </label>
                         </div>
