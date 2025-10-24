@@ -9,7 +9,6 @@ class TecnicosManager {
         this.currentPage = 1;
         this.pageSize = 12;
         this.currentFilters = {};
-        this.searchTimeout = null;
 
         this.init();
     }
@@ -962,6 +961,13 @@ class TecnicosManager {
             this.currentPage = 1; // Resetear a primera página en búsqueda
             this.loadTechnicians();
         }, 300); // Esperar 300ms después del último input
+    }
+
+    // Limpiar timeout al destruir
+    destroy() {
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
     }
 
     toggleView(view) {

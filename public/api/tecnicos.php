@@ -56,12 +56,8 @@ switch ($method) {
         break;
 
     case 'PATCH':
-        // Temporal: Permitir acceso sin autenticación para desarrollo
-        // requirePermission('admin');
-        if (!$id) {
-            sendErrorResponse('ID de técnico requerido para actualización', 400);
-        }
-        updateTechnician($id);
+        // PATCH no implementado - usar PUT para actualizaciones
+        sendErrorResponse('Método PATCH no soportado, use PUT para actualizaciones', 405);
         break;
 
     case 'DELETE':
@@ -143,12 +139,12 @@ function getTechnicians(): void {
         $technicians = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Obtener total para paginación
-        $countSql = "SELECT COUNT(*) as total FROM technicians t WHERE 1=1";
+        $countSql = "SELECT COUNT(DISTINCT t.id) as total FROM technicians t WHERE 1=1";
         $countParams = [];
         if (!empty($conditions)) {
             $countSql .= " AND " . implode(" AND ", $conditions);
-            // Los parámetros de las condiciones están al inicio del array $params
-            $countParams = array_slice($params, 0, count($conditions) * 4); // 4 parámetros por condición de búsqueda
+            // Extraer solo los parámetros de las condiciones (sin LIMIT/OFFSET)
+            $countParams = array_slice($params, 0, count($conditions));
         }
 
         $countStmt = executeQuery($countSql, $countParams);
@@ -194,16 +190,18 @@ function getTechnician(int $id): void {
             sendErrorResponse('Técnico no encontrado', 404);
         }
 
-        // Obtener tareas recientes del técnico
-        $tasksSql = "SELECT
-                        id, dtic_id, title, status, priority, created_at, due_date
-                     FROM tasks
-                     WHERE technician_id = ?
-                     ORDER BY created_at DESC
-                     LIMIT 5";
+        // Obtener tareas recientes del técnico (solo si se solicita específicamente)
+        if (getRequestParam('include_tasks', false)) {
+            $tasksSql = "SELECT
+                            id, dtic_id, title, status, priority, created_at, due_date
+                         FROM tasks
+                         WHERE technician_id = ?
+                         ORDER BY created_at DESC
+                         LIMIT 5";
 
-        $tasksStmt = executeQuery($tasksSql, [$id]);
-        $technician['recent_tasks'] = $tasksStmt->fetchAll(PDO::FETCH_ASSOC);
+            $tasksStmt = executeQuery($tasksSql, [$id]);
+            $technician['recent_tasks'] = $tasksStmt->fetchAll(PDO::FETCH_ASSOC);
+        }
 
         sendJsonResponse(true, 'Técnico obtenido exitosamente', ['technician' => $technician]);
 
@@ -267,9 +265,6 @@ function createTechnician(): void {
 
         executeQuery($sql, $params);
         $technicianId = getDBConnection()->lastInsertId();
-
-        // Registrar en auditoría
-        logAuditAction('create', 'technician', $technicianId, null, $data);
 
         sendJsonResponse(true, 'Técnico creado exitosamente', [
             'technician_id' => $technicianId,
@@ -346,9 +341,6 @@ function updateTechnician(int $id): void {
 
         executeQuery($sql, $params);
 
-        // Registrar en auditoría
-        logAuditAction('update', 'technician', $id, $existing, $data);
-
         sendJsonResponse(true, 'Técnico actualizado exitosamente');
 
     } catch (Exception $e) {
@@ -377,9 +369,6 @@ function deleteTechnician(int $id): void {
 
         // Desactivar técnico (eliminación lógica)
         executeQuery("UPDATE technicians SET is_active = 0 WHERE id = ?", [$id]);
-
-        // Registrar en auditoría
-        logAuditAction('delete', 'technician', $id, $existing, ['is_active' => 0]);
 
         sendJsonResponse(true, 'Técnico eliminado exitosamente');
 
