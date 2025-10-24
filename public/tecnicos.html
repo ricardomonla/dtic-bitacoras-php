@@ -125,60 +125,6 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <select class="form-select" id="filterRole">
-                                    <option value="">Todos los roles</option>
-                                    <option value="admin">Administrador</option>
-                                    <option value="technician">Técnico</option>
-                                    <option value="viewer">Visualizador</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <select class="form-select" id="filterStatus">
-                                    <option value="">Todos los estados</option>
-                                    <option value="active">Activo</option>
-                                    <option value="inactive">Inactivo</option>
-                                    <option value="pending">Pendiente</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <select class="form-select" id="filterDepartment">
-                                    <option value="">Todos los deptos</option>
-                                    <option value="dtic">DTIC</option>
-                                    <option value="sistemas">Sistemas</option>
-                                    <option value="redes">Redes</option>
-                                    <option value="seguridad">Seguridad</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <button class="btn btn-outline-secondary w-100" id="clearFilters">
-                                    <i class="fas fa-times me-1"></i>Limpiar
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Collapsible Search Bar -->
-                        <div class="collapse collapse-search" id="searchCollapse">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                                <input type="text" class="form-control" id="searchUsers" placeholder="Buscar técnicos por nombre, apellido, email o ID DTIC...">
-                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Users List -->
         <div class="row">
@@ -201,16 +147,55 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- Collapsible Search Bar -->
+                        <!-- Collapsible Search and Filters -->
                         <div class="collapse collapse-search" id="searchCollapse">
-                            <div class="input-group mt-2">
-                                <span class="input-group-text">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                                <input type="text" class="form-control" id="searchUsers" placeholder="Buscar técnicos por nombre, apellido, email o ID DTIC...">
-                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                            <div class="mt-3 p-3 bg-light rounded">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Buscar técnicos</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-search"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="searchUsers" placeholder="Nombre, apellido, email o ID DTIC...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small fw-bold">Rol</label>
+                                        <select class="form-select form-select-sm" id="filterRole">
+                                            <option value="">Todos</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="technician">Técnico</option>
+                                            <option value="viewer">Viewer</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small fw-bold">Estado</label>
+                                        <select class="form-select form-select-sm" id="filterStatus">
+                                            <option value="">Todos</option>
+                                            <option value="active">Activo</option>
+                                            <option value="inactive">Inactivo</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small fw-bold">Depto</label>
+                                        <select class="form-select form-select-sm" id="filterDepartment">
+                                            <option value="">Todos</option>
+                                            <option value="dtic">DTIC</option>
+                                            <option value="sistemas">Sistemas</option>
+                                            <option value="redes">Redes</option>
+                                            <option value="seguridad">Seguridad</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <button class="btn btn-outline-secondary btn-sm" id="clearFilters">
+                                        <i class="fas fa-times me-1"></i>Limpiar filtros
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse">
+                                        <i class="fas fa-chevron-up me-1"></i>Ocultar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
