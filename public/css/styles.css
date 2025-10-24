@@ -319,12 +319,19 @@ body {
 /* Collapsible Search */
 .collapse-search {
     transition: all 0.3s ease-in-out;
+    margin-top: 1rem;
+}
+
+.collapse-search.show {
+    margin-top: 1rem;
 }
 
 .collapse-search .input-group {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     border-radius: var(--border-radius);
     overflow: hidden;
+    max-width: 400px;
+    margin-left: auto;
 }
 
 .collapse-search .input-group-text {
