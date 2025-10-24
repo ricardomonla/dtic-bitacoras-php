@@ -40,6 +40,7 @@ CREATE TABLE `technicians` (
   `phone` varchar(20),
   `department` varchar(100) NOT NULL,
   `role` enum('admin','technician','viewer') NOT NULL DEFAULT 'technician',
+  `password_hash` varchar(255) NOT NULL COMMENT 'Hash de la contraseña',
   `profile_image` varchar(255) DEFAULT NULL COMMENT 'Ruta de la imagen de perfil',
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -64,6 +65,7 @@ CREATE TABLE `users` (
   `phone` varchar(20),
   `department` varchar(100) NOT NULL,
   `role` enum('operator','supervisor','analyst','guest') NOT NULL DEFAULT 'operator',
+  `password_hash` varchar(255) NOT NULL COMMENT 'Hash de la contraseña',
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -178,12 +180,16 @@ CREATE TABLE `sessions` (
   `user_type` enum('technician','user') NOT NULL,
   `ip_address` varchar(45) DEFAULT NULL,
   `user_agent` text,
+  `remember_token` varchar(64) DEFAULT NULL COMMENT 'Token para recordar sesión',
+  `expires_at` timestamp NULL DEFAULT NULL COMMENT 'Fecha de expiración del remember token',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `last_activity` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   KEY `user_type` (`user_type`),
-  KEY `last_activity` (`last_activity`)
+  KEY `last_activity` (`last_activity`),
+  KEY `remember_token` (`remember_token`),
+  KEY `expires_at` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
@@ -217,12 +223,12 @@ INSERT INTO `categories` (`name`, `description`, `type`, `parent_id`, `is_active
 ('Actualizaciones', 'Actualizaciones de software/sistema', 'task', 11, 1);
 
 -- Técnico administrador inicial
-INSERT INTO `technicians` (`dtic_id`, `first_name`, `last_name`, `email`, `phone`, `department`, `role`, `is_active`) VALUES
-('TEC-001', 'Ricardo', 'Monla', 'rmonla@frlr.utn.edu.ar', '+5493871234567', 'Departamento Servidores y Sistemas de Altas Prestaciones', 'admin', 1);
+INSERT INTO `technicians` (`dtic_id`, `first_name`, `last_name`, `email`, `phone`, `department`, `role`, `password_hash`, `is_active`) VALUES
+('TEC-001', 'Ricardo', 'Monla', 'rmonla@frlr.utn.edu.ar', '+5493871234567', 'Departamento Servidores y Sistemas de Altas Prestaciones', 'admin', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPjYLC7qK0Jy', 1);
 
 -- Usuario operativo inicial
-INSERT INTO `users` (`dtic_id`, `first_name`, `last_name`, `email`, `phone`, `department`, `role`, `is_active`) VALUES
-('USR-001', 'Usuario', 'Demo', 'usuario@frlr.utn.edu.ar', '+5493877654321', 'DTIC', 'operator', 1);
+INSERT INTO `users` (`dtic_id`, `first_name`, `last_name`, `email`, `phone`, `department`, `role`, `password_hash`, `is_active`) VALUES
+('USR-001', 'Usuario', 'Demo', 'usuario@frlr.utn.edu.ar', '+5493877654321', 'DTIC', 'operator', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPjYLC7qK0Jy', 1);
 
 -- Recursos iniciales basados en el histórico
 INSERT INTO `resources` (`dtic_id`, `name`, `category_id`, `status`, `location`, `technical_specs`) VALUES

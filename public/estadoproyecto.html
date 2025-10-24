@@ -1,3 +1,4 @@
+<?php require_once 'includes/auth_middleware.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -26,7 +27,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="index.html">
                             <i class="fas fa-tachometer-alt me-1"></i>Dashboard
@@ -38,6 +39,7 @@
                         </a>
                     </li>
                 </ul>
+                <?php echo renderUserInfo(); ?>
             </div>
         </div>
     </nav>
@@ -117,6 +119,7 @@
                                     <li><i class="fab fa-js text-warning me-1"></i> JavaScript ES6+</li>
                                     <li><i class="fas fa-bootstrap text-purple me-1"></i> Bootstrap 5</li>
                                 </ul>
+                <?php echo renderUserInfo(); ?>
                             </div>
                             <div class="col-6">
                                 <h6 class="text-success">Backend</h6>
@@ -126,6 +129,7 @@
                                     <li><i class="fas fa-server text-secondary me-1"></i> Apache</li>
                                     <li><i class="fab fa-docker text-blue me-1"></i> Docker</li>
                                 </ul>
+                <?php echo renderUserInfo(); ?>
                             </div>
                         </div>
                     </div>
@@ -308,6 +312,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom JavaScript -->
+
+    <?php echo renderLogoutScript(); ?>
     <script>
         // Actualizar fecha y hora en tiempo real
         function updateDateTime() {

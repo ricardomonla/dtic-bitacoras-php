@@ -328,3 +328,38 @@ function generateCSRFToken(): string {
 function verifyCSRFToken(string $token): bool {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
+
+/**
+ * Iniciar sesión segura con configuración avanzada
+ */
+function startSecureSession(): void {
+    if (session_status() === PHP_SESSION_NONE) {
+        // Configuración de sesión segura
+        ini_set('session.cookie_httponly', 1);
+        ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+        ini_set('session.cookie_samesite', 'Strict');
+        ini_set('session.gc_maxlifetime', 86400); // 24 horas
+        ini_set('session.use_only_cookies', 1);
+
+        session_start();
+
+        // Regenerar ID de sesión periódicamente
+        if (!isset($_SESSION['last_regeneration']) ||
+            $_SESSION['last_regeneration'] < time() - 300) { // 5 minutos
+            session_regenerate_id(true);
+            $_SESSION['last_regeneration'] = time();
+        }
+    }
+}
+
+/**
+ * Limpiar sesiones expiradas (debe ejecutarse periódicamente)
+ */
+function cleanupExpiredSessions(): void {
+    try {
+        executeQuery("DELETE FROM sessions WHERE last_activity < DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+        executeQuery("UPDATE sessions SET remember_token = NULL, remember_expires = NULL WHERE remember_expires < NOW()");
+    } catch (Exception $e) {
+        error_log("Error limpiando sesiones expiradas: " . $e->getMessage());
+    }
+}

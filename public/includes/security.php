@@ -33,9 +33,41 @@ function startSecureSession(): void {
  * @return bool True si está autenticado
  */
 function isAuthenticated(): bool {
-    return isset($_SESSION['user_id']) &&
-           isset($_SESSION['user_type']) &&
-           isset($_SESSION['login_time']);
+    // Verificar variables de sesión básicas
+    if (!isset($_SESSION['user_id']) ||
+        !isset($_SESSION['user_type']) ||
+        !isset($_SESSION['login_time'])) {
+        return false;
+    }
+
+    // Verificar que la sesión no haya expirado (24 horas)
+    if (time() - $_SESSION['login_time'] > 86400) {
+        return false;
+    }
+
+    // Verificar sesión en base de datos si existe session_id
+    if (isset($_SESSION['session_id'])) {
+        try {
+            $sql = "SELECT id FROM sessions
+                    WHERE id = ? AND last_activity > DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+            $stmt = executeQuery($sql, [$_SESSION['session_id']]);
+            $session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$session) {
+                return false;
+            }
+
+            // Actualizar last_activity
+            $sql = "UPDATE sessions SET last_activity = NOW() WHERE id = ?";
+            executeQuery($sql, [$_SESSION['session_id']]);
+
+        } catch (Exception $e) {
+            error_log("Error verificando sesión en BD: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**
@@ -96,7 +128,7 @@ function requireAuth(): void {
         if (isAjaxRequest()) {
             sendErrorResponse('Sesión expirada. Por favor, inicie sesión nuevamente.', 401);
         } else {
-            header('Location: /login.php');
+            header('Location: login.html');
             exit;
         }
     }
@@ -209,6 +241,52 @@ function checkRateLimit(string $action, int $maxAttempts = 5, int $timeWindow = 
     file_put_contents($cacheFile, json_encode($attempts));
 
     return true;
+}
+
+/**
+ * Implementa cache básico usando archivos (para desarrollo)
+ */
+function getCache(string $key): ?string {
+    $cacheFile = sys_get_temp_dir() . '/dtic_cache_' . md5($key) . '.cache';
+
+    if (!file_exists($cacheFile)) {
+        return null;
+    }
+
+    $data = unserialize(file_get_contents($cacheFile));
+
+    // Verificar expiración
+    if ($data['expires'] < time()) {
+        unlink($cacheFile);
+        return null;
+    }
+
+    return $data['value'];
+}
+
+/**
+ * Establece valor en cache
+ */
+function setCache(string $key, string $value, int $ttl = 3600): void {
+    $cacheFile = sys_get_temp_dir() . '/dtic_cache_' . md5($key) . '.cache';
+
+    $data = [
+        'value' => $value,
+        'expires' => time() + $ttl
+    ];
+
+    file_put_contents($cacheFile, serialize($data));
+}
+
+/**
+ * Elimina valor de cache
+ */
+function deleteCache(string $key): void {
+    $cacheFile = sys_get_temp_dir() . '/dtic_cache_' . md5($key) . '.cache';
+
+    if (file_exists($cacheFile)) {
+        unlink($cacheFile);
+    }
 }
 
 /**

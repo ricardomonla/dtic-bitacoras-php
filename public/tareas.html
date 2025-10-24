@@ -1,3 +1,4 @@
+<?php require_once 'includes/auth_middleware.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -26,7 +27,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="index.html">
                             <i class="fas fa-tachometer-alt me-1"></i>Dashboard
@@ -63,6 +64,7 @@
                         </a>
                     </li>
                 </ul>
+                <?php echo renderUserInfo(); ?>
             </div>
         </div>
     </nav>
@@ -684,6 +686,8 @@
 
     <!-- Custom JavaScript -->
     <script src="js/dashboard.js"></script>
+
+    <?php echo renderLogoutScript(); ?>
     <script>
         // Tasks page specific JavaScript
         document.addEventListener('DOMContentLoaded', function() {
