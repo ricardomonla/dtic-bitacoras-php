@@ -3,9 +3,9 @@
  * DTIC Bitácoras - Sistema de gestión de recursos y tareas
  */
 
-class TechniciansManager {
+class TecnicosManager {
     constructor() {
-        this.apiUrl = '/api/technicians.php';
+        this.apiUrl = '/api/tecnicos.php';
         this.currentPage = 1;
         this.pageSize = 12;
         this.currentFilters = {};
@@ -525,7 +525,7 @@ class TechniciansManager {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            <button type="button" class="btn btn-warning" onclick="techniciansManager.editTechnician(${technician.id})">
+                            <button type="button" class="btn btn-warning" onclick="tecnicosManager.editTechnician(${technician.id})">
                                 <i class="fas fa-edit me-2"></i>Editar
                             </button>
                         </div>
@@ -957,5 +957,5 @@ class TechniciansManager {
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
     console.log('👥 Inicializando gestión de técnicos');
-    window.techniciansManager = new TechniciansManager();
+    window.tecnicosManager = new TecnicosManager();
 });
