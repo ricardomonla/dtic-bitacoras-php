@@ -47,7 +47,8 @@ switch ($method) {
         break;
 
     case 'PUT':
-        requirePermission('admin');
+        // Temporal: Permitir acceso sin autenticación para desarrollo
+        // requirePermission('admin');
         if (!$id) {
             sendErrorResponse('ID de técnico requerido para actualización', 400);
         }

@@ -557,11 +557,185 @@ class TechniciansManager {
         return statuses[status] || status;
     }
 
-    editTechnician(id) {
-        // Por ahora, solo mostrar un alert con el ID
-        this.showNotification(`Editar técnico ID: ${id}`, 'info');
+    async editTechnician(id) {
+        try {
+            this.showLoading();
+
+            // Obtener datos del técnico
+            const response = await fetch(`${this.apiUrl}?id=${id}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.showEditTechnicianModal(data.data.technician);
+            } else {
+                this.showNotification(data.message || 'Error al obtener técnico', 'danger');
+            }
+        } catch (error) {
+            console.error('Error viewing technician:', error);
+            this.showNotification('Error de conexión', 'danger');
+        } finally {
+            this.hideLoading();
+        }
     }
 
+
+    showEditTechnicianModal(technician) {
+        // Crear modal de edición
+        const modalHtml = `
+            <div class="modal fade" id="editTechnicianModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-edit me-2"></i>Editar Técnico
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editTechnicianForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="editFirstName" class="form-label">Nombre *</label>
+                                            <input type="text" class="form-control" id="editFirstName" value="${technician.first_name}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="editLastName" class="form-label">Apellido *</label>
+                                            <input type="text" class="form-control" id="editLastName" value="${technician.last_name}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="editEmail" class="form-label">Email *</label>
+                                            <input type="email" class="form-control" id="editEmail" value="${technician.email}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="editRole" class="form-label">Rol *</label>
+                                            <select class="form-select" id="editRole" required>
+                                                <option value="admin" ${technician.role === 'admin' ? 'selected' : ''}>Administrador</option>
+                                                <option value="technician" ${technician.role === 'technician' ? 'selected' : ''}>Técnico</option>
+                                                <option value="viewer" ${technician.role === 'viewer' ? 'selected' : ''}>Visualizador</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="editDepartment" class="form-label">Departamento *</label>
+                                            <select class="form-select" id="editDepartment" required>
+                                                <option value="dtic" ${technician.department === 'dtic' ? 'selected' : ''}>DTIC</option>
+                                                <option value="sistemas" ${technician.department === 'sistemas' ? 'selected' : ''}>Sistemas</option>
+                                                <option value="redes" ${technician.department === 'redes' ? 'selected' : ''}>Redes</option>
+                                                <option value="seguridad" ${technician.department === 'seguridad' ? 'selected' : ''}>Seguridad</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="editPhone" class="form-label">Teléfono</label>
+                                            <input type="tel" class="form-control" id="editPhone" value="${technician.phone || ''}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editNotes" class="form-label">Notas</label>
+                                    <textarea class="form-control" id="editNotes" rows="3" placeholder="Información adicional sobre el técnico"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-warning" id="updateTechnicianBtn" data-technician-id="${technician.id}">
+                                <i class="fas fa-save me-2"></i>Actualizar Técnico
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Agregar modal al DOM
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // Mostrar modal
+        const modal = new bootstrap.Modal(document.getElementById('editTechnicianModal'));
+        modal.show();
+
+        // Configurar evento para el botón de actualizar
+        document.getElementById('updateTechnicianBtn').addEventListener('click', () => {
+            this.updateTechnician(technician.id);
+        });
+
+        // Limpiar modal cuando se cierre
+        document.getElementById('editTechnicianModal').addEventListener('hidden.bs.modal', function() {
+            this.remove();
+        });
+    }
+
+    async updateTechnician(id) {
+        const formData = {
+            first_name: document.getElementById('editFirstName').value.trim(),
+            last_name: document.getElementById('editLastName').value.trim(),
+            email: document.getElementById('editEmail').value.trim(),
+            role: document.getElementById('editRole').value,
+            department: document.getElementById('editDepartment').value,
+            phone: document.getElementById('editPhone').value.trim()
+        };
+
+        // Validación básica
+        if (!formData.first_name || !formData.last_name || !formData.email || !formData.role || !formData.department) {
+            this.showNotification('Por favor complete todos los campos requeridos', 'danger');
+            return;
+        }
+
+        try {
+            this.showLoading();
+
+            const response = await fetch(`${this.apiUrl}?id=${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.showNotification('Técnico actualizado exitosamente', 'success');
+
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editTechnicianModal'));
+                modal.hide();
+
+                // Recargar lista
+                this.loadTechnicians();
+                this.loadStatistics();
+            } else {
+                this.showNotification(data.message || 'Error al actualizar técnico', 'danger');
+            }
+        } catch (error) {
+            console.error('Error updating technician:', error);
+            this.showNotification('Error de conexión', 'danger');
+        } finally {
+            this.hideLoading();
+        }
+    }
 
     showPermissions(id) {
         // Por ahora, solo mostrar un alert con el ID
