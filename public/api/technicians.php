@@ -128,7 +128,7 @@ function getTechnicians(): void {
             $sql .= " AND " . implode(" AND ", $conditions);
         }
 
-        $sql .= " GROUP BY t.id ORDER BY t.last_name, t.first_name";
+        $sql .= " GROUP BY t.id ORDER BY t.is_active DESC, t.last_name, t.first_name";
 
         // Paginación
         $page = max(1, (int)getRequestParam('page', 1));

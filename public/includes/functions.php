@@ -10,9 +10,35 @@
  * @return string ID único generado
  */
 function generateDTICId(string $prefix): string {
-    $timestamp = date('ymdHis');
-    $random = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 3));
-    return $prefix . '-' . $timestamp . $random;
+    // Obtener el último ID usado para este prefijo
+    $lastId = getLastDTICId($prefix);
+
+    // Extraer el número y aumentar en 1
+    $nextNumber = $lastId ? intval(substr($lastId, 4)) + 1 : 1;
+
+    // Formatear con 4 dígitos
+    $formattedNumber = str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+    return $prefix . '-' . $formattedNumber;
+}
+
+/**
+ * Obtiene el último ID DTIC usado para un prefijo específico
+ *
+ * @param string $prefix Prefijo (TEC, USR, RES, TSK)
+ * @return string|null Último ID o null si no existe
+ */
+function getLastDTICId(string $prefix): ?string {
+    try {
+        $sql = "SELECT dtic_id FROM technicians WHERE dtic_id LIKE ? ORDER BY dtic_id DESC LIMIT 1";
+        $stmt = executeQuery($sql, [$prefix . '-%']);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result ? $result['dtic_id'] : null;
+    } catch (Exception $e) {
+        error_log("Error obteniendo último ID DTIC para {$prefix}: " . $e->getMessage());
+        return null;
+    }
 }
 
 /**

@@ -687,6 +687,9 @@ class TechniciansManager {
     }
 
     async updateTechnician(id) {
+        // Limpiar errores previos
+        this.clearFormErrors();
+
         const formData = {
             first_name: document.getElementById('editFirstName').value.trim(),
             last_name: document.getElementById('editLastName').value.trim(),
@@ -696,9 +699,30 @@ class TechniciansManager {
             phone: document.getElementById('editPhone').value.trim()
         };
 
-        // Validación básica
-        if (!formData.first_name || !formData.last_name || !formData.email || !formData.role || !formData.department) {
-            this.showNotification('Por favor complete todos los campos requeridos', 'danger');
+        // Validación básica del frontend
+        let hasErrors = false;
+        const requiredFields = [
+            { id: 'editFirstName', name: 'Nombre', value: formData.first_name },
+            { id: 'editLastName', name: 'Apellido', value: formData.last_name },
+            { id: 'editEmail', name: 'Email', value: formData.email },
+            { id: 'editRole', name: 'Rol', value: formData.role },
+            { id: 'editDepartment', name: 'Departamento', value: formData.department }
+        ];
+
+        requiredFields.forEach(field => {
+            if (!field.value) {
+                this.showFieldError(field.id, `${field.name} es obligatorio`);
+                hasErrors = true;
+            }
+        });
+
+        // Validación de email básico
+        if (formData.email && !this.isValidEmail(formData.email)) {
+            this.showFieldError('editEmail', 'El email debe tener un formato válido');
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
             return;
         }
 
@@ -727,7 +751,12 @@ class TechniciansManager {
                 this.loadTechnicians();
                 this.loadStatistics();
             } else {
-                this.showNotification(data.message || 'Error al actualizar técnico', 'danger');
+                // Mostrar errores específicos en el formulario
+                if (data.message) {
+                    this.showFormError(data.message);
+                } else {
+                    this.showNotification(data.message || 'Error al actualizar técnico', 'danger');
+                }
             }
         } catch (error) {
             console.error('Error updating technician:', error);
@@ -735,6 +764,93 @@ class TechniciansManager {
         } finally {
             this.hideLoading();
         }
+    }
+
+    clearFormErrors() {
+        // Limpiar clases de error de todos los campos
+        const fields = ['editFirstName', 'editLastName', 'editEmail', 'editRole', 'editDepartment', 'editPhone'];
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.remove('is-invalid');
+                // Remover mensaje de error si existe
+                const errorDiv = field.parentNode.querySelector('.invalid-feedback');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            }
+        });
+
+        // Limpiar mensaje de error general
+        const generalError = document.getElementById('editTechnicianModal').querySelector('.alert-danger');
+        if (generalError) {
+            generalError.remove();
+        }
+    }
+
+    showFieldError(fieldId, errorMessage) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.classList.add('is-invalid');
+
+            // Agregar mensaje de error si no existe
+            let errorDiv = field.parentNode.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                field.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.textContent = errorMessage;
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    showFormError(errorMessage) {
+        // Mostrar error específico según el tipo de error
+        let fieldId = null;
+        let errorText = errorMessage;
+
+        if (errorMessage.includes('email') && errorMessage.includes('registrado')) {
+            fieldId = 'editEmail';
+            errorText = 'Este email ya está registrado por otro técnico';
+        } else if (errorMessage.includes('Nombre') || errorMessage.includes('first_name')) {
+            fieldId = 'editFirstName';
+            errorText = 'El nombre es obligatorio y debe tener al menos 2 caracteres';
+        } else if (errorMessage.includes('Apellido') || errorMessage.includes('last_name')) {
+            fieldId = 'editLastName';
+            errorText = 'El apellido es obligatorio y debe tener al menos 2 caracteres';
+        } else if (errorMessage.includes('email') && errorMessage.includes('válido')) {
+            fieldId = 'editEmail';
+            errorText = 'El email debe tener un formato válido';
+        } else if (errorMessage.includes('departamento') || errorMessage.includes('department')) {
+            fieldId = 'editDepartment';
+            errorText = 'Debe seleccionar un departamento válido';
+        } else if (errorMessage.includes('rol') || errorMessage.includes('role')) {
+            fieldId = 'editRole';
+            errorText = 'Debe seleccionar un rol válido';
+        }
+
+        if (fieldId) {
+            // Mostrar error en campo específico
+            this.showFieldError(fieldId, errorText);
+        } else {
+            // Mostrar error general en el modal
+            const modalBody = document.querySelector('#editTechnicianModal .modal-body');
+            if (modalBody) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <strong>Error:</strong> ${errorMessage}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                modalBody.insertBefore(alertDiv, modalBody.firstChild);
+            }
+        }
+    }
+
+    isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
     }
 
     showPermissions(id) {
