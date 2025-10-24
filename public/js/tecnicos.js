@@ -27,6 +27,23 @@ class TecnicosManager {
             this.debouncedLoadTechnicians();
         });
 
+        // Manejar colapso de áreas para evitar que ambas estén abiertas simultáneamente
+        document.getElementById('searchCollapse')?.addEventListener('show.bs.collapse', () => {
+            // Si se abre búsqueda, cerrar formulario
+            const addUserCollapse = document.getElementById('addUserCollapse');
+            if (addUserCollapse && addUserCollapse.classList.contains('show')) {
+                bootstrap.Collapse.getInstance(addUserCollapse)?.hide();
+            }
+        });
+
+        document.getElementById('addUserCollapse')?.addEventListener('show.bs.collapse', () => {
+            // Si se abre formulario, cerrar búsqueda
+            const searchCollapse = document.getElementById('searchCollapse');
+            if (searchCollapse && searchCollapse.classList.contains('show')) {
+                bootstrap.Collapse.getInstance(searchCollapse)?.hide();
+            }
+        });
+
         document.getElementById('filterRole')?.addEventListener('change', (e) => {
             this.currentFilters.role = e.target.value;
             this.loadTechnicians();
@@ -324,6 +341,9 @@ class TecnicosManager {
     }
 
     async createTechnician() {
+        // Limpiar errores previos
+        this.clearFormErrors();
+
         const formData = {
             first_name: document.getElementById('userFirstName').value.trim(),
             last_name: document.getElementById('userLastName').value.trim(),
@@ -333,9 +353,30 @@ class TecnicosManager {
             phone: document.getElementById('userPhone').value.trim()
         };
 
-        // Validación básica
-        if (!formData.first_name || !formData.last_name || !formData.email || !formData.role || !formData.department) {
-            this.showNotification('Por favor complete todos los campos requeridos', 'danger');
+        // Validación básica del frontend
+        let hasErrors = false;
+        const requiredFields = [
+            { id: 'userFirstName', name: 'Nombre', value: formData.first_name },
+            { id: 'userLastName', name: 'Apellido', value: formData.last_name },
+            { id: 'userEmail', name: 'Email', value: formData.email },
+            { id: 'userRole', name: 'Rol', value: formData.role },
+            { id: 'userDepartment', name: 'Departamento', value: formData.department }
+        ];
+
+        requiredFields.forEach(field => {
+            if (!field.value) {
+                this.showFieldError(field.id, `${field.name} es obligatorio`);
+                hasErrors = true;
+            }
+        });
+
+        // Validación de email básico
+        if (formData.email && !this.isValidEmail(formData.email)) {
+            this.showFieldError('userEmail', 'El email debe tener un formato válido');
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
             return;
         }
 
@@ -356,16 +397,23 @@ class TecnicosManager {
             if (data.success) {
                 this.showNotification('Técnico creado exitosamente', 'success');
 
-                // Cerrar modal y resetear formulario
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
-                modal.hide();
+                // Cerrar formulario colapsable y resetear
+                const addUserCollapse = document.getElementById('addUserCollapse');
+                if (addUserCollapse) {
+                    bootstrap.Collapse.getInstance(addUserCollapse)?.hide();
+                }
                 document.getElementById('addUserForm').reset();
 
                 // Recargar lista
                 this.loadTechnicians();
                 this.loadStatistics();
             } else {
-                this.showNotification(data.message || 'Error al crear técnico', 'danger');
+                // Mostrar errores específicos en el formulario
+                if (data.message) {
+                    this.showFormError(data.message);
+                } else {
+                    this.showNotification(data.message || 'Error al crear técnico', 'danger');
+                }
             }
         } catch (error) {
             console.error('Error creating technician:', error);
@@ -762,9 +810,9 @@ class TecnicosManager {
     }
 
     clearFormErrors() {
-        // Limpiar clases de error de todos los campos
-        const fields = ['editFirstName', 'editLastName', 'editEmail', 'editRole', 'editDepartment', 'editPhone'];
-        fields.forEach(fieldId => {
+        // Limpiar clases de error de todos los campos (para edición)
+        const editFields = ['editFirstName', 'editLastName', 'editEmail', 'editRole', 'editDepartment', 'editPhone'];
+        editFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
             if (field) {
                 field.classList.remove('is-invalid');
@@ -776,10 +824,30 @@ class TecnicosManager {
             }
         });
 
-        // Limpiar mensaje de error general
-        const generalError = document.getElementById('editTechnicianModal').querySelector('.alert-danger');
-        if (generalError) {
-            generalError.remove();
+        // Limpiar clases de error de campos de creación
+        const createFields = ['userFirstName', 'userLastName', 'userEmail', 'userRole', 'userDepartment', 'userPhone'];
+        createFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.remove('is-invalid');
+                // Remover mensaje de error si existe
+                const errorDiv = field.parentNode.querySelector('.invalid-feedback');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            }
+        });
+
+        // Limpiar mensaje de error general del modal de edición
+        const editModalError = document.getElementById('editTechnicianModal')?.querySelector('.alert-danger');
+        if (editModalError) {
+            editModalError.remove();
+        }
+
+        // Limpiar mensaje de error general del formulario colapsable
+        const formError = document.getElementById('addUserCollapse')?.querySelector('.alert-danger');
+        if (formError) {
+            formError.remove();
         }
     }
 
@@ -805,23 +873,26 @@ class TecnicosManager {
         let fieldId = null;
         let errorText = errorMessage;
 
+        // Determinar si es error de edición o creación
+        const isEditError = errorMessage.includes('edit') || document.getElementById('editTechnicianModal');
+
         if (errorMessage.includes('email') && errorMessage.includes('registrado')) {
-            fieldId = 'editEmail';
+            fieldId = isEditError ? 'editEmail' : 'userEmail';
             errorText = 'Este email ya está registrado por otro técnico';
         } else if (errorMessage.includes('Nombre') || errorMessage.includes('first_name')) {
-            fieldId = 'editFirstName';
+            fieldId = isEditError ? 'editFirstName' : 'userFirstName';
             errorText = 'El nombre es obligatorio y debe tener al menos 2 caracteres';
         } else if (errorMessage.includes('Apellido') || errorMessage.includes('last_name')) {
-            fieldId = 'editLastName';
+            fieldId = isEditError ? 'editLastName' : 'userLastName';
             errorText = 'El apellido es obligatorio y debe tener al menos 2 caracteres';
         } else if (errorMessage.includes('email') && errorMessage.includes('válido')) {
-            fieldId = 'editEmail';
+            fieldId = isEditError ? 'editEmail' : 'userEmail';
             errorText = 'El email debe tener un formato válido';
         } else if (errorMessage.includes('departamento') || errorMessage.includes('department')) {
-            fieldId = 'editDepartment';
+            fieldId = isEditError ? 'editDepartment' : 'userDepartment';
             errorText = 'Debe seleccionar un departamento válido';
         } else if (errorMessage.includes('rol') || errorMessage.includes('role')) {
-            fieldId = 'editRole';
+            fieldId = isEditError ? 'editRole' : 'userRole';
             errorText = 'Debe seleccionar un rol válido';
         }
 
@@ -829,16 +900,31 @@ class TecnicosManager {
             // Mostrar error en campo específico
             this.showFieldError(fieldId, errorText);
         } else {
-            // Mostrar error general en el modal
-            const modalBody = document.querySelector('#editTechnicianModal .modal-body');
-            if (modalBody) {
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-                alertDiv.innerHTML = `
-                    <strong>Error:</strong> ${errorMessage}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                modalBody.insertBefore(alertDiv, modalBody.firstChild);
+            // Mostrar error general
+            if (isEditError) {
+                // Error en modal de edición
+                const modalBody = document.querySelector('#editTechnicianModal .modal-body');
+                if (modalBody) {
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        <strong>Error:</strong> ${errorMessage}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    modalBody.insertBefore(alertDiv, modalBody.firstChild);
+                }
+            } else {
+                // Error en formulario colapsable
+                const formContainer = document.querySelector('#addUserCollapse .mt-3');
+                if (formContainer) {
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        <strong>Error:</strong> ${errorMessage}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    formContainer.insertBefore(alertDiv, formContainer.firstChild);
+                }
             }
         }
     }
