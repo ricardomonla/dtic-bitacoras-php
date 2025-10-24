@@ -355,6 +355,14 @@ class Dashboard {
 
     // Método para cargar actividad reciente con datos de ejemplo
     loadRecentActivity() {
+        // Verificar que los elementos estén inicializados antes de continuar
+        if (!this.elements || !this.elements.recentActivity) {
+            console.warn('Elementos del DOM no inicializados, esperando...');
+            // Reintentar después de un breve delay
+            setTimeout(() => this.loadRecentActivity(), 100);
+            return;
+        }
+
         const recentActivities = [
             {
                 timestamp: '2025-10-22 14:30',
@@ -399,7 +407,7 @@ class Dashboard {
 
     // Método para actualizar actividad reciente (se usará en etapas posteriores)
     updateRecentActivity(activities) {
-        if (activities && activities.length > 0) {
+        if (this.elements.recentActivity && activities && activities.length > 0) {
             const activityHtml = activities.map(activity => {
                 const typeIcon = this.getActivityTypeIcon(activity.type);
                 const typeClass = `activity-${activity.type}`;
