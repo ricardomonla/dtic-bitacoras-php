@@ -354,6 +354,19 @@ body {
     color: #495057;
 }
 
+/* Collapsible Form */
+.collapse-form {
+    transition: all 0.3s ease-in-out;
+}
+
+.collapse-form .form-control-sm {
+    font-size: 0.875rem;
+}
+
+.collapse-form .form-select-sm {
+    font-size: 0.875rem;
+}
+
 /* Utilidades */
 .text-gradient {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

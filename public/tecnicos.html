@@ -71,17 +71,12 @@
     <div class="container mt-4">
         <!-- Page Header -->
         <div class="page-header tecnicos">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="page-title">
-                        <i class="fas fa-users me-3"></i>
-                        Gestión de Técnicos
-                    </h1>
-                    <p class="page-subtitle">Administra los técnicos asignados a recursos del sistema DTIC Bitácoras</p>
-                </div>
-                <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                    <i class="fas fa-user-plus me-2"></i>Nuevo Técnico
-                </button>
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-users me-3"></i>
+                    Gestión de Técnicos
+                </h1>
+                <p class="page-subtitle">Administra los técnicos asignados a recursos del sistema DTIC Bitácoras</p>
             </div>
         </div>
 
@@ -142,8 +137,11 @@
                                 <label class="btn btn-outline-primary btn-sm" for="tableView" title="Vista de tabla">
                                     <i class="fas fa-list"></i>
                                 </label>
-                                <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse" title="Buscar técnicos">
+                                <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse" title="Buscar y filtrar técnicos">
                                     <i class="fas fa-search"></i>
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#addUserCollapse" aria-expanded="false" aria-controls="addUserCollapse" title="Agregar nuevo técnico">
+                                    <i class="fas fa-user-plus"></i>
                                 </button>
                             </div>
                         </div>
@@ -196,6 +194,65 @@
                                         <i class="fas fa-chevron-up me-1"></i>Ocultar
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Collapsible Add User Form -->
+                        <div class="collapse collapse-form" id="addUserCollapse">
+                            <div class="mt-3 p-3 bg-success bg-opacity-10 rounded">
+                                <h6 class="fw-bold text-success mb-3">
+                                    <i class="fas fa-user-plus me-2"></i>Agregar Nuevo Técnico
+                                </h6>
+                                <form id="addUserForm">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold">Nombre *</label>
+                                            <input type="text" class="form-control form-control-sm" id="userFirstName" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold">Apellido *</label>
+                                            <input type="text" class="form-control form-control-sm" id="userLastName" required>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="form-label small fw-bold">Email *</label>
+                                            <input type="email" class="form-control form-control-sm" id="userEmail" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label small fw-bold">Rol *</label>
+                                            <select class="form-select form-select-sm" id="userRole" required>
+                                                <option value="">Seleccionar...</option>
+                                                <option value="admin">Administrador</option>
+                                                <option value="technician">Técnico</option>
+                                                <option value="viewer">Visualizador</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold">Departamento *</label>
+                                            <select class="form-select form-select-sm" id="userDepartment" required>
+                                                <option value="">Seleccionar...</option>
+                                                <option value="dtic">DTIC</option>
+                                                <option value="sistemas">Sistemas</option>
+                                                <option value="redes">Redes</option>
+                                                <option value="seguridad">Seguridad</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold">Teléfono</label>
+                                            <input type="tel" class="form-control form-control-sm" id="userPhone">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <small class="text-muted">Los campos marcados con * son obligatorios</small>
+                                        <div>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm me-2" data-bs-toggle="collapse" data-bs-target="#addUserCollapse">
+                                                <i class="fas fa-times me-1"></i>Cancelar
+                                            </button>
+                                            <button type="button" class="btn btn-success btn-sm" id="saveUserBtn">
+                                                <i class="fas fa-save me-1"></i>Crear Técnico
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
