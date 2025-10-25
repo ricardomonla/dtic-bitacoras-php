@@ -150,26 +150,23 @@ function renderHead(string $title = '', string $description = ''): string {
     $fullTitle = $title ? "DTIC Bitácoras - {$title}" : 'DTIC Bitácoras - Dashboard';
     $metaDescription = $description ?: 'Sistema de Gestión de Tareas y Recursos - Departamento de Tecnología de la Información y Comunicación';
 
-    // Enviar headers HTTP para UTF-8
-    header('Content-Type: text/html; charset=UTF-8');
+    return "<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>{$fullTitle}</title>
+    <meta name='description' content='{$metaDescription}'>
 
-    return "
-        <head>
-            <meta charset='UTF-8'>
-            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-            <title>{$fullTitle}</title>
-            <meta name='description' content='{$metaDescription}'>
+    <!-- Bootstrap 5 CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>
 
-            <!-- Bootstrap 5 CSS -->
-            <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>
+    <!-- Font Awesome Icons -->
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css' rel='stylesheet'>
 
-            <!-- Font Awesome Icons -->
-            <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css' rel='stylesheet'>
-
-            <!-- Custom CSS -->
-            <link href='css/styles.css' rel='stylesheet'>
-        </head>
-    ";
+    <!-- Custom CSS -->
+    <link href='css/styles.css' rel='stylesheet'>
+</head>";
 }
 
 /**
@@ -182,31 +179,33 @@ function renderHead(string $title = '', string $description = ''): string {
  * @return string HTML completo de la página
  */
 function renderPage(string $currentPage, string $title, string $content, string $extraScripts = ''): string {
-    $pageHtml = "
-        <!DOCTYPE html>
-        <html lang='es'>
-        " . renderHead($title) . "
-        <body>
-            " . renderNavbar($currentPage) . "
+    // Enviar headers HTTP antes de cualquier output
+    header('Content-Type: text/html; charset=UTF-8');
+    header('X-UA-Compatible: IE=edge');
 
-            <div class='container mt-4'>
-                {$content}
-            </div>
+    $pageHtml = "<!DOCTYPE html>
+<html lang='es'>
+" . renderHead($title) . "
+<body>
+    " . renderNavbar($currentPage) . "
 
-            " . renderFooter() . "
+    <div class='container mt-4'>
+        {$content}
+    </div>
 
-            <!-- Bootstrap 5 JS -->
-            <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js'></script>
+    " . renderFooter() . "
 
-            <!-- Custom JavaScript -->
-            <script src='js/dashboard.js'></script>
+    <!-- Bootstrap 5 JS -->
+    <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js'></script>
 
-            {$extraScripts}
+    <!-- Custom JavaScript -->
+    <script src='js/dashboard.js'></script>
 
-            " . renderLogoutScript() . "
-        </body>
-        </html>
-    ";
+    {$extraScripts}
+
+    " . renderLogoutScript() . "
+</body>
+</html>";
 
     return $pageHtml;
 }

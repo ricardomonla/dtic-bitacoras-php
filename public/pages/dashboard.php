@@ -1,6 +1,9 @@
 <?php
-header('Location: pages/dashboard.php');
-exit;
+require_once 'includes/navigation.php';
+$currentPage = 'dashboard';
+
+function getDashboardContent() {
+    return <<<HTML
 
     <!-- Main Content -->
     <div class="container mt-4">

@@ -1,0 +1,846 @@
+<?php
+require_once 'includes/navigation.php';
+$currentPage = 'usuarios';
+?>
+<?php echo renderPage($currentPage, 'Gestión de Usuarios', "
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Page Header -->
+        <div class="page-header usuarios">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="page-title">
+                        <i class="fas fa-users me-3"></i>
+                        Gestión de Usuarios
+                    </h1>
+                    <p class="page-subtitle">Administra los usuarios que trabajan con recursos del sistema DTIC Bitácoras</p>
+                </div>
+                <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+                </button>
+            </div>
+        </div>
+
+        <!-- User Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 text-primary mb-2" id="totalUsers">8</div>
+                        <h6 class="card-title">Total Usuarios</h6>
+                        <small class="text-muted">Registrados en el sistema</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 text-success mb-2" id="activeUsers">7</div>
+                        <h6 class="card-title">Activos</h6>
+                        <small class="text-muted">Con acceso al sistema</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 text-warning mb-2" id="inactiveUsers">1</div>
+                        <h6 class="card-title">Inactivos</h6>
+                        <small class="text-muted">Acceso suspendido</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 text-info mb-2" id="assignedUsers">6</div>
+                        <h6 class="card-title">Asignados</h6>
+                        <small class="text-muted">Con recursos asignados</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="searchUsers" placeholder="Buscar usuarios...">
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="filterRole">
+                                    <option value="">Todos los roles</option>
+                                    <option value="operador">Operador</option>
+                                    <option value="supervisor">Supervisor</option>
+                                    <option value="analista">Analista</option>
+                                    <option value="invitado">Invitado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="filterStatus">
+                                    <option value="">Todos los estados</option>
+                                    <option value="active">Activo</option>
+                                    <option value="inactive">Inactivo</option>
+                                    <option value="pending">Pendiente</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="filterDepartment">
+                                    <option value="">Todos los deptos</option>
+                                    <option value="dtic">DTIC</option>
+                                    <option value="sistemas">Sistemas</option>
+                                    <option value="redes">Redes</option>
+                                    <option value="seguridad">Seguridad</option>
+                                    <option value="operaciones">Operaciones</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-secondary w-100" id="clearFilters">
+                                    <i class="fas fa-times me-1"></i>Limpiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users List -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Lista de Usuarios</h5>
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="viewMode" id="cardView" autocomplete="off" checked>
+                            <label class="btn btn-outline-primary btn-sm" for="cardView">
+                                <i class="fas fa-th"></i>
+                            </label>
+                            <input type="radio" class="btn-check" name="viewMode" id="tableView" autocomplete="off">
+                            <label class="btn btn-outline-primary btn-sm" for="tableView">
+                                <i class="fas fa-list"></i>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Card View -->
+                        <div id="cardViewContainer" class="row">
+                            <!-- User Card 1 -->
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header bg-primary text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-white text-primary me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">Carlos Mendoza</h6>
+                                                    <small>Operador</small>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-success">Activo</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <p class="mb-2"><strong>Email:</strong> cmendoza@dtic.gob.ar</p>
+                                                <p class="mb-2"><strong>Departamento:</strong> Operaciones</p>
+                                                <p class="mb-2"><strong>Teléfono:</strong> +54 11 1234-5690</p>
+                                                <p class="mb-2"><strong>Último acceso:</strong> Hoy 09:30</p>
+                                                <p class="mb-0"><strong>Recursos asignados:</strong> 3</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="btn-group w-100" role="group">
+                                            <button class="btn btn-outline-primary btn-sm" title="Ver Perfil">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm" title="Asignar Recursos">
+                                                <i class="fas fa-link"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" title="Desactivar">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- User Card 2 -->
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header bg-success text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-white text-success me-3">
+                                                    <i class="fas fa-user-tie"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">Laura Silva</h6>
+                                                    <small>Supervisor</small>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-success">Activo</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <p class="mb-2"><strong>Email:</strong> lsilva@dtic.gob.ar</p>
+                                                <p class="mb-2"><strong>Departamento:</strong> DTIC</p>
+                                                <p class="mb-2"><strong>Teléfono:</strong> +54 11 1234-5691</p>
+                                                <p class="mb-2"><strong>Último acceso:</strong> Hoy 08:45</p>
+                                                <p class="mb-0"><strong>Recursos asignados:</strong> 5</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="btn-group w-100" role="group">
+                                            <button class="btn btn-outline-primary btn-sm" title="Ver Perfil">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm" title="Asignar Recursos">
+                                                <i class="fas fa-link"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" title="Desactivar">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- User Card 3 -->
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header bg-info text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-white text-info me-3">
+                                                    <i class="fas fa-user-graduate"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">Diego Torres</h6>
+                                                    <small>Analista</small>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-success">Activo</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <p class="mb-2"><strong>Email:</strong> dtorres@dtic.gob.ar</p>
+                                                <p class="mb-2"><strong>Departamento:</strong> Sistemas</p>
+                                                <p class="mb-2"><strong>Teléfono:</strong> +54 11 1234-5692</p>
+                                                <p class="mb-2"><strong>Último acceso:</strong> Hoy 10:15</p>
+                                                <p class="mb-0"><strong>Recursos asignados:</strong> 2</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="btn-group w-100" role="group">
+                                            <button class="btn btn-outline-primary btn-sm" title="Ver Perfil">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm" title="Asignar Recursos">
+                                                <i class="fas fa-link"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" title="Desactivar">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- User Card 4 -->
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header bg-primary text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-white text-primary me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">Ana Gómez</h6>
+                                                    <small>Operador</small>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-success">Activo</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <p class="mb-2"><strong>Email:</strong> agomez@dtic.gob.ar</p>
+                                                <p class="mb-2"><strong>Departamento:</strong> Redes</p>
+                                                <p class="mb-2"><strong>Teléfono:</strong> +54 11 1234-5693</p>
+                                                <p class="mb-2"><strong>Último acceso:</strong> Ayer 17:20</p>
+                                                <p class="mb-0"><strong>Recursos asignados:</strong> 4</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="btn-group w-100" role="group">
+                                            <button class="btn btn-outline-primary btn-sm" title="Ver Perfil">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm" title="Asignar Recursos">
+                                                <i class="fas fa-link"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" title="Desactivar">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- User Card 5 -->
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header bg-success text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-white text-success me-3">
+                                                    <i class="fas fa-user-tie"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">Roberto Díaz</h6>
+                                                    <small>Supervisor</small>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-success">Activo</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <p class="mb-2"><strong>Email:</strong> rdiaz@dtic.gob.ar</p>
+                                                <p class="mb-2"><strong>Departamento:</strong> Seguridad</p>
+                                                <p class="mb-2"><strong>Teléfono:</strong> +54 11 1234-5694</p>
+                                                <p class="mb-2"><strong>Último acceso:</strong> Hoy 11:30</p>
+                                                <p class="mb-0"><strong>Recursos asignados:</strong> 6</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="btn-group w-100" role="group">
+                                            <button class="btn btn-outline-primary btn-sm" title="Ver Perfil">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm" title="Asignar Recursos">
+                                                <i class="fas fa-link"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" title="Desactivar">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- User Card 6 -->
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header bg-info text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-white text-info me-3">
+                                                    <i class="fas fa-user-graduate"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">Patricia Ruiz</h6>
+                                                    <small>Analista</small>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-success">Activo</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <p class="mb-2"><strong>Email:</strong> pruiz@dtic.gob.ar</p>
+                                                <p class="mb-2"><strong>Departamento:</strong> DTIC</p>
+                                                <p class="mb-2"><strong>Teléfono:</strong> +54 11 1234-5695</p>
+                                                <p class="mb-2"><strong>Último acceso:</strong> Hoy 09:00</p>
+                                                <p class="mb-0"><strong>Recursos asignados:</strong> 1</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="btn-group w-100" role="group">
+                                            <button class="btn btn-outline-primary btn-sm" title="Ver Perfil">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm" title="Asignar Recursos">
+                                                <i class="fas fa-link"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" title="Desactivar">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- User Card 7 -->
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header bg-warning text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-white text-warning me-3">
+                                                    <i class="fas fa-user-clock"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">Miguel Soto</h6>
+                                                    <small>Invitado</small>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-success">Activo</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <p class="mb-2"><strong>Email:</strong> msoto@dtic.gob.ar</p>
+                                                <p class="mb-2"><strong>Departamento:</strong> Operaciones</p>
+                                                <p class="mb-2"><strong>Teléfono:</strong> +54 11 1234-5696</p>
+                                                <p class="mb-2"><strong>Último acceso:</strong> Hoy 14:45</p>
+                                                <p class="mb-0"><strong>Recursos asignados:</strong> 0</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="btn-group w-100" role="group">
+                                            <button class="btn btn-outline-primary btn-sm" title="Ver Perfil">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm" title="Asignar Recursos">
+                                                <i class="fas fa-link"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" title="Desactivar">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- User Card 8 -->
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header bg-secondary text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-white text-secondary me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">Elena Vargas</h6>
+                                                    <small>Operador</small>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-warning">Inactivo</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <p class="mb-2"><strong>Email:</strong> evargas@dtic.gob.ar</p>
+                                                <p class="mb-2"><strong>Departamento:</strong> Sistemas</p>
+                                                <p class="mb-2"><strong>Teléfono:</strong> +54 11 1234-5697</p>
+                                                <p class="mb-2"><strong>Último acceso:</strong> 12/10/2025</p>
+                                                <p class="mb-0"><strong>Recursos asignados:</strong> 0</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="btn-group w-100" role="group">
+                                            <button class="btn btn-outline-primary btn-sm" title="Ver Perfil">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success btn-sm" title="Reactivar">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table View (Hidden by default) -->
+                        <div id="tableViewContainer" class="d-none">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Email</th>
+                                            <th>Rol</th>
+                                            <th>Departamento</th>
+                                            <th>Estado</th>
+                                            <th>Recursos</th>
+                                            <th>Técnico</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Carlos Mendoza</td>
+                                            <td>cmendoza@dtic.gob.ar</td>
+                                            <td><span class="badge bg-primary">Operador</span></td>
+                                            <td>Operaciones</td>
+                                            <td><span class="badge bg-success">Activo</span></td>
+                                            <td>3</td>
+                                            <td>Juan García</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-outline-primary btn-sm" title="Ver">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger btn-sm" title="Desactivar">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Laura Silva</td>
+                                            <td>lsilva@dtic.gob.ar</td>
+                                            <td><span class="badge bg-success">Supervisor</span></td>
+                                            <td>DTIC</td>
+                                            <td><span class="badge bg-success">Activo</span></td>
+                                            <td>5</td>
+                                            <td>María Rodríguez</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-outline-primary btn-sm" title="Ver">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger btn-sm" title="Desactivar">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Diego Torres</td>
+                                            <td>dtorres@dtic.gob.ar</td>
+                                            <td><span class="badge bg-info">Analista</span></td>
+                                            <td>Sistemas</td>
+                                            <td><span class="badge bg-success">Activo</span></td>
+                                            <td>2</td>
+                                            <td>Carlos López</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-outline-primary btn-sm" title="Ver">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-warning btn-sm" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger btn-sm" title="Desactivar">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+", renderLogoutScript()); ?>
+
+<!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="userFirstName" class="form-label">Nombre *</label>
+                                    <input type="text" class="form-control" id="userFirstName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="userLastName" class="form-label">Apellido *</label>
+                                    <input type="text" class="form-control" id="userLastName" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="userEmail" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="userEmail" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="userRole" class="form-label">Rol *</label>
+                                    <select class="form-select" id="userRole" required>
+                                        <option value="">Seleccionar...</option>
+                                        <option value="operador">Operador</option>
+                                        <option value="supervisor">Supervisor</option>
+                                        <option value="analista">Analista</option>
+                                        <option value="invitado">Invitado</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="userDepartment" class="form-label">Departamento *</label>
+                                    <select class="form-select" id="userDepartment" required>
+                                        <option value="">Seleccionar...</option>
+                                        <option value="dtic">DTIC</option>
+                                        <option value="sistemas">Sistemas</option>
+                                        <option value="redes">Redes</option>
+                                        <option value="seguridad">Seguridad</option>
+                                        <option value="operaciones">Operaciones</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="userPhone" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="userPhone">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="assignedResources" class="form-label">Recursos Iniciales</label>
+                            <input type="number" class="form-control" id="assignedResources" min="0" value="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="userNotes" class="form-label">Notas</label>
+                            <textarea class="form-control" id="userNotes" rows="3" placeholder="Información adicional sobre el usuario"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveUserBtn">
+                        <i class="fas fa-save me-2"></i>Crear Usuario
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <?php echo renderFooter(); ?>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Users page specific JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('👥 Página de Gestión de Usuarios cargada');
+
+            // View mode toggle
+            const cardViewRadio = document.getElementById('cardView');
+            const tableViewRadio = document.getElementById('tableView');
+            const cardContainer = document.getElementById('cardViewContainer');
+            const tableContainer = document.getElementById('tableViewContainer');
+
+            cardViewRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    cardContainer.classList.remove('d-none');
+                    tableContainer.classList.add('d-none');
+                }
+            });
+
+            tableViewRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    tableContainer.classList.remove('d-none');
+                    cardContainer.classList.add('d-none');
+                }
+            });
+
+            // Search functionality
+            const searchInput = document.getElementById('searchUsers');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const userCards = document.querySelectorAll('#cardViewContainer .card');
+
+                userCards.forEach(card => {
+                    const name = card.querySelector('.card-header h6').textContent.toLowerCase();
+                    const email = card.querySelector('.card-body').textContent.toLowerCase();
+
+                    if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
+            // Filter functionality
+            const roleFilter = document.getElementById('filterRole');
+            const statusFilter = document.getElementById('filterStatus');
+            const departmentFilter = document.getElementById('filterDepartment');
+            const clearFiltersBtn = document.getElementById('clearFilters');
+
+            function applyFilters() {
+                const roleValue = roleFilter.value;
+                const statusValue = statusFilter.value;
+                const departmentValue = departmentFilter.value;
+                const userCards = document.querySelectorAll('#cardViewContainer .card');
+
+                userCards.forEach(card => {
+                    let showCard = true;
+
+                    // Role filter
+                    if (roleValue) {
+                        const cardRole = card.querySelector('.card-header small').textContent.toLowerCase();
+                        if (!cardRole.includes(roleValue)) {
+                            showCard = false;
+                        }
+                    }
+
+                    // Status filter
+                    if (statusValue && showCard) {
+                        const cardStatus = card.querySelector('.badge').textContent.toLowerCase();
+                        if (!cardStatus.includes(statusValue)) {
+                            showCard = false;
+                        }
+                    }
+
+                    // Department filter
+                    if (departmentValue && showCard) {
+                        const cardDepartment = card.querySelector('.card-body').textContent.toLowerCase();
+                        if (!cardDepartment.includes(departmentValue)) {
+                            showCard = false;
+                        }
+                    }
+
+                    card.style.display = showCard ? 'block' : 'none';
+                });
+            }
+
+            roleFilter.addEventListener('change', applyFilters);
+            statusFilter.addEventListener('change', applyFilters);
+            departmentFilter.addEventListener('change', applyFilters);
+
+            clearFiltersBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                roleFilter.value = '';
+                statusFilter.value = '';
+                const userCards = document.querySelectorAll('#cardViewContainer .card');
+                userCards.forEach(card => card.style.display = 'block');
+            });
+
+            // Save user functionality (mock)
+            document.getElementById('saveUserBtn').addEventListener('click', function() {
+                const firstName = document.getElementById('userFirstName').value;
+                const lastName = document.getElementById('userLastName').value;
+                const email = document.getElementById('userEmail').value;
+                const role = document.getElementById('userRole').value;
+
+                if (firstName && lastName && email && role) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
+                    modal.hide();
+
+                    // Show success message
+                    showNotification('✅ Usuario "' + firstName + ' ' + lastName + '" creado exitosamente', 'success');
+
+                    // Reset form
+                    document.getElementById('addUserForm').reset();
+                } else {
+                    showNotification('❌ Por favor complete todos los campos requeridos', 'danger');
+                }
+            });
+        });
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            `;
+
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
