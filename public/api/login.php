@@ -45,8 +45,9 @@ if (!$validation['valid']) {
 $data = sanitizeData($data);
 
 // Verificar rate limiting (máximo 5 intentos por 15 minutos por IP)
+// En modo debug, saltar rate limiting
 $clientIP = getClientIP();
-if (!checkRateLimit('login', 5, 900)) { // 15 minutos = 900 segundos
+if (!DEBUG_MODE && !checkRateLimit('login', 5, 900)) { // 15 minutos = 900 segundos
     error_log("[LOGIN] Rate limit excedido para IP: {$clientIP}");
     sendErrorResponse('Demasiados intentos fallidos. Intente nuevamente en 15 minutos.', 429);
 }

@@ -11,6 +11,9 @@ define('DB_USER', getenv('DB_USER') ?: 'dtic_user');
 define('DB_PASS', getenv('DB_PASSWORD') ?: 'dtic_password');
 define('DB_CHARSET', 'utf8mb4');
 
+// Modo Debug - Desactiva rate limiting y otras restricciones para pruebas
+define('DEBUG_MODE', getenv('DEBUG_MODE') ?: false);
+
 // Opciones PDO
 define('DB_OPTIONS', [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

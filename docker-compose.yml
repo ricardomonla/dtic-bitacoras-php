@@ -12,6 +12,7 @@ services:
       - DB_NAME=dtic_bitacoras_php
       - DB_USER=dtic_user
       - DB_PASSWORD=dtic_password
+      - DEBUG_MODE=true
     networks:
       - dtic-network
 

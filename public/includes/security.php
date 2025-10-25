@@ -3,29 +3,7 @@
  * Funciones de seguridad para el sistema DTIC Bitácoras
  */
 
-/**
- * Inicia sesión segura
- */
-function startSecureSession(): void {
-    if (session_status() === PHP_SESSION_NONE) {
-        // Configuración segura de sesiones
-        ini_set('session.cookie_httponly', 1);
-        ini_set('session.cookie_secure', 0); // 0 para desarrollo local, 1 en producción con HTTPS
-        ini_set('session.use_only_cookies', 1);
-        ini_set('session.cookie_samesite', 'Lax');
-
-        session_name('DTIC_SESSION');
-        session_start();
-
-        // Regenera ID de sesión periódicamente
-        if (!isset($_SESSION['last_regeneration'])) {
-            $_SESSION['last_regeneration'] = time();
-        } elseif (time() - $_SESSION['last_regeneration'] > 300) { // 5 minutos
-            session_regenerate_id(true);
-            $_SESSION['last_regeneration'] = time();
-        }
-    }
-}
+// Función startSecureSession() movida a functions.php para evitar duplicación
 
 /**
  * Verifica si el usuario está autenticado
@@ -372,24 +350,7 @@ function escapeSQL(string $data): string {
     return getDBConnection()->quote($data);
 }
 
-/**
- * Limpia sesiones expiradas
- */
-function cleanupExpiredSessions(): void {
-    try {
-        $sql = "DELETE FROM sessions WHERE last_activity < DATE_SUB(NOW(), INTERVAL 24 HOUR)";
-        executeQuery($sql);
-
-        // También limpiar tokens de recordar expirados
-        $sql = "UPDATE sessions SET remember_token = NULL, remember_expires = NULL
-                WHERE remember_expires < NOW()";
-        executeQuery($sql);
-
-        error_log("[CLEANUP] Sesiones expiradas limpiadas exitosamente");
-    } catch (Exception $e) {
-        error_log("[CLEANUP] Error limpiando sesiones expiradas: " . $e->getMessage());
-    }
-}
+// Función cleanupExpiredSessions() movida a functions.php para evitar duplicación
 
 /**
  * Registra intento de login fallido

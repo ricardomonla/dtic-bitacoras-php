@@ -353,6 +353,10 @@ function startSecureSession(): void {
 }
 
 /**
+ * Alias para compatibilidad - función duplicada eliminada
+ */
+
+/**
  * Limpiar sesiones expiradas (debe ejecutarse periódicamente)
  */
 function cleanupExpiredSessions(): void {
