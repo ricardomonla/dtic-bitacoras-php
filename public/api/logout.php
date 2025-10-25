@@ -98,5 +98,5 @@ if (ini_get("session.use_cookies")) {
 
 // Respuesta exitosa
 sendJsonResponse(true, 'Logout exitoso', [
-    'redirect' => 'login.html'
+    'redirect' => 'dashboard'
 ], 200);
