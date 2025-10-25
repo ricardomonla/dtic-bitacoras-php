@@ -126,7 +126,7 @@ function renderNavbar(string $currentPage = ''): string {
                 </button>
                 <div class='collapse navbar-collapse' id='navbarNav'>
                     " . renderNavigation($currentPage) . "
-                    " . ($isLoggedIn ? renderUserInfo() : '') . "
+                    " . renderUserStatus($isLoggedIn, $user) . "
                 </div>
             </div>
         </nav>
@@ -228,6 +228,104 @@ function renderPage(string $currentPage, string $title, string $content, string 
 </html>";
 
     return $pageHtml;
+}
+
+/**
+ * Generar información de estado de usuario (siempre visible)
+ */
+function renderUserStatus(bool $isLoggedIn, ?array $user): string {
+    if ($isLoggedIn && $user) {
+        $userName = htmlspecialchars($user['name']);
+        $userRole = htmlspecialchars(ucfirst($user['role']));
+        $userDepartment = htmlspecialchars(ucfirst($user['department']));
+
+        return "
+            <ul class='navbar-nav ms-auto'>
+                <li class='nav-item dropdown'>
+                    <a class='nav-link dropdown-toggle' href='#' id='userDropdown' role='button' data-bs-toggle='dropdown' aria-expanded='false'>
+                        <i class='fas fa-user-circle me-2'></i>{$userName}
+                    </a>
+                    <ul class='dropdown-menu dropdown-menu-end' aria-labelledby='userDropdown'>
+                        <li><h6 class='dropdown-header'>{$userName}</h6></li>
+                        <li><span class='dropdown-item-text small text-muted'>{$userRole} • {$userDepartment}</span></li>
+                        <li><hr class='dropdown-divider'></li>
+                        <li><a class='dropdown-item' href='#' onclick='logout()'>
+                            <i class='fas fa-sign-out-alt me-2'></i>Cerrar Sesión
+                        </a></li>
+                    </ul>
+                </li>
+            </ul>
+        ";
+    } else {
+        return "
+            <ul class='navbar-nav ms-auto'>
+                <li class='nav-item'>
+                    <span class='navbar-text text-light'>
+                        <i class='fas fa-user me-2'></i>Usuario Público
+                    </span>
+                </li>
+            </ul>
+        ";
+    }
+}
+
+/**
+ * Generar JavaScript para logout
+ */
+function renderLogoutScript(): string {
+    return "
+        <script>
+        async function logout() {
+            try {
+                const response = await fetch('/api/logout.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Limpiar cualquier dato local si existe
+                    localStorage.clear();
+                    sessionStorage.clear();
+
+                    // Redirigir a login
+                    window.location.href = data.redirect || '/login';
+                } else {
+                    alert('Error al cerrar sesión: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Forzar redirección aunque falle la API
+                window.location.href = '/login';
+            }
+        }
+
+        // Verificar sesión periódicamente (cada 5 minutos)
+        setInterval(async () => {
+            try {
+                const response = await fetch('/api/auth/check.php', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    // Sesión expirada o inválida
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Session check error:', error);
+            }
+        }, 5 * 60 * 1000); // 5 minutos
+        </script>
+    ";
 }
 
 /**
