@@ -150,6 +150,9 @@ function renderHead(string $title = '', string $description = ''): string {
     $fullTitle = $title ? "DTIC Bitácoras - {$title}" : 'DTIC Bitácoras - Dashboard';
     $metaDescription = $description ?: 'Sistema de Gestión de Tareas y Recursos - Departamento de Tecnología de la Información y Comunicación';
 
+    // Enviar headers HTTP para UTF-8
+    header('Content-Type: text/html; charset=UTF-8');
+
     return "
         <head>
             <meta charset='UTF-8'>
