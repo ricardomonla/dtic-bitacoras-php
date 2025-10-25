@@ -14,57 +14,74 @@ require_once 'auth_middleware.php';
  * @return string HTML de la navegación
  */
 function renderNavigation(string $currentPage = ''): string {
-    $navItems = [
-        [
-            'id' => 'dashboard',
-            'url' => '/dashboard',
-            'icon' => 'fas fa-tachometer-alt',
-            'text' => 'Dashboard',
-            'active' => $currentPage === 'dashboard' || $currentPage === 'index'
-        ],
-        [
-            'id' => 'tasks',
-            'url' => '/tareas',
-            'icon' => 'fas fa-tasks',
-            'text' => 'Tareas',
-            'active' => $currentPage === 'tareas'
-        ],
-        [
-            'id' => 'resources',
-            'url' => '/recursos',
-            'icon' => 'fas fa-boxes',
-            'text' => 'Recursos',
-            'active' => $currentPage === 'recursos'
-        ],
-        [
-            'id' => 'calendar',
-            'url' => '/calendario',
-            'icon' => 'fas fa-calendar-alt',
-            'text' => 'Calendario',
-            'active' => $currentPage === 'calendario'
-        ],
-        [
-            'id' => 'technicians',
-            'url' => '/tecnicos',
-            'icon' => 'fas fa-user-cog',
-            'text' => 'Técnicos',
-            'active' => $currentPage === 'tecnicos'
-        ],
-        [
-            'id' => 'users',
-            'url' => '/usuarios',
-            'icon' => 'fas fa-users',
-            'text' => 'Usuarios',
-            'active' => $currentPage === 'usuarios'
-        ],
-        [
-            'id' => 'reports',
-            'url' => '/reportes',
-            'icon' => 'fas fa-chart-bar',
-            'text' => 'Reportes',
-            'active' => $currentPage === 'reportes'
-        ]
-    ];
+    $user = getCurrentUser();
+    $isLoggedIn = $user !== null;
+
+    // Si no está logueado, solo mostrar opción de login
+    if (!$isLoggedIn) {
+        $navItems = [
+            [
+                'id' => 'login',
+                'url' => '/login',
+                'icon' => 'fas fa-sign-in-alt',
+                'text' => 'Iniciar Sesión',
+                'active' => $currentPage === 'login'
+            ]
+        ];
+    } else {
+        // Si está logueado, mostrar todas las opciones
+        $navItems = [
+            [
+                'id' => 'dashboard',
+                'url' => '/dashboard',
+                'icon' => 'fas fa-tachometer-alt',
+                'text' => 'Dashboard',
+                'active' => $currentPage === 'dashboard' || $currentPage === 'index'
+            ],
+            [
+                'id' => 'tasks',
+                'url' => '/tareas',
+                'icon' => 'fas fa-tasks',
+                'text' => 'Tareas',
+                'active' => $currentPage === 'tareas'
+            ],
+            [
+                'id' => 'resources',
+                'url' => '/recursos',
+                'icon' => 'fas fa-boxes',
+                'text' => 'Recursos',
+                'active' => $currentPage === 'recursos'
+            ],
+            [
+                'id' => 'calendar',
+                'url' => '/calendario',
+                'icon' => 'fas fa-calendar-alt',
+                'text' => 'Calendario',
+                'active' => $currentPage === 'calendario'
+            ],
+            [
+                'id' => 'technicians',
+                'url' => '/tecnicos',
+                'icon' => 'fas fa-user-cog',
+                'text' => 'Técnicos',
+                'active' => $currentPage === 'tecnicos'
+            ],
+            [
+                'id' => 'users',
+                'url' => '/usuarios',
+                'icon' => 'fas fa-users',
+                'text' => 'Usuarios',
+                'active' => $currentPage === 'usuarios'
+            ],
+            [
+                'id' => 'reports',
+                'url' => '/reportes',
+                'icon' => 'fas fa-chart-bar',
+                'text' => 'Reportes',
+                'active' => $currentPage === 'reportes'
+            ]
+        ];
+    }
 
     $navHtml = '<ul class="navbar-nav me-auto">';
 
@@ -91,6 +108,9 @@ function renderNavigation(string $currentPage = ''): string {
  * @return string HTML completo del navbar
  */
 function renderNavbar(string $currentPage = ''): string {
+    $user = getCurrentUser();
+    $isLoggedIn = $user !== null;
+
     $brandUrl = '/dashboard';
     $brandText = 'DTIC Bitácoras';
 
@@ -106,7 +126,7 @@ function renderNavbar(string $currentPage = ''): string {
                 </button>
                 <div class='collapse navbar-collapse' id='navbarNav'>
                     " . renderNavigation($currentPage) . "
-                    " . renderUserInfo() . "
+                    " . ($isLoggedIn ? renderUserInfo() : '') . "
                 </div>
             </div>
         </nav>

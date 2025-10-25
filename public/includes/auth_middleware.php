@@ -5,6 +5,7 @@
  */
 
 // Incluir archivos necesarios
+require_once '../config/database.php';
 require_once 'functions.php';
 require_once 'security.php';
 
