@@ -77,6 +77,8 @@ switch ($method) {
  */
 function getTechnicians(): void {
     try {
+        error_log("[DEBUG] getTechnicians called with params: " . json_encode($_GET));
+
         $sql = "SELECT
                     t.id,
                     t.dtic_id,
@@ -100,9 +102,11 @@ function getTechnicians(): void {
 
         // Filtros opcionales
         if ($search = getRequestParam('search')) {
+            error_log("[DEBUG] Search parameter: '{$search}'");
             $conditions[] = "(t.first_name LIKE ? OR t.last_name LIKE ? OR t.email LIKE ? OR t.dtic_id LIKE ?)";
             $searchParam = "%{$search}%";
             $params = array_merge($params, [$searchParam, $searchParam, $searchParam, $searchParam]);
+            error_log("[DEBUG] Search params: " . json_encode($params));
         }
 
         if ($department = getRequestParam('department')) {
@@ -135,20 +139,31 @@ function getTechnicians(): void {
         $params[] = $limit;
         $params[] = $offset;
 
+        error_log("[DEBUG] Final SQL: {$sql}");
+        error_log("[DEBUG] Final params: " . json_encode($params));
+
         $stmt = executeQuery($sql, $params);
         $technicians = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        error_log("[DEBUG] Query executed, found " . count($technicians) . " technicians");
 
         // Obtener total para paginación
         $countSql = "SELECT COUNT(DISTINCT t.id) as total FROM technicians t WHERE 1=1";
         $countParams = [];
         if (!empty($conditions)) {
             $countSql .= " AND " . implode(" AND ", $conditions);
-            // Extraer solo los parámetros de las condiciones (sin LIMIT/OFFSET)
-            $countParams = array_slice($params, 0, count($conditions));
+            // Usar los mismos parámetros que la consulta principal (sin LIMIT/OFFSET)
+            // Los parámetros de búsqueda están al inicio del array $params
+            $countParams = array_slice($params, 0, -2); // Excluir LIMIT y OFFSET (últimos 2)
         }
+
+        error_log("[DEBUG] Count SQL: {$countSql}");
+        error_log("[DEBUG] Count params: " . json_encode($countParams));
 
         $countStmt = executeQuery($countSql, $countParams);
         $total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+        error_log("[DEBUG] Total count: {$total}");
 
         $response = [
             'technicians' => $technicians,
@@ -164,6 +179,7 @@ function getTechnicians(): void {
 
     } catch (Exception $e) {
         error_log("Error obteniendo técnicos: " . $e->getMessage());
+        error_log("Stack trace: " . $e->getTraceAsString());
         sendErrorResponse('Error interno del servidor', 500);
     }
 }
@@ -248,7 +264,7 @@ function createTechnician(): void {
         }
 
         // Insertar técnico
-        $sql = "INSERT INTO technicians
+        $sql = "INSERT INTO tecnicos
                 (dtic_id, first_name, last_name, email, phone, department, role, is_active)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -337,7 +353,7 @@ function updateTechnician(int $id): void {
         }
 
         $params[] = $id;
-        $sql = "UPDATE technicians SET " . implode(', ', $updateFields) . " WHERE id = ?";
+        $sql = "UPDATE tecnicos SET " . implode(', ', $updateFields) . " WHERE id = ?";
 
         executeQuery($sql, $params);
 
@@ -367,8 +383,14 @@ function deleteTechnician(int $id): void {
             sendErrorResponse('No se puede eliminar el técnico porque tiene tareas activas', 409);
         }
 
+<<<<<<< HEAD
         // Desactivar técnico (eliminación lógica)
         executeQuery("UPDATE technicians SET is_active = 0 WHERE id = ?", [$id]);
+=======
+        // Desactivar técnico (eliminación lógica) - aunque ya esté inactivo, aseguramos el estado
+        error_log("DEBUG: Ejecutando UPDATE para desactivar técnico {$id}");
+        $updateResult = executeQuery("UPDATE tecnicos SET is_active = 0 WHERE id = ?", [$id]);
+>>>>>>> 6e79744 (feat: Renombrar tablas BD al español y mejorar UX búsqueda técnicos)
 
         sendJsonResponse(true, 'Técnico eliminado exitosamente');
 

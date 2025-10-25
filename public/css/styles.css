@@ -1,5 +1,29 @@
 /* DTIC Bitácoras - Estilos personalizados para Bootstrap 5 */
 
+/* Resaltado de búsqueda */
+.search-highlight {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+    box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.3);
+}
+
+/* Animación pulsante para iconos */
+.fa-beat {
+    animation: fa-beat 1s ease-in-out infinite;
+}
+
+@keyframes fa-beat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
 /* Variables CSS personalizadas */
 :root {
     --primary-color: #007bff;

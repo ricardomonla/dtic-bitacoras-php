@@ -17,12 +17,15 @@ class TecnicosManager {
         this.bindEvents();
         this.loadTechnicians();
         this.loadStatistics();
+        this.updateSearchIcon(); // Inicializar estado del icono
     }
 
     bindEvents() {
         // Filtros
         document.getElementById('searchUsers')?.addEventListener('input', (e) => {
             this.currentFilters.search = e.target.value;
+            console.log('[DEBUG] Search input changed:', e.target.value);
+            this.updateSearchIcon();
             this.debouncedLoadTechnicians();
         });
 
@@ -45,21 +48,29 @@ class TecnicosManager {
 
         document.getElementById('filterRole')?.addEventListener('change', (e) => {
             this.currentFilters.role = e.target.value;
+            console.log('[DEBUG] Role filter changed:', e.target.value);
+            this.updateSearchIcon();
             this.loadTechnicians();
         });
 
         document.getElementById('filterStatus')?.addEventListener('change', (e) => {
             this.currentFilters.status = e.target.value;
+            console.log('[DEBUG] Status filter changed:', e.target.value);
+            this.updateSearchIcon();
             this.loadTechnicians();
         });
 
         document.getElementById('filterDepartment')?.addEventListener('change', (e) => {
             this.currentFilters.department = e.target.value;
+            console.log('[DEBUG] Department filter changed:', e.target.value);
+            this.updateSearchIcon();
             this.loadTechnicians();
         });
 
         document.getElementById('clearFilters')?.addEventListener('click', () => {
+            console.log('[DEBUG] Clear filters clicked');
             this.clearFilters();
+            this.updateSearchIcon();
         });
 
         // Vista (cards/table)
@@ -180,8 +191,14 @@ class TecnicosManager {
             tableBody.innerHTML = technicians.map(tech => this.createTechnicianRow(tech)).join('');
         }
 
+        // Aplicar resaltado de búsqueda
+        this.applySearchHighlighting();
+
         // Bind events for action buttons
         this.bindActionButtons();
+
+        // Actualizar estado del icono de búsqueda después del render
+        this.updateSearchIcon();
     }
 
     createTechnicianCard(technician) {
@@ -986,6 +1003,127 @@ class TecnicosManager {
         this.currentFilters = {};
         this.currentPage = 1;
         this.loadTechnicians();
+    }
+
+    updateSearchIcon() {
+        const searchIcon = document.querySelector('#searchCollapse .input-group-text i');
+        const searchInput = document.getElementById('searchUsers');
+        const searchButton = document.querySelector('button[data-bs-target="#searchCollapse"] i');
+
+        if (!searchIcon || !searchInput) return;
+
+        const hasSearchValue = searchInput.value.trim().length > 0;
+        const hasActiveFilters = Object.keys(this.currentFilters).some(key =>
+            key !== 'search' && this.currentFilters[key]
+        ) || hasSearchValue;
+
+        console.log('[DEBUG] updateSearchIcon called:', {
+            hasSearchValue,
+            hasActiveFilters,
+            currentFilters: this.currentFilters,
+            searchValue: searchInput.value
+        });
+
+        if (hasActiveFilters) {
+            // Aplicar efecto visual cuando hay filtros activos
+            searchIcon.classList.add('text-primary', 'fa-beat');
+            searchIcon.style.filter = 'drop-shadow(0 0 6px rgba(13, 110, 253, 0.6))';
+            searchIcon.style.textShadow = '0 0 8px rgba(13, 110, 253, 0.8)';
+
+            // También resaltar el botón de búsqueda
+            if (searchButton) {
+                searchButton.classList.add('text-primary', 'fa-beat');
+                searchButton.style.filter = 'drop-shadow(0 0 6px rgba(13, 110, 253, 0.6))';
+                searchButton.style.textShadow = '0 0 8px rgba(13, 110, 253, 0.8)';
+            }
+
+            // Agregar indicador visual al botón de búsqueda
+            const searchBtn = document.querySelector('button[data-bs-target="#searchCollapse"]');
+            if (searchBtn) {
+                searchBtn.style.borderColor = '#0d6efd';
+                searchBtn.style.boxShadow = '0 0 0 0.2rem rgba(13, 110, 253, 0.25)';
+            }
+        } else {
+            // Restaurar estado normal
+            searchIcon.classList.remove('text-primary', 'fa-beat');
+            searchIcon.style.filter = '';
+            searchIcon.style.textShadow = '';
+
+            // Restaurar botón de búsqueda
+            if (searchButton) {
+                searchButton.classList.remove('text-primary', 'fa-beat');
+                searchButton.style.filter = '';
+                searchButton.style.textShadow = '';
+            }
+
+            // Restaurar borde del botón
+            const searchBtn = document.querySelector('button[data-bs-target="#searchCollapse"]');
+            if (searchBtn) {
+                searchBtn.style.borderColor = '';
+                searchBtn.style.boxShadow = '';
+            }
+        }
+    }
+
+    applySearchHighlighting() {
+        const searchTerm = this.currentFilters.search?.trim();
+        if (!searchTerm || searchTerm.length < 2) {
+            // Limpiar resaltado si no hay término de búsqueda válido
+            this.clearSearchHighlighting();
+            return;
+        }
+
+        console.log('[DEBUG] Applying search highlighting for term:', searchTerm);
+
+        // Función para resaltar texto
+        const highlightText = (text, term) => {
+            if (!text || !term) return text;
+
+            // Crear expresión regular para búsqueda case-insensitive
+            const regex = new RegExp(`(${this.escapeRegex(term)})`, 'gi');
+            return text.replace(regex, '<mark class="search-highlight">$1</mark>');
+        };
+
+        // Aplicar resaltado en tarjetas
+        const cardContainer = document.getElementById('cardViewContainer');
+        if (cardContainer) {
+            const textElements = cardContainer.querySelectorAll('p, h6, span, td');
+            textElements.forEach(element => {
+                // Solo procesar elementos que contienen texto
+                if (element.textContent && element.textContent.trim()) {
+                    // Limpiar resaltado anterior
+                    element.innerHTML = element.textContent;
+                    // Aplicar nuevo resaltado
+                    element.innerHTML = highlightText(element.innerHTML, searchTerm);
+                }
+            });
+        }
+
+        // Aplicar resaltado en tabla
+        const tableContainer = document.getElementById('tableViewContainer');
+        if (tableContainer) {
+            const tableCells = tableContainer.querySelectorAll('td');
+            tableCells.forEach(cell => {
+                if (cell.textContent && cell.textContent.trim()) {
+                    // Limpiar resaltado anterior
+                    cell.innerHTML = cell.textContent;
+                    // Aplicar nuevo resaltado
+                    cell.innerHTML = highlightText(cell.innerHTML, searchTerm);
+                }
+            });
+        }
+    }
+
+    clearSearchHighlighting() {
+        // Remover todos los elementos <mark> de resaltado
+        const highlightedElements = document.querySelectorAll('.search-highlight');
+        highlightedElements.forEach(element => {
+            element.outerHTML = element.innerHTML;
+        });
+    }
+
+    escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     // Método para búsqueda con debounce

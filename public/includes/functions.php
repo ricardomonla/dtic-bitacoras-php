@@ -30,7 +30,20 @@ function generateDTICId(string $prefix): string {
  */
 function getLastDTICId(string $prefix): ?string {
     try {
+<<<<<<< HEAD
         $sql = "SELECT dtic_id FROM technicians WHERE dtic_id LIKE ? ORDER BY dtic_id DESC LIMIT 1";
+=======
+        // Determinar tabla según prefijo
+        $table = match($prefix) {
+            'TEC' => 'tecnicos',
+            'USR' => 'usuarios',
+            'RES' => 'recursos',
+            'TSK' => 'tareas',
+            default => 'tecnicos'
+        };
+
+        $sql = "SELECT dtic_id FROM {$table} WHERE dtic_id LIKE ? ORDER BY dtic_id DESC LIMIT 1";
+>>>>>>> 6e79744 (feat: Renombrar tablas BD al español y mejorar UX búsqueda técnicos)
         $stmt = executeQuery($sql, [$prefix . '-%']);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -184,7 +197,7 @@ function logAuditAction(
     string $userType = 'system'
 ): void {
     try {
-        $sql = "INSERT INTO audit_log
+        $sql = "INSERT INTO registro_auditoria
                 (user_id, user_type, action, entity_type, entity_id, old_values, new_values, ip_address, user_agent)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -259,7 +272,7 @@ function sendErrorResponse(string $message, int $httpCode = 500, ?array $details
  * @param string $method Método HTTP (GET, POST, PUT, DELETE)
  * @return mixed Valor del parámetro
  */
-function getRequestParam(string $key, $default = null, string $method = 'REQUEST') {
+function getRequestParam(string $key, $default = null, string $method = 'AUTO') {
     $method = strtoupper($method);
 
     switch ($method) {
@@ -276,7 +289,15 @@ function getRequestParam(string $key, $default = null, string $method = 'REQUEST
                 $data = $_REQUEST;
             }
             return $data[$key] ?? $default;
+        case 'AUTO':
         default:
+            // Revisar en orden: GET, POST, REQUEST
+            if (isset($_GET[$key])) {
+                return $_GET[$key];
+            }
+            if (isset($_POST[$key])) {
+                return $_POST[$key];
+            }
             return $_REQUEST[$key] ?? $default;
     }
 }
