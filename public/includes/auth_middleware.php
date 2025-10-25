@@ -77,7 +77,7 @@ function requireAuth(): void {
         session_destroy();
 
         // Redirigir a login
-        header('Location: login.html');
+        header('Location: /login');
         exit;
     }
 }
@@ -251,14 +251,14 @@ function renderLogoutScript(): string {
                     sessionStorage.clear();
 
                     // Redirigir a login
-                    window.location.href = data.redirect || 'login.html';
+                    window.location.href = data.redirect || '/login';
                 } else {
                     alert('Error al cerrar sesión: ' + data.message);
                 }
             } catch (error) {
                 console.error('Logout error:', error);
                 // Forzar redirección aunque falle la API
-                window.location.href = 'login.html';
+                window.location.href = '/login';
             }
         }
 
@@ -275,7 +275,7 @@ function renderLogoutScript(): string {
 
                 if (!response.ok) {
                     // Sesión expirada o inválida
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                 }
             } catch (error) {
                 console.error('Session check error:', error);

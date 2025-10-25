@@ -196,7 +196,7 @@
                         const data = await response.json();
                         if (data.authenticated) {
                             // Usuario ya autenticado, redirigir al dashboard
-                            window.location.href = 'index.html';
+                            window.location.href = '/dashboard';
                         }
                     }
                 } catch (error) {
@@ -245,7 +245,7 @@
 
                         // Redirigir después de un breve delay
                         setTimeout(() => {
-                            window.location.href = data.redirect || 'index.html';
+                            window.location.href = data.redirect || '/dashboard';
                         }, 1000);
                     } else {
                         // Error de login
