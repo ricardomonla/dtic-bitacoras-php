@@ -1,8 +1,8 @@
 <?php
-require_once 'includes/navigation.php';
+require_once '../includes/navigation.php';
 $currentPage = 'tareas';
 ?>
-<?php echo renderPage($currentPage, 'Gestión de Tareas', "
+<?php echo renderPage($currentPage, 'Gestión de Tareas', '
 
     <!-- Main Content -->
     <div class="container mt-4">
@@ -528,7 +528,7 @@ $currentPage = 'tareas';
             </div>
         </div>
     </div>
-", renderLogoutScript()); ?>
+', renderLogoutScript()); ?>
 
 <!-- Add Task Modal -->
     <div class="modal fade" id="addTaskModal" tabindex="-1">
@@ -609,7 +609,7 @@ $currentPage = 'tareas';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom JavaScript -->
-    <script src="js/dashboard.js"></script>
+    <script src="../js/dashboard.js"></script>
     <script>
         // Tasks page specific JavaScript
         document.addEventListener('DOMContentLoaded', function() {

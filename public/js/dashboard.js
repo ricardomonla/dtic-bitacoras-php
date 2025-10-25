@@ -283,6 +283,11 @@ class Dashboard {
 
         const message = messages[navId] || 'Sección seleccionada';
         this.showNotification(message, navId.includes('dashboard') || navId.includes('project-status') ? 'success' : 'info');
+
+        // Evitar que aparezca el mensaje "Sección seleccionada" cuando se hace click en el nombre del usuario
+        if (message === 'Sección seleccionada') {
+            return;
+        }
     }
 
     showWelcomeMessage() {

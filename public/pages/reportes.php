@@ -1,68 +1,9 @@
-<?php require_once 'includes/auth_middleware.php'; ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DTIC Bitácoras - Reportes y Estadísticas</title>
-
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Font Awesome Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link href="css/styles.css" rel="stylesheet">
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="fas fa-clipboard-list me-2"></i>
-                DTIC Bitácoras
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="tareas.html">
-                            <i class="fas fa-tasks me-1"></i>Tareas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="recursos.html">
-                            <i class="fas fa-boxes me-1"></i>Recursos
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="tecnicos.html">
-                            <i class="fas fa-user-cog me-1"></i>Técnicos
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="usuarios.html">
-                            <i class="fas fa-users me-1"></i>Usuarios
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="reportes.html">
-                            <i class="fas fa-chart-bar me-1"></i>Reportes
-                        </a>
-                    </li>
-                </ul>
-                <?php echo renderUserInfo(); ?>
-            </div>
-        </div>
-    </nav>
+<?php
+require_once '../includes/auth_middleware.php';
+require_once '../includes/navigation.php';
+$currentPage = 'reportes';
+?>
+<?php echo renderPage($currentPage, 'Reportes y Estadísticas', '
 
     <!-- Main Content -->
     <div class="container mt-4">
@@ -395,35 +336,14 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="mb-0">
-                        <i class="fas fa-copyright me-1"></i>
-                        2025 DTIC - Departamento de Tecnología de la Información y Comunicación |
-                        <i class="fas fa-chart-bar me-1"></i> Reportes y Estadísticas
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
+', renderLogoutScript() . "
     <!-- Chart.js for charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- Custom JavaScript -->
-
-    <?php echo renderLogoutScript(); ?>
-    <script src="js/dashboard.js"></script>
+    <script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>
+    <script src=\"../js/dashboard.js\"></script>
     <script>
         // Reports page specific JavaScript
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📊 Página de Reportes cargada');
+        document.addEventListener(\'DOMContentLoaded\', function() {
+            console.log(\'📊 Página de Reportes cargada\');
 
             // Initialize charts
             initializeCharts();
@@ -437,18 +357,18 @@
 
         function initializeCharts() {
             // Tasks Status Chart
-            const tasksCtx = document.getElementById('tasksChart').getContext('2d');
+            const tasksCtx = document.getElementById(\'tasksChart\').getContext(\'2d\');
             new Chart(tasksCtx, {
-                type: 'doughnut',
+                type: \'doughnut\',
                 data: {
-                    labels: ['Pendientes', 'En Progreso', 'Completadas', 'Canceladas'],
+                    labels: [\'Pendientes\', \'En Progreso\', \'Completadas\', \'Canceladas\'],
                     datasets: [{
                         data: [12, 8, 25, 3],
                         backgroundColor: [
-                            '#ffc107', // warning
-                            '#17a2b8', // info
-                            '#28a745', // success
-                            '#dc3545'  // danger
+                            \'#ffc107\', // warning
+                            \'#17a2b8\', // info
+                            \'#28a745\', // success
+                            \'#dc3545\'  // danger
                         ],
                         borderWidth: 2
                     }]
@@ -457,23 +377,23 @@
                     responsive: true,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: \'bottom\'
                         }
                     }
                 }
             });
 
             // Productivity Chart
-            const productivityCtx = document.getElementById('productivityChart').getContext('2d');
+            const productivityCtx = document.getElementById(\'productivityChart\').getContext(\'2d\');
             new Chart(productivityCtx, {
-                type: 'line',
+                type: \'line\',
                 data: {
-                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    labels: [\'Lun\', \'Mar\', \'Mié\', \'Jue\', \'Vie\', \'Sáb\', \'Dom\'],
                     datasets: [{
-                        label: 'Tareas Completadas',
+                        label: \'Tareas Completadas\',
                         data: [3, 5, 2, 7, 4, 1, 3],
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderColor: \'#667eea\',
+                        backgroundColor: \'rgba(102, 126, 234, 0.1)\',
                         tension: 0.4,
                         fill: true
                     }]
@@ -502,52 +422,52 @@
             const monthAgo = new Date();
             monthAgo.setMonth(today.getMonth() - 1);
 
-            document.getElementById('dateTo').valueAsDate = today;
-            document.getElementById('dateFrom').valueAsDate = monthAgo;
+            document.getElementById(\'dateTo\').valueAsDate = today;
+            document.getElementById(\'dateFrom\').valueAsDate = monthAgo;
         }
 
         function setupEventListeners() {
             // Generate report button
-            document.getElementById('generateReport').addEventListener('click', function() {
-                showNotification('🔄 Generando reporte...', 'info');
+            document.getElementById(\'generateReport\').addEventListener(\'click\', function() {
+                showNotification(\'🔄 Generando reporte...\', \'info\');
                 setTimeout(() => {
-                    showNotification('✅ Reporte generado exitosamente', 'success');
+                    showNotification(\'✅ Reporte generado exitosamente\', \'success\');
                 }, 2000);
             });
 
             // Reset filters
-            document.getElementById('resetFilters').addEventListener('click', function() {
-                document.getElementById('reportType').value = 'tasks';
-                document.getElementById('reportPeriod').value = 'month';
+            document.getElementById(\'resetFilters\').addEventListener(\'click\', function() {
+                document.getElementById(\'reportType\').value = \'tasks\';
+                document.getElementById(\'reportPeriod\').value = \'month\';
                 setDefaultDates();
-                showNotification('🔄 Filtros restablecidos', 'info');
+                showNotification(\'🔄 Filtros restablecidos\', \'info\');
             });
 
             // Export buttons
-            const exportButtons = ['exportPDF', 'exportExcel', 'exportCSV', 'exportJSON', 'exportReport', 'printReport'];
+            const exportButtons = [\'exportPDF\', \'exportExcel\', \'exportCSV\', \'exportJSON\', \'exportReport\', \'printReport\'];
             exportButtons.forEach(btnId => {
-                document.getElementById(btnId).addEventListener('click', function() {
-                    showNotification('📄 Función de exportación disponible en Etapa 3', 'warning');
+                document.getElementById(btnId).addEventListener(\'click\', function() {
+                    showNotification(\'📄 Función de exportación disponible en Etapa 3\', \'warning\');
                 });
             });
         }
 
         // Notification function
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-            notification.style.cssText = `
+        function showNotification(message, type = \'info\') {
+            const notification = document.createElement(\'div\');
+            notification.className = \`alert alert-\${type} alert-dismissible fade show position-fixed\`;
+            notification.style.cssText = \`
                 top: 20px;
                 right: 20px;
                 z-index: 9999;
                 min-width: 300px;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            `;
+            \`;
 
-            notification.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
+            notification.innerHTML = \`
+                \${message}
+                <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+            \`;
 
             document.body.appendChild(notification);
 
@@ -558,5 +478,4 @@
             }, 5000);
         }
     </script>
-</body>
-</html>
+"); ?>

@@ -1,8 +1,8 @@
 <?php
-require_once 'includes/navigation.php';
+require_once '../includes/navigation.php';
 $currentPage = 'usuarios';
 ?>
-<?php echo renderPage($currentPage, 'Gestión de Usuarios', "
+<?php echo renderPage($currentPage, 'Gestión de Usuarios', '
 
     <!-- Main Content -->
     <div class="container mt-4">
@@ -598,7 +598,7 @@ $currentPage = 'usuarios';
             </div>
         </div>
     </div>
-", renderLogoutScript()); ?>
+', renderLogoutScript()); ?>
 
 <!-- Add User Modal -->
     <div class="modal fade" id="addUserModal" tabindex="-1">
@@ -694,7 +694,7 @@ $currentPage = 'usuarios';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom JavaScript -->
-    <script src="js/dashboard.js"></script>
+    <script src="../js/dashboard.js"></script>
     <script>
         // Users page specific JavaScript
         document.addEventListener('DOMContentLoaded', function() {

@@ -1,8 +1,8 @@
 <?php
-require_once 'includes/navigation.php';
+require_once '../includes/navigation.php';
 $currentPage = 'calendario';
 ?>
-<?php echo renderPage($currentPage, 'Calendario Interactivo', "
+<?php echo renderPage($currentPage, 'Calendario Interactivo', '
 
     <!-- Main Content -->
     <div class="container mt-4">
@@ -133,7 +133,7 @@ $currentPage = 'calendario';
             </div>
         </div>
     </div>
-", renderLogoutScript()); ?>
+', renderLogoutScript()); ?>
 
 <!-- Add Event Modal -->
     <div class="modal fade" id="addEventModal" tabindex="-1">
@@ -320,7 +320,7 @@ $currentPage = 'calendario';
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
     <!-- Custom JavaScript -->
-    <script src="js/dashboard.js"></script>
-    <script src="js/calendar.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/calendar.js"></script>
 </body>
 </html>
