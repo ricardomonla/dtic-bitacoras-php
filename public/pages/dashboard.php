@@ -58,7 +58,7 @@ function getDashboardContent() {
                 <div class="col-md-3">
                     <div class="text-center">
                         <div id="user-status" class="h5 text-primary">
-                            <i class="fas fa-user" . ($isLoggedIn ? 'text-success' : 'text-muted') . " me-1"></i>
+                            <i class="fas fa-user " . ($isLoggedIn ? 'text-success' : 'text-muted') . " me-1"></i>
                             " . ($isLoggedIn ? 'Conectado' : 'Público') . "
                         </div>
                         <small class="text-secondary">Estado de Sesión</small>
