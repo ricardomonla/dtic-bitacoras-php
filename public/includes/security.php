@@ -35,36 +35,36 @@ function startSecureSession(): void {
 function isAuthenticated(): bool {
     // Verificar variables de sesión básicas
     if (!isset($_SESSION['user_id']) ||
-        !isset($_SESSION['user_type']) ||
+        !isset($_SESSION['session_id']) ||
         !isset($_SESSION['login_time'])) {
         return false;
     }
 
     // Verificar que la sesión no haya expirado (24 horas)
     if (time() - $_SESSION['login_time'] > 86400) {
+        error_log("[AUTH] Sesión expirada por tiempo: " . (time() - $_SESSION['login_time']) . " segundos");
         return false;
     }
 
-    // Verificar sesión en base de datos si existe session_id
-    if (isset($_SESSION['session_id'])) {
-        try {
-            $sql = "SELECT id FROM sessions
-                    WHERE id = ? AND last_activity > DATE_SUB(NOW(), INTERVAL 24 HOUR)";
-            $stmt = executeQuery($sql, [$_SESSION['session_id']]);
-            $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Verificar sesión en base de datos
+    try {
+        $sql = "SELECT session_id FROM sessions
+                WHERE session_id = ? AND last_activity > DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+        $stmt = executeQuery($sql, [$_SESSION['session_id']]);
+        $session = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$session) {
-                return false;
-            }
-
-            // Actualizar last_activity
-            $sql = "UPDATE sessions SET last_activity = NOW() WHERE id = ?";
-            executeQuery($sql, [$_SESSION['session_id']]);
-
-        } catch (Exception $e) {
-            error_log("Error verificando sesión en BD: " . $e->getMessage());
+        if (!$session) {
+            error_log("[AUTH] Sesión no encontrada en BD o expirada: {$_SESSION['session_id']}");
             return false;
         }
+
+        // Actualizar last_activity
+        $sql = "UPDATE sessions SET last_activity = NOW() WHERE session_id = ?";
+        executeQuery($sql, [$_SESSION['session_id']]);
+
+    } catch (Exception $e) {
+        error_log("[AUTH] Error verificando sesión en BD: " . $e->getMessage());
+        return false;
     }
 
     return true;
@@ -82,8 +82,7 @@ function getCurrentUser(): ?array {
 
     return [
         'id' => $_SESSION['user_id'],
-        'type' => $_SESSION['user_type'],
-        'dtic_id' => $_SESSION['dtic_id'] ?? null,
+        'dtic_id' => $_SESSION['user_dtic_id'] ?? null,
         'name' => $_SESSION['user_name'] ?? null,
         'email' => $_SESSION['user_email'] ?? null,
         'role' => $_SESSION['user_role'] ?? null,
@@ -209,7 +208,7 @@ function verifyPassword(string $password, string $hash): bool {
 }
 
 /**
- * Rate limiting básico por IP
+ * Rate limiting básico por IP usando base de datos
  *
  * @param string $action Acción a limitar
  * @param int $maxAttempts Máximo número de intentos
@@ -220,27 +219,25 @@ function checkRateLimit(string $action, int $maxAttempts = 5, int $timeWindow = 
     $ip = getClientIP();
     $key = "rate_limit:{$action}:{$ip}";
 
-    // En un entorno real, usar Redis o similar
-    // Para este ejemplo, usamos un archivo temporal
-    $cacheFile = sys_get_temp_dir() . "/dtic_ratelimit_{$action}_" . md5($ip);
+    try {
+        // Verificar intentos recientes en BD
+        $sql = "SELECT COUNT(*) as attempts FROM audit_log
+                WHERE ip_address = ? AND action = ?
+                AND created_at > DATE_SUB(NOW(), INTERVAL ? SECOND)";
+        $stmt = executeQuery($sql, [$ip, $action, $timeWindow]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $attempts = [];
-    if (file_exists($cacheFile)) {
-        $attempts = json_decode(file_get_contents($cacheFile), true) ?: [];
-        // Filtrar intentos dentro de la ventana de tiempo
-        $attempts = array_filter($attempts, function($timestamp) use ($timeWindow) {
-            return (time() - $timestamp) < $timeWindow;
-        });
+        if ($result['attempts'] >= $maxAttempts) {
+            error_log("[RATE_LIMIT] Límite excedido para IP {$ip}, acción {$action}: {$result['attempts']} intentos");
+            return false;
+        }
+
+        return true;
+    } catch (Exception $e) {
+        error_log("[RATE_LIMIT] Error verificando rate limit: " . $e->getMessage());
+        // En caso de error, permitir el intento (fail-open)
+        return true;
     }
-
-    if (count($attempts) >= $maxAttempts) {
-        return false;
-    }
-
-    $attempts[] = time();
-    file_put_contents($cacheFile, json_encode($attempts));
-
-    return true;
 }
 
 /**
@@ -382,8 +379,15 @@ function cleanupExpiredSessions(): void {
     try {
         $sql = "DELETE FROM sessions WHERE last_activity < DATE_SUB(NOW(), INTERVAL 24 HOUR)";
         executeQuery($sql);
+
+        // También limpiar tokens de recordar expirados
+        $sql = "UPDATE sessions SET remember_token = NULL, remember_expires = NULL
+                WHERE remember_expires < NOW()";
+        executeQuery($sql);
+
+        error_log("[CLEANUP] Sesiones expiradas limpiadas exitosamente");
     } catch (Exception $e) {
-        error_log("Error limpiando sesiones expiradas: " . $e->getMessage());
+        error_log("[CLEANUP] Error limpiando sesiones expiradas: " . $e->getMessage());
     }
 }
 

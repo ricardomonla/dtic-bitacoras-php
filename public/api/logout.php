@@ -33,6 +33,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Obtener datos de la sesión actual
 $userId = $_SESSION['user_id'] ?? null;
 $sessionId = $_SESSION['session_id'] ?? null;
+error_log("[LOGOUT] Iniciando logout - user_id: {$userId}, session_id: {$sessionId}");
 
 // Registrar logout en auditoría si hay usuario autenticado
 if ($userId) {
@@ -41,6 +42,7 @@ if ($userId) {
         'ip_address' => getClientIP(),
         'manual_logout' => true
     ]);
+    error_log("[LOGOUT] Auditoría registrada para user_id: {$userId}");
 }
 
 // Eliminar sesión de base de datos

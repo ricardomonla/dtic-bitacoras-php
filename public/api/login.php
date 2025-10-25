@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // Obtener datos del login
 $data = getJsonInput();
+error_log("[LOGIN] Datos recibidos: " . json_encode($data));
 
 // Validar datos requeridos
 $validationRules = [
@@ -36,6 +37,7 @@ $validationRules = [
 
 $validation = validateData($data, $validationRules);
 if (!$validation['valid']) {
+    error_log("[LOGIN] Validación fallida: " . implode(', ', $validation['errors']));
     sendErrorResponse('Datos inválidos: ' . implode(', ', $validation['errors']), 400);
 }
 
@@ -44,17 +46,15 @@ $data = sanitizeData($data);
 
 // Verificar rate limiting (máximo 5 intentos por 15 minutos por IP)
 $clientIP = getClientIP();
-$rateLimitKey = "login_attempts_{$clientIP}";
-$attempts = getCache($rateLimitKey) ?: 0;
-
-if ($attempts >= 5) {
-    // Bloquear por 15 minutos
+if (!checkRateLimit('login', 5, 900)) { // 15 minutos = 900 segundos
+    error_log("[LOGIN] Rate limit excedido para IP: {$clientIP}");
     sendErrorResponse('Demasiados intentos fallidos. Intente nuevamente en 15 minutos.', 429);
 }
 
 // Buscar usuario por email o DTIC ID
 $user = null;
 $username = $data['username'];
+error_log("[LOGIN] Buscando usuario: {$username}");
 
 // Intentar buscar por email primero
 $user = executeQuery(
@@ -64,6 +64,8 @@ $user = executeQuery(
     [$username]
 )->fetch(PDO::FETCH_ASSOC);
 
+error_log("[LOGIN] Búsqueda por email en technicians: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"));
+
 // Si no encontró por email, buscar por DTIC ID
 if (!$user) {
     $user = executeQuery(
@@ -72,6 +74,7 @@ if (!$user) {
          WHERE dtic_id = ? AND is_active = 1",
         [$username]
     )->fetch(PDO::FETCH_ASSOC);
+    error_log("[LOGIN] Búsqueda por DTIC ID en technicians: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"));
 }
 
 // Si no encontró en technicians, buscar en users
@@ -82,24 +85,37 @@ if (!$user) {
          WHERE (email = ? OR username = ?) AND is_active = 1",
         [$username, $username]
     )->fetch(PDO::FETCH_ASSOC);
+    error_log("[LOGIN] Búsqueda en users: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"));
 }
 
 // Usuario no encontrado o inactivo
 if (!$user) {
-    // Registrar intento fallido
-    setCache($rateLimitKey, $attempts + 1, 900); // 15 minutos
+    error_log("[LOGIN] Usuario no encontrado o inactivo: {$username}");
+    // Registrar intento fallido en auditoría
+    logAuditAction('login_failed', 'user', 0, null, [
+        'username' => $username,
+        'reason' => 'user_not_found',
+        'ip_address' => $clientIP
+    ]);
     sendErrorResponse('Usuario o contraseña incorrectos', 401);
 }
 
+error_log("[LOGIN] Verificando contraseña para usuario ID: {$user['id']}");
 // Verificar contraseña
 if (!password_verify($data['password'], $user['password_hash'])) {
-    // Registrar intento fallido
-    setCache($rateLimitKey, $attempts + 1, 900); // 15 minutos
+    error_log("[LOGIN] Contraseña incorrecta para usuario ID: {$user['id']}");
+    // Registrar intento fallido en auditoría
+    logAuditAction('login_failed', 'user', $user['id'], null, [
+        'username' => $username,
+        'reason' => 'wrong_password',
+        'ip_address' => $clientIP
+    ]);
     sendErrorResponse('Usuario o contraseña incorrectos', 401);
 }
 
-// Login exitoso - limpiar rate limiting
-deleteCache($rateLimitKey);
+error_log("[LOGIN] Login exitoso para usuario ID: {$user['id']} ({$user['dtic_id']})");
+
+// Login exitoso - rate limiting ya se maneja en BD
 
 // Iniciar sesión segura
 startSecureSession();
@@ -123,13 +139,14 @@ $_SESSION['last_activity'] = time();
 // Guardar sesión en base de datos
 try {
     executeQuery(
-        "INSERT INTO sessions (session_id, user_id, user_agent, ip_address, created_at, last_activity)
-         VALUES (?, ?, ?, ?, NOW(), NOW())
+        "INSERT INTO sessions (session_id, user_id, user_type, user_agent, ip_address, created_at, last_activity)
+         VALUES (?, ?, 'technician', ?, ?, NOW(), NOW())
          ON DUPLICATE KEY UPDATE last_activity = NOW()",
         [$sessionId, $user['id'], $userAgent, $ipAddress]
     );
+    error_log("[LOGIN] Sesión guardada en BD para user_id: {$user['id']}");
 } catch (Exception $e) {
-    error_log("Error guardando sesión: " . $e->getMessage());
+    error_log("[LOGIN] Error guardando sesión en BD: " . $e->getMessage());
     // Continuar sin guardar en BD (sesión PHP seguirá funcionando)
 }
 

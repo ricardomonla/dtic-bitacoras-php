@@ -175,21 +175,21 @@ CREATE TABLE `audit_log` (
 -- TABLA: sessions (Sesiones de usuario)
 -- ============================================================
 CREATE TABLE `sessions` (
-  `id` varchar(128) NOT NULL,
+  `session_id` varchar(128) NOT NULL COMMENT 'ID único de la sesión',
   `user_id` int(11) NOT NULL,
   `user_type` enum('technician','user') NOT NULL,
   `ip_address` varchar(45) DEFAULT NULL,
   `user_agent` text,
-  `remember_token` varchar(64) DEFAULT NULL COMMENT 'Token para recordar sesión',
-  `expires_at` timestamp NULL DEFAULT NULL COMMENT 'Fecha de expiración del remember token',
+  `remember_token` varchar(64) DEFAULT NULL COMMENT 'Token hasheado para recordar sesión',
+  `remember_expires` timestamp NULL DEFAULT NULL COMMENT 'Fecha de expiración del remember token',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `last_activity` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`session_id`),
   KEY `user_id` (`user_id`),
   KEY `user_type` (`user_type`),
   KEY `last_activity` (`last_activity`),
   KEY `remember_token` (`remember_token`),
-  KEY `expires_at` (`expires_at`)
+  KEY `remember_expires` (`remember_expires`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
