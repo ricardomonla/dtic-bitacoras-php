@@ -1,8 +1,26 @@
 <?php
-require_once 'includes/navigation.php';
+require_once '../includes/navigation.php';
 $currentPage = 'dashboard';
 
+// Verificar si está autenticado
+$user = getCurrentUser();
+if (!$user) {
+    // Dashboard público - mostrar información general sin requerir login
+    $currentPage = 'dashboard-public';
+}
+
 function getDashboardContent() {
+    $user = getCurrentUser();
+    $isLoggedIn = $user !== null;
+
+    $welcomeMessage = $isLoggedIn
+        ? "Bienvenido de vuelta, {$user['name']}!"
+        : "Bienvenido al Sistema DTIC Bitácoras";
+
+    $subtitle = $isLoggedIn
+        ? "Sistema de Gestión de Tareas y Recursos - Departamento de Tecnología de la Información y Comunicación"
+        : "Sistema de Gestión de Tareas y Recursos del DTIC - UTN La Rioja";
+
     return <<<HTML
 
     <!-- Main Content -->
@@ -11,10 +29,10 @@ function getDashboardContent() {
         <div class="dashboard-header fade-in">
             <h1 class="dashboard-title">
                 <i class="fas fa-chart-line me-3"></i>
-                Dashboard DTIC Bitácoras
+                {$welcomeMessage}
             </h1>
             <p class="dashboard-subtitle">
-                Sistema de Gestión de Tareas y Recursos - Departamento de Tecnología de la Información y Comunicación
+                {$subtitle}
             </p>
             <div class="row mt-4">
                 <div class="col-md-3">
@@ -39,14 +57,18 @@ function getDashboardContent() {
                 </div>
                 <div class="col-md-3">
                     <div class="text-center">
-                        <div id="active-users" class="h5 text-primary">1</div>
-                        <small class="text-secondary">Usuario Activo</small>
+                        <div id="user-status" class="h5 text-primary">
+                            <i class="fas fa-user" . ($isLoggedIn ? 'text-success' : 'text-muted') . " me-1"></i>
+                            " . ($isLoggedIn ? 'Conectado' : 'Público') . "
+                        </div>
+                        <small class="text-secondary">Estado de Sesión</small>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Statistics Cards -->
+        " . ($isLoggedIn ? '
         <div class="row mb-4">
             <div class="col-md-3 mb-3">
                 <div class="card h-100">
@@ -96,7 +118,51 @@ function getDashboardContent() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>' : '
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="fas fa-users text-primary me-2"></i>
+                        Gestión de Técnicos
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="card-text">
+                            <i class="fas fa-user-cog fa-2x text-primary mb-3"></i>
+                            <p>Administra el personal técnico del DTIC</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="fas fa-tasks text-success me-2"></i>
+                        Control de Tareas
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="card-text">
+                            <i class="fas fa-clipboard-list fa-2x text-success mb-3"></i>
+                            <p>Gestiona tareas y proyectos del departamento</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="fas fa-boxes text-info me-2"></i>
+                        Inventario de Recursos
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="card-text">
+                            <i class="fas fa-server fa-2x text-info mb-3"></i>
+                            <p>Controla equipos y recursos tecnológicos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>') . "
 
         <!-- Recent Activity & Upcoming Events -->
         <div class="row">
@@ -139,6 +205,7 @@ function getDashboardContent() {
         </div>
 
         <!-- Quick Actions -->
+        " . ($isLoggedIn ? '
         <div class="row">
             <div class="col-12 mb-4">
                 <div class="card">
@@ -164,7 +231,7 @@ function getDashboardContent() {
                             </div>
                             <div class="col-md-3">
                                 <div class="d-grid gap-2">
-                                    <button class="btn btn-info" onclick="window.location.href='/calendario'">
+                                    <button class="btn btn-info" onclick="window.location.href=\'/calendario\'">
                                         <i class="fas fa-calendar-plus me-2"></i>Nuevo Evento
                                     </button>
                                 </div>
@@ -187,7 +254,44 @@ function getDashboardContent() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>' : '
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Acceso al Sistema
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary btn-lg" onclick="window.location.href=\'/login\'">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                                    </button>
+                                    <small class="text-muted">Accede a todas las funcionalidades del sistema</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-secondary btn-lg" onclick="window.location.href=\'/test\'">
+                                        <i class="fas fa-flask me-2"></i>Verificar Sistema
+                                    </button>
+                                    <small class="text-muted">Página de diagnóstico y pruebas</small>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Para acceder a funciones avanzadas, inicia sesión con tus credenciales
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>') . "
 
         <!-- System Information -->
         <div class="row">

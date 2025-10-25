@@ -356,15 +356,4 @@ function startSecureSession(): void {
  * Alias para compatibilidad - función duplicada eliminada
  */
 
-/**
- * Limpiar sesiones expiradas (debe ejecutarse periódicamente)
- */
-function cleanupExpiredSessions(): void {
-    try {
-        executeQuery("DELETE FROM sessions WHERE last_activity < DATE_SUB(NOW(), INTERVAL 24 HOUR)");
-        executeQuery("UPDATE sessions SET remember_token = NULL, remember_expires = NULL WHERE remember_expires < NOW()");
-        error_log("[CLEANUP] Sesiones expiradas limpiadas exitosamente");
-    } catch (Exception $e) {
-        error_log("[CLEANUP] Error limpiando sesiones expiradas: " . $e->getMessage());
-    }
-}
+// Función cleanupExpiredSessions() movida a auth_middleware.php para evitar duplicación

@@ -15,8 +15,8 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^(.+)$ $1.php [L]
 
-# Redirigir index a pages/index.php
-RewriteRule ^/?$ pages/index.php [L]
+# Redirigir raíz a dashboard público
+RewriteRule ^/?$ pages/dashboard.php [L]
 
 # Manejar URLs amigables para secciones principales
 RewriteRule ^dashboard/?$ pages/dashboard.php [L]
@@ -27,6 +27,7 @@ RewriteRule ^tecnicos/?$ pages/tecnicos.php [L]
 RewriteRule ^usuarios/?$ pages/usuarios.php [L]
 RewriteRule ^reportes/?$ pages/reportes.php [L]
 RewriteRule ^login/?$ pages/login.php [L]
+RewriteRule ^test/?$ pages/test.php [L]
 RewriteRule ^estado-proyecto/?$ pages/estadoproyecto.php [L]
 
 # API routes - mantener como están

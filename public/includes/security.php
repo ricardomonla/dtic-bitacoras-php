@@ -5,69 +5,9 @@
 
 // Función startSecureSession() movida a functions.php para evitar duplicación
 
-/**
- * Verifica si el usuario está autenticado
- *
- * @return bool True si está autenticado
- */
-function isAuthenticated(): bool {
-    // Verificar variables de sesión básicas
-    if (!isset($_SESSION['user_id']) ||
-        !isset($_SESSION['session_id']) ||
-        !isset($_SESSION['login_time'])) {
-        return false;
-    }
+// Función isAuthenticated() movida a auth_middleware.php para evitar duplicación
 
-    // Verificar que la sesión no haya expirado (24 horas)
-    if (time() - $_SESSION['login_time'] > 86400) {
-        error_log("[AUTH] Sesión expirada por tiempo: " . (time() - $_SESSION['login_time']) . " segundos");
-        return false;
-    }
-
-    // Verificar sesión en base de datos
-    try {
-        $sql = "SELECT session_id FROM sessions
-                WHERE session_id = ? AND last_activity > DATE_SUB(NOW(), INTERVAL 24 HOUR)";
-        $stmt = executeQuery($sql, [$_SESSION['session_id']]);
-        $session = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$session) {
-            error_log("[AUTH] Sesión no encontrada en BD o expirada: {$_SESSION['session_id']}");
-            return false;
-        }
-
-        // Actualizar last_activity
-        $sql = "UPDATE sessions SET last_activity = NOW() WHERE session_id = ?";
-        executeQuery($sql, [$_SESSION['session_id']]);
-
-    } catch (Exception $e) {
-        error_log("[AUTH] Error verificando sesión en BD: " . $e->getMessage());
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * Obtiene información del usuario autenticado
- *
- * @return array|null Información del usuario o null si no está autenticado
- */
-function getCurrentUser(): ?array {
-    if (!isAuthenticated()) {
-        return null;
-    }
-
-    return [
-        'id' => $_SESSION['user_id'],
-        'dtic_id' => $_SESSION['user_dtic_id'] ?? null,
-        'name' => $_SESSION['user_name'] ?? null,
-        'email' => $_SESSION['user_email'] ?? null,
-        'role' => $_SESSION['user_role'] ?? null,
-        'department' => $_SESSION['user_department'] ?? null,
-        'login_time' => $_SESSION['login_time']
-    ];
-}
+// Función getCurrentUser() movida a auth_middleware.php para evitar duplicación
 
 /**
  * Verifica permisos del usuario
@@ -97,19 +37,7 @@ function hasPermission(string $requiredRole): bool {
     return $userLevel >= $requiredLevel;
 }
 
-/**
- * Requiere autenticación, redirige si no está autenticado
- */
-function requireAuth(): void {
-    if (!isAuthenticated()) {
-        if (isAjaxRequest()) {
-            sendErrorResponse('Sesión expirada. Por favor, inicie sesión nuevamente.', 401);
-        } else {
-            header('Location: login.html');
-            exit;
-        }
-    }
-}
+// Función requireAuth() movida a auth_middleware.php para evitar duplicación
 
 /**
  * Requiere permisos específicos
