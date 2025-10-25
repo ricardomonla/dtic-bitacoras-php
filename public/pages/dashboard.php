@@ -9,6 +9,11 @@ if (!$user) {
     $currentPage = 'dashboard-public';
 }
 
+// Forzar regeneración de navegación para asegurar estado actualizado
+ob_start();
+renderNavbar($currentPage);
+$navbarHtml = ob_get_clean();
+
 function getDashboardContent() {
     $user = getCurrentUser();
     $isLoggedIn = $user !== null;
@@ -342,4 +347,27 @@ function getDashboardContent() {
 HTML;
 }
 
-echo renderPage($currentPage, 'Dashboard', getDashboardContent(), renderLogoutScript());
+// Generar página completa con navegación actualizada
+$pageHtml = "<!DOCTYPE html>
+<html lang='es'>
+" . renderHead('Dashboard', 'Sistema de Gestión de Tareas y Recursos - Departamento de Tecnología de la Información y Comunicación') . "
+<body>
+    " . $navbarHtml . "
+
+    <div class='container mt-4'>
+        " . getDashboardContent() . "
+    </div>
+
+    " . renderFooter() . "
+
+    <!-- Bootstrap 5 JS -->
+    <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js'></script>
+
+    <!-- Custom JavaScript -->
+    <script src='js/dashboard.js'></script>
+
+    " . renderLogoutScript() . "
+</body>
+</html>";
+
+echo $pageHtml;

@@ -246,7 +246,7 @@
                         // Redirigir después de un breve delay
                         setTimeout(() => {
                             window.location.href = data.redirect || '/dashboard';
-                        }, 1000);
+                        }, 500);
                     } else {
                         // Error de login
                         this.showError(data.message || 'Error al iniciar sesión.');
