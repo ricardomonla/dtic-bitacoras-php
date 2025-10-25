@@ -26,7 +26,7 @@ RewriteRule ^calendario/?$ pages/calendario.php [L]
 RewriteRule ^tecnicos/?$ pages/tecnicos.php [L]
 RewriteRule ^usuarios/?$ pages/usuarios.php [L]
 RewriteRule ^reportes/?$ pages/reportes.php [L]
-RewriteRule ^login/?$ login.html [L]
+RewriteRule ^login/?$ pages/login.php [L]
 RewriteRule ^estado-proyecto/?$ estadoproyecto.html [L]
 
 # API routes - mantener como están
