@@ -29,9 +29,9 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- TABLA: technicians (Técnicos del DTIC)
+-- TABLA: tecnicos (Técnicos del DTIC)
 -- ============================================================
-CREATE TABLE `technicians` (
+CREATE TABLE `tecnicos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `dtic_id` varchar(20) NOT NULL COMMENT 'ID único del DTIC (ej: TEC-001)',
   `first_name` varchar(50) NOT NULL,
@@ -127,7 +127,7 @@ CREATE TABLE `tasks` (
   KEY `technician_id` (`technician_id`),
   KEY `due_date` (`due_date`),
   CONSTRAINT `fk_tasks_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_tasks_technician` FOREIGN KEY (`technician_id`) REFERENCES `technicians` (`id`) ON DELETE SET NULL
+  CONSTRAINT `fk_tasks_technician` FOREIGN KEY (`technician_id`) REFERENCES `tecnicos` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
