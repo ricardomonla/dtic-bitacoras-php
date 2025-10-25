@@ -9,10 +9,29 @@ if (!$user) {
     $currentPage = 'dashboard-public';
 }
 
+// Debug: Verificar estado de usuario
+$userId = $user ? $user['id'] : 'null';
+$userName = $user ? $user['name'] : 'null';
+$sessionActive = isset($_SESSION['user_id']) ? 'true' : 'false';
+$sessionId = $_SESSION['session_id'] ?? 'null';
+
+error_log("[DASHBOARD] Estado de usuario: " . ($user ? "Autenticado ({$user['name']})" : "No autenticado"));
+error_log("[DASHBOARD] Página actual: {$currentPage}");
+error_log("[DASHBOARD] User ID: {$userId}, Session Active: {$sessionActive}, Session ID: {$sessionId}");
+
 // Forzar regeneración de navegación para asegurar estado actualizado
-ob_start();
-renderNavbar($currentPage);
-$navbarHtml = ob_get_clean();
+$navbarHtml = renderNavbar($currentPage);
+
+// Debug: Verificar navbar generado
+$navbarLength = strlen($navbarHtml);
+$containsPublicUser = strpos($navbarHtml, 'Usuario Público') !== false ? 'true' : 'false';
+$containsUserName = strpos($navbarHtml, $userName) !== false ? 'true' : 'false';
+$containsLogout = strpos($navbarHtml, 'logout') !== false ? 'true' : 'false';
+
+error_log("[DASHBOARD] Navbar generado, longitud: {$navbarLength}");
+error_log("[DASHBOARD] Contiene 'Usuario Público': {$containsPublicUser}");
+error_log("[DASHBOARD] Contiene nombre usuario: {$containsUserName}");
+error_log("[DASHBOARD] Contiene logout: {$containsLogout}");
 
 function getDashboardContent() {
     $user = getCurrentUser();
@@ -347,15 +366,36 @@ function getDashboardContent() {
 HTML;
 }
 
+// Debug: Verificar contenido antes de generar página
+$content = getDashboardContent();
+error_log("[DASHBOARD] Contenido generado, longitud: " . strlen($content));
+
 // Generar página completa con navegación actualizada
 $pageHtml = "<!DOCTYPE html>
 <html lang='es'>
 " . renderHead('Dashboard', 'Sistema de Gestión de Tareas y Recursos - Departamento de Tecnología de la Información y Comunicación') . "
 <body>
+    <!-- Debug: Estado de sesión -->
+    <script>
+    console.log('=== DASHBOARD DEBUG ===');
+    console.log('User ID:', '" . addslashes($userId) . "');
+    console.log('User Name:', '" . addslashes($userName) . "');
+    console.log('Session Active:', " . $sessionActive . ");
+    console.log('Session ID:', '" . addslashes($sessionId) . "');
+    console.log('Current Page:', '" . addslashes($currentPage) . "');
+    console.log('Navbar HTML length:', " . $navbarLength . ");
+    console.log('Contains Usuario Público:', " . $containsPublicUser . ");
+    console.log('Contains User Name:', " . $containsUserName . ");
+    console.log('Contains Logout:', " . $containsLogout . ");
+    console.log('=======================');
+    </script>
+
     " . $navbarHtml . "
 
     <div class='container mt-4'>
-        " . getDashboardContent() . "
+        <!-- Debug: Content -->
+        <script>console.log('Content length:', " . strlen($content) . ");</script>
+        " . $content . "
     </div>
 
     " . renderFooter() . "
@@ -369,5 +409,8 @@ $pageHtml = "<!DOCTYPE html>
     " . renderLogoutScript() . "
 </body>
 </html>";
+
+// Debug: Verificar página completa
+error_log("[DASHBOARD] Página completa generada, longitud: " . strlen($pageHtml));
 
 echo $pageHtml;
