@@ -26,14 +26,8 @@ services:
        MYSQL_PASSWORD: dtic_password
     ports:
       - "3306:3306"
-    volumes:
-      - ./data/mysql:/var/lib/mysql
-      - ./public/database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - dtic-network
-
-# volumes:
-  # mysql_data: # Commented out - using bind mount instead
 
 networks:
   dtic-network:

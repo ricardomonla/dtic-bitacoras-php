@@ -218,12 +218,12 @@ INSERT INTO `categories` (`name`, `description`, `type`, `parent_id`, `is_active
 ('Desarrollo', 'Desarrollo de software y sistemas', 'task', NULL, 1),
 ('Operaciones', 'Operaciones diarias', 'task', NULL, 1),
 -- Subcategorías de Mantenimiento
-('Preventivo', 'Mantenimiento preventivo', 'task', 11, 1),
-('Correctivo', 'Mantenimiento correctivo', 'task', 11, 1),
-('Actualizaciones', 'Actualizaciones de software/sistema', 'task', 11, 1);
+('Preventivo', 'Mantenimiento preventivo', 'task', 12, 1),
+('Correctivo', 'Mantenimiento correctivo', 'task', 12, 1),
+('Actualizaciones', 'Actualizaciones de software/sistema', 'task', 12, 1);
 
 -- Técnico administrador inicial
-INSERT INTO `technicians` (`dtic_id`, `first_name`, `last_name`, `email`, `phone`, `department`, `role`, `password_hash`, `is_active`) VALUES
+INSERT INTO `tecnicos` (`dtic_id`, `first_name`, `last_name`, `email`, `phone`, `department`, `role`, `password_hash`, `is_active`) VALUES
 ('TEC-001', 'Ricardo', 'Monla', 'rmonla@frlr.utn.edu.ar', '+5493871234567', 'Departamento Servidores y Sistemas de Altas Prestaciones', 'admin', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPjYLC7qK0Jy', 1);
 
 -- Usuario operativo inicial

@@ -81,12 +81,12 @@ if (!$user) {
 // Si no encontró en tecnicos, buscar en users
 if (!$user) {
     $user = executeQuery(
-        "SELECT id, username as dtic_id, name as first_name, '' as last_name, email, password_hash, role, department, is_active
-         FROM usuarios
-         WHERE (email = ? OR username = ?) AND is_active = 1",
+        "SELECT id, dtic_id, first_name, last_name, email, password_hash, role, department, is_active
+         FROM users
+         WHERE (email = ? OR dtic_id = ?) AND is_active = 1",
         [$username, $username]
     )->fetch(PDO::FETCH_ASSOC);
-    debugLog("Búsqueda en usuarios: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"), 'LOGIN');
+    debugLog("Búsqueda en users: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"), 'LOGIN');
 }
 
 // Usuario no encontrado o inactivo

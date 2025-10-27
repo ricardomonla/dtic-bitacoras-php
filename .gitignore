@@ -1,5 +1,5 @@
 # Database data directory - contains sensitive data, should not be committed
-data/mysql/
+data/*.*
 
 # Backup files (except database backups which are tracked)
 *.sql
