@@ -1,10 +1,12 @@
-# Backup files
+# Database data directory - contains sensitive data, should not be committed
+data/mysql/
+
+# Backup files (except database backups which are tracked)
 *.sql
 backup.sql
 
-# Note: data/mysql/ is now tracked to share database state across machines
-# Remove this comment and uncomment the line below if you prefer local-only databases:
-# data/mysql/
+# Include database backups
+!db_backup_*.sql.gz
 
 # Other common ignores
 .env
