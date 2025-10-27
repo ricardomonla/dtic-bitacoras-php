@@ -317,8 +317,9 @@ class Dashboard {
         const notification = document.createElement('div');
         notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
         notification.style.cssText = `
-            top: 20px;
-            right: 20px;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 9999;
             min-width: 300px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
@@ -460,71 +461,17 @@ class Dashboard {
             });
     }
 
-    // Método para inicializar el auto-hide del navbar
+    // Método para inicializar el navbar sticky (siempre visible)
     initializeAutoHideNavbar() {
         if (!this.elements.navbar) return;
 
-        let lastScrollTop = 0;
-        let isNavbarHidden = false;
-        const navbarHeight = this.elements.navbar.offsetHeight;
-        const hideThreshold = 100; // Píxeles de scroll antes de ocultar
-        const showThreshold = 50; // Altura desde arriba para mostrar
+        // Agregar clase sticky al navbar para que sea siempre visible
+        this.elements.navbar.classList.add('sticky');
 
-        // Función para ocultar el navbar
-        const hideNavbar = () => {
-            if (!isNavbarHidden) {
-                this.elements.navbar.style.transform = `translateY(-${navbarHeight}px)`;
-                this.elements.navbar.style.transition = 'transform 0.3s ease-in-out';
-                isNavbarHidden = true;
-            }
-        };
+        // Asegurar que el navbar esté siempre visible
+        this.elements.navbar.style.transform = 'translateY(0)';
 
-        // Función para mostrar el navbar
-        const showNavbar = () => {
-            if (isNavbarHidden) {
-                this.elements.navbar.style.transform = 'translateY(0)';
-                isNavbarHidden = false;
-            }
-        };
-
-        // Event listener para scroll
-        window.addEventListener('scroll', () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-            // Si estamos scrolleando hacia abajo y pasamos el threshold, ocultar navbar
-            if (scrollTop > lastScrollTop && scrollTop > hideThreshold) {
-                hideNavbar();
-            }
-            // Si estamos scrolleando hacia arriba, mostrar navbar
-            else if (scrollTop < lastScrollTop) {
-                showNavbar();
-            }
-
-            lastScrollTop = scrollTop;
-        });
-
-        // Event listener para mouse en la parte superior
-        let mouseInTopArea = false;
-        window.addEventListener('mousemove', (e) => {
-            const mouseY = e.clientY;
-
-            // Si el mouse está en la parte superior (primeros 100px) y el navbar está oculto
-            if (mouseY <= showThreshold && isNavbarHidden) {
-                if (!mouseInTopArea) {
-                    mouseInTopArea = true;
-                    showNavbar();
-                }
-            } else {
-                mouseInTopArea = false;
-            }
-        });
-
-        // También mostrar navbar cuando el mouse sale de la ventana (para evitar que quede oculto)
-        document.addEventListener('mouseleave', () => {
-            mouseInTopArea = false;
-        });
-
-        // Auto-hide navbar inicializado
+        // Navbar sticky inicializado - siempre visible
     }
 }
 

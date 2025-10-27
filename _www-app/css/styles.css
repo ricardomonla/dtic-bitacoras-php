@@ -66,6 +66,16 @@ body {
     transition: transform 0.3s ease-in-out;
 }
 
+/* Navbar sticky - siempre visible */
+.navbar.sticky {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1030 !important;
+    transform: translateY(0) !important;
+}
+
 .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;

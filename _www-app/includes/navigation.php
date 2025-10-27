@@ -17,17 +17,9 @@ function renderNavigation(string $currentPage = ''): string {
     $user = getCurrentUser();
     $isLoggedIn = $user !== null;
 
-    // Si no está logueado, solo mostrar opción de login
+    // Si no está logueado, no mostrar menú principal (solo el login en el lado derecho)
     if (!$isLoggedIn) {
-        $navItems = [
-            [
-                'id' => 'login',
-                'url' => '/login',
-                'icon' => 'fas fa-sign-in-alt',
-                'text' => 'Iniciar Sesión',
-                'active' => $currentPage === 'login'
-            ]
-        ];
+        $navItems = [];
     } else {
         // Si está logueado, mostrar todas las opciones
         $navItems = [
@@ -260,9 +252,9 @@ function renderUserStatus(bool $isLoggedIn, ?array $user): string {
         return "
             <ul class='navbar-nav ms-auto'>
                 <li class='nav-item'>
-                    <span class='navbar-text text-light'>
-                        <i class='fas fa-user me-2'></i>Usuario Público
-                    </span>
+                    <a class='nav-link' href='/login' id='nav-login'>
+                        <i class='fas fa-sign-in-alt me-1'></i>Iniciar Sesión
+                    </a>
                 </li>
             </ul>
         ";
