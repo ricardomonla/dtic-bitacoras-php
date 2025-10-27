@@ -261,6 +261,9 @@ class TecnicosManager {
                             <button class="btn btn-outline-warning btn-sm" title="Editar" data-action="edit" data-id="${technician.id}">
                                 <i class="fas fa-edit"></i>
                             </button>
+                            <button class="btn btn-outline-info btn-sm" title="Cambiar contraseña" data-action="change_password" data-id="${technician.id}">
+                                <i class="fas fa-key"></i>
+                            </button>
                             <button class="btn btn-outline-danger btn-sm" title="Eliminar técnico" data-action="delete" data-id="${technician.id}">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -295,6 +298,9 @@ class TecnicosManager {
                         </button>
                         <button class="btn btn-outline-warning btn-sm" title="Editar" data-action="edit" data-id="${technician.id}">
                             <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" title="Cambiar contraseña" data-action="change_password" data-id="${technician.id}">
+                            <i class="fas fa-key"></i>
                         </button>
                         <button class="btn btn-outline-danger btn-sm" title="Eliminar técnico" data-action="delete" data-id="${technician.id}">
                             <i class="fas fa-trash"></i>
@@ -360,6 +366,9 @@ class TecnicosManager {
                         break;
                     case 'activate':
                         this.toggleTechnicianStatus(id, 1);
+                        break;
+                    case 'change_password':
+                        this.changePassword(id);
                         break;
                     case 'permissions':
                         this.showPermissions(id);
@@ -994,6 +1003,254 @@ class TecnicosManager {
         } finally {
             this.hideLoading();
         }
+    }
+
+    async changePassword(id) {
+        try {
+            this.showLoading();
+
+            // Obtener datos del técnico
+            const response = await fetch(`${this.apiUrl}?id=${id}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.showChangePasswordModal(data.data.technician);
+            } else {
+                this.showNotification(data.message || 'Error al obtener técnico', 'danger');
+            }
+        } catch (error) {
+            console.error('Error viewing technician:', error);
+            this.showNotification('Error de conexión', 'danger');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    showChangePasswordModal(technician) {
+        // Crear modal de cambio de contraseña
+        const modalHtml = `
+            <div class="modal fade" id="changePasswordModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-key me-2"></i>Cambiar Contraseña
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Cambiando contraseña para: <strong>${technician.first_name} ${technician.last_name}</strong>
+                            </div>
+                            <form id="changePasswordForm">
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">Nueva Contraseña *</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="newPassword" required
+                                               placeholder="Ingrese la nueva contraseña">
+                                        <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">
+                                        La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales.
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label">Confirmar Contraseña *</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="confirmPassword" required
+                                               placeholder="Confirme la nueva contraseña">
+                                        <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="forceChange">
+                                        <label class="form-check-label" for="forceChange">
+                                            Forzar cambio de contraseña en el próximo inicio de sesión
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-warning" id="updatePasswordBtn" data-technician-id="${technician.id}">
+                                <i class="fas fa-save me-2"></i>Cambiar Contraseña
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Agregar modal al DOM
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // Mostrar modal
+        const modal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+        modal.show();
+
+        // Configurar eventos
+        this.setupPasswordModalEvents(technician.id);
+
+        // Limpiar modal cuando se cierre
+        document.getElementById('changePasswordModal').addEventListener('hidden.bs.modal', function() {
+            this.remove();
+        });
+    }
+
+    setupPasswordModalEvents(technicianId) {
+        // Toggle password visibility
+        document.getElementById('toggleNewPassword')?.addEventListener('click', () => {
+            this.togglePasswordVisibility('newPassword', 'toggleNewPassword');
+        });
+
+        document.getElementById('toggleConfirmPassword')?.addEventListener('click', () => {
+            this.togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword');
+        });
+
+        // Update password button
+        document.getElementById('updatePasswordBtn')?.addEventListener('click', () => {
+            this.updatePassword(technicianId);
+        });
+    }
+
+    togglePasswordVisibility(inputId, buttonId) {
+        const input = document.getElementById(inputId);
+        const button = document.getElementById(buttonId);
+        const icon = button.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            input.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
+    }
+
+    async updatePassword(technicianId) {
+        // Limpiar errores previos
+        this.clearPasswordFormErrors();
+
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const forceChange = document.getElementById('forceChange').checked;
+
+        // Validación básica
+        let hasErrors = false;
+
+        if (!newPassword) {
+            this.showFieldError('newPassword', 'La nueva contraseña es obligatoria');
+            hasErrors = true;
+        } else if (!this.validatePasswordStrength(newPassword)) {
+            this.showFieldError('newPassword', 'La contraseña no cumple con los requisitos mínimos');
+            hasErrors = true;
+        }
+
+        if (!confirmPassword) {
+            this.showFieldError('confirmPassword', 'La confirmación de contraseña es obligatoria');
+            hasErrors = true;
+        } else if (newPassword !== confirmPassword) {
+            this.showFieldError('confirmPassword', 'Las contraseñas no coinciden');
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
+            return;
+        }
+
+        try {
+            this.showLoading();
+
+            console.log('Sending password change request:', {
+                url: `${this.apiUrl}?action=change_password&id=${technicianId}`,
+                data: {
+                    new_password: newPassword,
+                    force_change: forceChange
+                }
+            });
+
+            const response = await fetch(`${this.apiUrl}?action=change_password&id=${technicianId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    new_password: newPassword,
+                    force_change: forceChange
+                })
+            });
+
+            console.log('Response status:', response.status);
+            const responseText = await response.text();
+            console.log('Response text:', responseText);
+
+            let responseData;
+            try {
+                responseData = JSON.parse(responseText);
+            } catch (e) {
+                console.error('Failed to parse JSON response:', e);
+                this.showNotification('Error en la respuesta del servidor', 'danger');
+                return;
+            }
+
+            const data = responseData;
+
+            if (data.success) {
+                this.showNotification('Contraseña cambiada exitosamente', 'success');
+
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                modal.hide();
+
+            } else {
+                this.showNotification(data.message || 'Error al cambiar contraseña', 'danger');
+            }
+        } catch (error) {
+            console.error('Error updating password:', error);
+            this.showNotification('Error de conexión', 'danger');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    validatePasswordStrength(password) {
+        // Validar requisitos de contraseña
+        const minLength = password.length >= 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumbers = /\d/.test(password);
+        const hasNonalphas = /[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]/.test(password);
+
+        return minLength && hasUpperCase && hasLowerCase && hasNumbers && hasNonalphas;
+    }
+
+    clearPasswordFormErrors() {
+        const fields = ['newPassword', 'confirmPassword'];
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.remove('is-invalid');
+                const errorDiv = field.parentNode.querySelector('.invalid-feedback');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            }
+        });
     }
 
     showPermissions(id) {

@@ -52,7 +52,14 @@ switch ($method) {
         if (!$id) {
             sendErrorResponse('ID de técnico requerido para actualización', 400);
         }
-        updateTechnician($id);
+
+        // Verificar si es cambio de contraseña
+        $action = getRequestParam('action', null, 'GET');
+        if ($action === 'change_password') {
+            changeTechnicianPassword($id);
+        } else {
+            updateTechnician($id);
+        }
         break;
 
     case 'PATCH':
@@ -399,6 +406,62 @@ function updateTechnician(int $id): void {
     }
 }
 
+
+/**
+ * Cambia la contraseña de un técnico
+ */
+function changeTechnicianPassword(int $id): void {
+    try {
+        // Verificar que el técnico existe
+        $existing = executeQuery("SELECT * FROM tecnicos WHERE id = ?", [$id])->fetch(PDO::FETCH_ASSOC);
+        if (!$existing) {
+            sendErrorResponse('Técnico no encontrado', 404);
+        }
+
+        $data = getJsonInput();
+
+        // Validar datos requeridos
+        $validationRules = [
+            'new_password' => ['required' => true, 'min_length' => 8]
+        ];
+
+        $validation = validateData($data, $validationRules);
+        if (!$validation['valid']) {
+            sendErrorResponse('Datos inválidos: ' . implode(', ', $validation['errors']), 400);
+        }
+
+        // Validar fortaleza de contraseña
+        $passwordValidation = validatePassword($data['new_password']);
+        if (!$passwordValidation['valid']) {
+            sendErrorResponse('Contraseña inválida: ' . implode(', ', $passwordValidation['errors']), 400);
+        }
+
+        // Hashear nueva contraseña
+        $hashedPassword = hashPassword($data['new_password']);
+
+        // Actualizar contraseña
+        $sql = "UPDATE tecnicos SET password_hash = ?, updated_at = NOW() WHERE id = ?";
+        $params = [$hashedPassword, $id];
+
+        error_log("DEBUG: Updating password for technician {$id}");
+        error_log("DEBUG: SQL: {$sql}");
+        error_log("DEBUG: Params: " . json_encode($params));
+
+        executeQuery($sql, $params);
+
+        // Registrar en auditoría
+        logAuditAction('change_password', 'technician', $id, $existing, [
+            'password_changed' => true,
+            'force_change' => $data['force_change'] ?? false
+        ]);
+
+        sendJsonResponse(true, 'Contraseña cambiada exitosamente');
+
+    } catch (Exception $e) {
+        error_log("Error cambiando contraseña del técnico {$id}: " . $e->getMessage());
+        sendErrorResponse('Error interno del servidor', 500);
+    }
+}
 
 /**
  * Elimina un técnico (desactivación lógica primero, eliminación física si ya está inactivo)
