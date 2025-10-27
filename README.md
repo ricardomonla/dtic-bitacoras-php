@@ -211,7 +211,7 @@ dtic-bitacoras-php/
 ├── Dockerfile             # Configuración del contenedor Docker
 ├── docker-compose.yml     # Orquestación de servicios Docker
 ├── .env                   # Variables de entorno (producción)
-├── public/                # Archivos públicos accesibles por web
+├── _www-app/                # Archivos públicos accesibles por web
 │   ├── index.html        # Página principal del dashboard
 │   ├── tecnicos.html     # Gestión de técnicos del sistema
 │   ├── usuarios.html     # Gestión de usuarios operativos
@@ -297,7 +297,7 @@ dtic-bitacoras-php/
 
 2. **Crear estructura de directorios básica:**
    ```bash
-   mkdir -p public js api config includes database logs
+   mkdir -p _www-app js api config includes database logs
    ```
 
 3. **Crear Dockerfile:**
@@ -395,7 +395,7 @@ dtic-bitacoras-php/
 - Contenedor PHP con Apache corriendo en puerto 8080
 - Base de datos MySQL corriendo en puerto 3306
 - Entorno listo para desarrollo con permisos configurados
-- Página de prueba en `public/estadoproyecto.html` para verificar funcionamiento
+- Página de prueba en `_www-app/estadoproyecto.html` para verificar funcionamiento
 
 #### Verificación de la Etapa 1
 Después de completar la configuración, puedes verificar que todo funciona correctamente accediendo a:
@@ -418,22 +418,22 @@ La página de prueba mostrará:
 
 #### Archivos Creados
 
-1. **public/index.html** - Página principal del dashboard ✅
-2. **public/tecnicos.html** - Gestión de técnicos del sistema ✅
-3. **public/usuarios.html** - Gestión de usuarios operativos ✅
-4. **public/tareas.html** - Gestión de tareas del DTIC ✅
-5. **public/recursos.html** - Gestión de recursos del sistema ✅
-6. **public/calendario.html** - Calendario interactivo de eventos ✅
-7. **public/reportes.html** - Reportes y estadísticas ✅
-8. **public/estadoproyecto.html** - Estado del proyecto ✅
-9. **public/css/styles.css** - Estilos CSS con Bootstrap y auto-hide navbar ✅
-10. **public/js/dashboard.js** - Lógica avanzada del dashboard con auto-hide y datos de ejemplo ✅
-11. **public/js/calendar.js** - Funcionalidad del calendario interactivo ✅
+1. **_www-app/index.html** - Página principal del dashboard ✅
+2. **_www-app/tecnicos.html** - Gestión de técnicos del sistema ✅
+3. **_www-app/usuarios.html** - Gestión de usuarios operativos ✅
+4. **_www-app/tareas.html** - Gestión de tareas del DTIC ✅
+5. **_www-app/recursos.html** - Gestión de recursos del sistema ✅
+6. **_www-app/calendario.html** - Calendario interactivo de eventos ✅
+7. **_www-app/reportes.html** - Reportes y estadísticas ✅
+8. **_www-app/estadoproyecto.html** - Estado del proyecto ✅
+9. **_www-app/css/styles.css** - Estilos CSS con Bootstrap y auto-hide navbar ✅
+10. **_www-app/js/dashboard.js** - Lógica avanzada del dashboard con auto-hide y datos de ejemplo ✅
+11. **_www-app/js/calendar.js** - Funcionalidad del calendario interactivo ✅
 
 #### Estructura del Dashboard
 
 ```html
-<!-- public/index.html -->
+<!-- _www-app/index.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>

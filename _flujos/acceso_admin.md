@@ -254,13 +254,13 @@ Acceso a página protegida
 ## Configuración y Dependencias
 
 ### Archivos Requeridos
-- `public/pages/login.php` - Interfaz de login
-- `public/api/login.php` - API de autenticación
-- `public/api/auth/check.php` - Verificación de sesión
-- `public/includes/auth_middleware.php` - Middleware de auth
-- `public/includes/security.php` - Funciones de seguridad
-- `public/includes/functions.php` - Funciones auxiliares
-- `public/config/database.php` - Configuración BD
+- `_www-app/pages/login.php` - Interfaz de login
+- `_www-app/api/login.php` - API de autenticación
+- `_www-app/api/auth/check.php` - Verificación de sesión
+- `_www-app/includes/auth_middleware.php` - Middleware de auth
+- `_www-app/includes/security.php` - Funciones de seguridad
+- `_www-app/includes/functions.php` - Funciones auxiliares
+- `_www-app/config/database.php` - Configuración BD
 
 ### Base de Datos
 **Tabla `tecnicos`:**

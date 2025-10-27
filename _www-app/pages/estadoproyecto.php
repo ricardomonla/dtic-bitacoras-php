@@ -120,7 +120,7 @@ $currentPage = 'estadoproyecto';
                             </div>
                             <div class="structure-item ms-3">
                                 <i class="fas fa-folder text-warning me-2"></i>
-                                <strong class="text-success">✅ public/</strong>
+                                <strong class="text-success">✅ _www-app/</strong>
                                 <div class="structure-item ms-4">
                                     <i class="fas fa-file text-info me-2"></i>
                                     <span class="text-success">✅ index.html</span>

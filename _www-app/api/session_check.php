@@ -5,6 +5,8 @@
 
 require_once '../config/database.php';
 require_once '../includes/security.php';
+require_once '../includes/functions.php';
+require_once '../includes/auth_middleware.php';
 
 // Iniciar sesión segura
 startSecureSession();

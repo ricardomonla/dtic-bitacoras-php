@@ -18,8 +18,8 @@ WORKDIR /var/www/html
 # Copiar archivos del proyecto
 COPY . /var/www/html/
 
-# Configurar Apache para servir desde public/ y permitir acceso completo
-RUN echo '<VirtualHost *:80>\n    DocumentRoot /var/www/html/public\n    <Directory /var/www/html/public>\n        AllowOverride All\n        Require all granted\n        DirectoryIndex index.html index.php\n    </Directory>\n    <Directory /var/www/html>\n        AllowOverride All\n        Require all granted\n        Options Indexes FollowSymLinks\n        AllowOverride All\n        Require all granted\n    </Directory>\n</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+# Configurar Apache para servir desde _www-app/ y permitir acceso completo
+RUN echo '<VirtualHost *:80>\n    DocumentRoot /var/www/html/_www-app\n    <Directory /var/www/html/_www-app>\n        AllowOverride All\n        Require all granted\n        DirectoryIndex index.html index.php\n    </Directory>\n    <Directory /var/www/html>\n        AllowOverride All\n        Require all granted\n        Options Indexes FollowSymLinks\n        AllowOverride All\n        Require all granted\n    </Directory>\n</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Crear directorios necesarios
 RUN mkdir -p /var/www/html/database /var/www/html/logs /var/www/html/api /var/www/html/config /var/www/html/includes
