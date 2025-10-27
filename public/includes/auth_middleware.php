@@ -16,11 +16,11 @@ startSecureSession();
  * Verificar si el usuario está autenticado
  */
 function isAuthenticated(): bool {
-    error_log("[AUTH] Verificando autenticación - Session ID: " . ($_SESSION['session_id'] ?? 'no definido'));
+    debugLog("Verificando autenticación - Session ID: " . ($_SESSION['session_id'] ?? 'no definido'), 'AUTH');
 
     // Verificar sesión PHP
     if (!isset($_SESSION['user_id']) || !isset($_SESSION['session_id'])) {
-        error_log("[AUTH] Sesión PHP incompleta - user_id o session_id faltante");
+        debugLog("Sesión PHP incompleta - user_id o session_id faltante", 'AUTH');
         return false;
     }
 
@@ -31,24 +31,24 @@ function isAuthenticated(): bool {
     try {
         $session = executeQuery(
             "SELECT s.*, u.is_active
-             FROM sessions s
-             JOIN technicians u ON s.user_id = u.id
+             FROM sesiones s
+             JOIN tecnicos u ON s.user_id = u.id
              WHERE s.session_id = ? AND u.is_active = 1
              AND s.last_activity > DATE_SUB(NOW(), INTERVAL 24 HOUR)",
             [$sessionId]
         )->fetch(PDO::FETCH_ASSOC);
 
         if ($session) {
-            error_log("[AUTH] Sesión válida encontrada en BD para user_id: {$userId}");
+            debugLog("Sesión válida encontrada en BD para user_id: {$userId}", 'AUTH');
             // Actualizar última actividad
-            executeQuery("UPDATE sessions SET last_activity = NOW() WHERE session_id = ?", [$sessionId]);
+            executeQuery("UPDATE sesiones SET last_activity = NOW() WHERE session_id = ?", [$sessionId]);
             $_SESSION['last_activity'] = time();
             return true;
         } else {
-            error_log("[AUTH] Sesión no encontrada en BD o expirada para session_id: {$sessionId}");
+            debugLog("Sesión no encontrada en BD o expirada para session_id: {$sessionId}", 'AUTH');
         }
     } catch (Exception $e) {
-        error_log("[AUTH] Error verificando sesión en BD: " . $e->getMessage());
+        debugLog("Error verificando sesión en BD: " . $e->getMessage(), 'ERROR');
     }
 
     return false;
@@ -128,21 +128,21 @@ function getCurrentUser(): ?array {
  * Verificar y restaurar sesión desde cookie de recordar
  */
 function checkRememberMe(): void {
-    error_log("[AUTH] Verificando remember token - Cookie presente: " . (isset($_COOKIE['remember_token']) ? 'sí' : 'no'));
+    debugLog("Verificando remember token - Cookie presente: " . (isset($_COOKIE['remember_token']) ? 'sí' : 'no'), 'AUTH');
 
     if (isAuthenticated() || !isset($_COOKIE['remember_token'])) {
         return;
     }
 
     $rememberToken = $_COOKIE['remember_token'];
-    error_log("[AUTH] Remember token presente, verificando validez");
+    debugLog("Remember token presente, verificando validez", 'AUTH');
 
     try {
         // Buscar sesión válida con token de recordar
         $session = executeQuery(
             "SELECT s.*, u.dtic_id, u.first_name, u.last_name, u.email, u.role, u.department
-             FROM sessions s
-             JOIN technicians u ON s.user_id = u.id
+             FROM sesiones s
+             JOIN tecnicos u ON s.user_id = u.id
              WHERE s.remember_token IS NOT NULL
              AND s.remember_expires > NOW()
              AND u.is_active = 1
@@ -152,9 +152,9 @@ function checkRememberMe(): void {
         )->fetch(PDO::FETCH_ASSOC);
 
         if ($session) {
-            error_log("[AUTH] Sesión remember encontrada en BD, verificando token");
+            debugLog("Sesión remember encontrada en BD, verificando token", 'AUTH');
             if (password_verify($rememberToken, $session['remember_token'])) {
-                error_log("[AUTH] Remember token válido, restaurando sesión para user_id: {$session['user_id']}");
+                debugLog("Remember token válido, restaurando sesión para user_id: {$session['user_id']}", 'AUTH');
                 // Restaurar sesión
                 $_SESSION['user_id'] = $session['user_id'];
                 $_SESSION['user_dtic_id'] = $session['dtic_id'];
@@ -167,15 +167,15 @@ function checkRememberMe(): void {
                 $_SESSION['last_activity'] = time();
 
                 // Actualizar última actividad
-                executeQuery("UPDATE sessions SET last_activity = NOW() WHERE session_id = ?", [$session['session_id']]);
+                executeQuery("UPDATE sesiones SET last_activity = NOW() WHERE session_id = ?", [$session['session_id']]);
             } else {
-                error_log("[AUTH] Remember token no coincide con hash almacenado");
+                debugLog("Remember token no coincide con hash almacenado", 'AUTH');
             }
         } else {
-            error_log("[AUTH] No se encontró sesión remember válida en BD");
+            debugLog("No se encontró sesión remember válida en BD", 'AUTH');
         }
     } catch (Exception $e) {
-        error_log("[AUTH] Error verificando remember token: " . $e->getMessage());
+        debugLog("Error verificando remember token: " . $e->getMessage(), 'ERROR');
     }
 }
 
@@ -185,12 +185,14 @@ function checkRememberMe(): void {
 function cleanupExpiredSessions(): void {
     try {
         // Eliminar sesiones expiradas (más de 24 horas sin actividad)
-        executeQuery("DELETE FROM sessions WHERE last_activity < DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+        executeQuery("DELETE FROM sesiones WHERE last_activity < DATE_SUB(NOW(), INTERVAL 24 HOUR)");
 
         // Limpiar tokens de recordar expirados
-        executeQuery("UPDATE sessions SET remember_token = NULL, remember_expires = NULL WHERE remember_expires < NOW()");
+        executeQuery("UPDATE sesiones SET remember_token = NULL, remember_expires = NULL WHERE remember_expires < NOW()");
+
+        debugLog("Sesiones expiradas limpiadas exitosamente", 'MAINTENANCE');
     } catch (Exception $e) {
-        error_log("Error limpiando sesiones expiradas: " . $e->getMessage());
+        debugLog("Error limpiando sesiones expiradas: " . $e->getMessage(), 'ERROR');
     }
 }
 

@@ -440,6 +440,12 @@ class Dashboard {
 
     // Método para verificar estado del sistema
     checkSystemStatus() {
+        // Verificar que el elemento existe antes de intentar modificarlo
+        if (!this.elements || !this.elements.systemStatus) {
+            console.warn('Elemento systemStatus no encontrado, omitiendo verificación de estado del sistema');
+            return;
+        }
+
         // Simular verificación de conectividad
         fetch(window.location.href, { method: 'HEAD' })
             .then(response => {
@@ -523,7 +529,9 @@ class Dashboard {
 }
 
 // Inicializar dashboard cuando se carga la página
-const dashboard = new Dashboard();
+if (typeof window.dashboard === 'undefined') {
+    window.dashboard = new Dashboard();
+}
 
 // Verificar estado del sistema cada 30 segundos
 setInterval(() => {

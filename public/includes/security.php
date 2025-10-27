@@ -3,12 +3,6 @@
  * Funciones de seguridad para el sistema DTIC Bitácoras
  */
 
-// Función startSecureSession() movida a functions.php para evitar duplicación
-
-// Función isAuthenticated() movida a auth_middleware.php para evitar duplicación
-
-// Función getCurrentUser() movida a auth_middleware.php para evitar duplicación
-
 /**
  * Verifica permisos del usuario
  *
@@ -38,6 +32,8 @@ function hasPermission(string $requiredRole): bool {
 }
 
 // Función requireAuth() movida a auth_middleware.php para evitar duplicación
+
+// Función cleanupExpiredSessions() movida a auth_middleware.php para evitar duplicación
 
 /**
  * Requiere permisos específicos
@@ -134,13 +130,13 @@ function checkRateLimit(string $action, int $maxAttempts = 5, int $timeWindow = 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($result['attempts'] >= $maxAttempts) {
-            error_log("[RATE_LIMIT] Límite excedido para IP {$ip}, acción {$action}: {$result['attempts']} intentos");
+            debugLog("Límite excedido para IP {$ip}, acción {$action}: {$result['attempts']} intentos", 'RATE_LIMIT');
             return false;
         }
 
         return true;
     } catch (Exception $e) {
-        error_log("[RATE_LIMIT] Error verificando rate limit: " . $e->getMessage());
+        debugLog("Error verificando rate limit: " . $e->getMessage(), 'ERROR');
         // En caso de error, permitir el intento (fail-open)
         return true;
     }
@@ -287,7 +283,7 @@ function escapeSQL(string $data): string {
  */
 function logFailedLogin(string $identifier): void {
     $ip = getClientIP();
-    error_log("Intento de login fallido - Usuario: {$identifier}, IP: {$ip}, Time: " . date('Y-m-d H:i:s'));
+    debugLog("Intento de login fallido - Usuario: {$identifier}, IP: {$ip}", 'SECURITY');
 }
 
 /**

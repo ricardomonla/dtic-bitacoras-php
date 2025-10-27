@@ -8,17 +8,17 @@ require_once '../includes/security.php';
 
 // Iniciar sesión segura
 startSecureSession();
-error_log("[SESSION_CHECK] Verificando estado de sesión");
+debugLog("Verificando estado de sesión", 'SESSION');
 
 // Verificar autenticación
 if (isAuthenticated()) {
     $user = getCurrentUser();
-    error_log("[SESSION_CHECK] Sesión activa para user_id: " . ($user['id'] ?? 'desconocido'));
+    debugLog("Sesión activa para user_id: " . ($user['id'] ?? 'desconocido'), 'SESSION');
     sendJsonResponse(true, 'Sesión activa', [
         'user' => $user
     ]);
 } else {
-    error_log("[SESSION_CHECK] Sesión expirada o inválida");
+    debugLog("Sesión expirada o inválida", 'SESSION');
     sendJsonResponse(false, 'Sesión expirada', null, 401);
 }
 ?>

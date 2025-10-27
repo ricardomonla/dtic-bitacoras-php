@@ -111,6 +111,7 @@ $currentPage = 'tecnicos';
                                             <option value="">Todos</option>
                                             <option value="active">Activo</option>
                                             <option value="inactive">Inactivo</option>
+                                            <option value="all">Todos (incluyendo inactivos)</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">

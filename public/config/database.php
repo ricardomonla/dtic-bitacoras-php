@@ -11,8 +11,17 @@ define('DB_USER', getenv('DB_USER') ?: 'dtic_user');
 define('DB_PASS', getenv('DB_PASSWORD') ?: 'dtic_password');
 define('DB_CHARSET', 'utf8mb4');
 
-// Modo Debug - Desactiva rate limiting y otras restricciones para pruebas
+// Modo Debug - Controla logging y otras restricciones para desarrollo/producción
 define('DEBUG_MODE', getenv('DEBUG_MODE') ?: false);
+
+// Función helper para logging condicional
+function debugLog(string $message, string $level = 'INFO'): void {
+    if (DEBUG_MODE) {
+        $timestamp = date('Y-m-d H:i:s');
+        $logMessage = "[{$timestamp}] [{$level}] {$message}";
+        error_log($logMessage);
+    }
+}
 
 // Opciones PDO
 define('DB_OPTIONS', [
@@ -39,7 +48,7 @@ function getDBConnection(): PDO {
             $pdo->exec("SET time_zone = '-03:00'"); // Argentina Time Zone
 
         } catch (PDOException $e) {
-            error_log("Error de conexión a BD: " . $e->getMessage());
+            debugLog("Error de conexión a BD: " . $e->getMessage(), 'ERROR');
             throw new PDOException("Error al conectar con la base de datos");
         }
     }
@@ -62,7 +71,7 @@ function executeQuery(string $sql, array $params = []): PDOStatement {
         $stmt->execute($params);
         return $stmt;
     } catch (PDOException $e) {
-        error_log("Error en consulta SQL: " . $e->getMessage() . " | SQL: " . $sql);
+        debugLog("Error en consulta SQL: " . $e->getMessage() . " | SQL: " . $sql, 'ERROR');
         throw $e;
     }
 }

@@ -20,14 +20,14 @@ function checkRememberMe(): void {
     try {
         // Buscar sesión válida con el token
         $sql = "SELECT s.*, u.dtic_id, u.first_name, u.last_name, u.email, u.role, u.department
-                FROM sessions s
-                LEFT JOIN technicians u ON s.user_id = u.id AND s.user_type = 'technician'
-                WHERE s.remember_token = ? AND s.expires_at > NOW()
+                FROM sesiones s
+                LEFT JOIN tecnicos u ON s.user_id = u.id AND s.user_type = 'technician'
+                WHERE s.remember_token = ? AND s.remember_expires > NOW()
                 UNION
                 SELECT s.*, u.dtic_id, u.first_name, u.last_name, u.email, u.role, u.department
-                FROM sessions s
-                LEFT JOIN users u ON s.user_id = u.id AND s.user_type = 'user'
-                WHERE s.remember_token = ? AND s.expires_at > NOW()
+                FROM sesiones s
+                LEFT JOIN usuarios u ON s.user_id = u.id AND s.user_type = 'user'
+                WHERE s.remember_token = ? AND s.remember_expires > NOW()
                 LIMIT 1";
 
         $stmt = executeQuery($sql, [$rememberToken, $rememberToken]);
@@ -48,8 +48,8 @@ function checkRememberMe(): void {
             $_SESSION['session_id'] = $session['id'];
 
             // Actualizar last_activity
-            $sql = "UPDATE sessions SET last_activity = NOW() WHERE id = ?";
-            executeQuery($sql, [$session['id']]);
+            $sql = "UPDATE sesiones SET last_activity = NOW() WHERE session_id = ?";
+            executeQuery($sql, [$session['session_id']]);
 
             // Regenerar ID de sesión por seguridad
             session_regenerate_id(true);
@@ -67,7 +67,7 @@ function checkRememberMe(): void {
  */
 function cleanupExpiredRememberTokens(): void {
     try {
-        $sql = "UPDATE sessions SET remember_token = NULL, expires_at = NULL WHERE expires_at < NOW()";
+        $sql = "UPDATE sesiones SET remember_token = NULL, remember_expires = NULL WHERE remember_expires < NOW()";
         executeQuery($sql);
     } catch (Exception $e) {
         error_log("Error limpiando tokens expirados: " . $e->getMessage());

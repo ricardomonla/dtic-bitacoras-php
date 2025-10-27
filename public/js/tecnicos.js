@@ -54,8 +54,15 @@ class TecnicosManager {
         });
 
         document.getElementById('filterStatus')?.addEventListener('change', (e) => {
-            this.currentFilters.status = e.target.value;
-            console.log('[DEBUG] Status filter changed:', e.target.value);
+            // Convertir valores del frontend a valores de la API
+            const statusMap = {
+                'active': 'active',
+                'inactive': 'inactive',
+                'all': 'all',
+                '': '' // Todos (vacío significa mostrar activos por defecto)
+            };
+            this.currentFilters.status = statusMap[e.target.value] || e.target.value;
+            console.log('[DEBUG] Status filter changed:', e.target.value, '->', this.currentFilters.status);
             this.updateSearchIcon();
             this.loadTechnicians();
         });

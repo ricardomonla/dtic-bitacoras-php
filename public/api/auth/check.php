@@ -42,8 +42,8 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
     try {
         $session = executeQuery(
             "SELECT s.*, u.dtic_id, u.first_name, u.last_name, u.email, u.role, u.department
-             FROM sessions s
-             JOIN technicians u ON s.user_id = u.id
+             FROM sesiones s
+             JOIN tecnicos u ON s.user_id = u.id
              WHERE s.session_id = ? AND u.is_active = 1
              AND s.last_activity > DATE_SUB(NOW(), INTERVAL 24 HOUR)",
             [$sessionId]
@@ -61,11 +61,11 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
             ];
 
             // Actualizar última actividad
-            executeQuery("UPDATE sessions SET last_activity = NOW() WHERE session_id = ?", [$sessionId]);
+            executeQuery("UPDATE sesiones SET last_activity = NOW() WHERE session_id = ?", [$sessionId]);
             $_SESSION['last_activity'] = time();
         }
     } catch (Exception $e) {
-        error_log("Error verificando sesión: " . $e->getMessage());
+        debugLog("Error verificando sesión: " . $e->getMessage(), 'ERROR');
     }
 }
 
@@ -77,8 +77,8 @@ if (!$authenticated && isset($_COOKIE['remember_token'])) {
         // Buscar sesión válida con token de recordar
         $session = executeQuery(
             "SELECT s.*, u.dtic_id, u.first_name, u.last_name, u.email, u.role, u.department
-             FROM sessions s
-             JOIN technicians u ON s.user_id = u.id
+             FROM sesiones s
+             JOIN tecnicos u ON s.user_id = u.id
              WHERE s.remember_token IS NOT NULL
              AND s.remember_expires > NOW()
              AND u.is_active = 1
@@ -112,10 +112,10 @@ if (!$authenticated && isset($_COOKIE['remember_token'])) {
             ];
 
             // Actualizar última actividad
-            executeQuery("UPDATE sessions SET last_activity = NOW() WHERE session_id = ?", [$session['session_id']]);
+            executeQuery("UPDATE sesiones SET last_activity = NOW() WHERE session_id = ?", [$session['session_id']]);
         }
     } catch (Exception $e) {
-        error_log("Error verificando remember token: " . $e->getMessage());
+        debugLog("Error verificando remember token: " . $e->getMessage(), 'ERROR');
     }
 }
 

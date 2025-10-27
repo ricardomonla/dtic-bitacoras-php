@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // Obtener datos del login
 $data = getJsonInput();
-error_log("[LOGIN] Datos recibidos: " . json_encode($data));
+debugLog("Datos recibidos: " . json_encode($data), 'LOGIN');
 
 // Validar datos requeridos
 $validationRules = [
@@ -37,7 +37,7 @@ $validationRules = [
 
 $validation = validateData($data, $validationRules);
 if (!$validation['valid']) {
-    error_log("[LOGIN] Validación fallida: " . implode(', ', $validation['errors']));
+    debugLog("Validación fallida: " . implode(', ', $validation['errors']), 'LOGIN');
     sendErrorResponse('Datos inválidos: ' . implode(', ', $validation['errors']), 400);
 }
 
@@ -48,50 +48,50 @@ $data = sanitizeData($data);
 // En modo debug, saltar rate limiting
 $clientIP = getClientIP();
 if (!DEBUG_MODE && !checkRateLimit('login', 5, 900)) { // 15 minutos = 900 segundos
-    error_log("[LOGIN] Rate limit excedido para IP: {$clientIP}");
+    debugLog("Rate limit excedido para IP: {$clientIP}", 'LOGIN');
     sendErrorResponse('Demasiados intentos fallidos. Intente nuevamente en 15 minutos.', 429);
 }
 
 // Buscar usuario por email o DTIC ID
 $user = null;
 $username = $data['username'];
-error_log("[LOGIN] Buscando usuario: {$username}");
+debugLog("Buscando usuario: {$username}", 'LOGIN');
 
 // Intentar buscar por email primero
 $user = executeQuery(
     "SELECT id, dtic_id, first_name, last_name, email, password_hash, role, department, is_active
-     FROM technicians
+     FROM tecnicos
      WHERE email = ? AND is_active = 1",
     [$username]
 )->fetch(PDO::FETCH_ASSOC);
 
-error_log("[LOGIN] Búsqueda por email en technicians: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"));
+debugLog("Búsqueda por email en tecnicos: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"), 'LOGIN');
 
 // Si no encontró por email, buscar por DTIC ID
 if (!$user) {
     $user = executeQuery(
         "SELECT id, dtic_id, first_name, last_name, email, password_hash, role, department, is_active
-         FROM technicians
+         FROM tecnicos
          WHERE dtic_id = ? AND is_active = 1",
         [$username]
     )->fetch(PDO::FETCH_ASSOC);
-    error_log("[LOGIN] Búsqueda por DTIC ID en technicians: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"));
+    debugLog("Búsqueda por DTIC ID en tecnicos: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"), 'LOGIN');
 }
 
-// Si no encontró en technicians, buscar en users
+// Si no encontró en tecnicos, buscar en users
 if (!$user) {
     $user = executeQuery(
         "SELECT id, username as dtic_id, name as first_name, '' as last_name, email, password_hash, role, department, is_active
-         FROM users
+         FROM usuarios
          WHERE (email = ? OR username = ?) AND is_active = 1",
         [$username, $username]
     )->fetch(PDO::FETCH_ASSOC);
-    error_log("[LOGIN] Búsqueda en users: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"));
+    debugLog("Búsqueda en usuarios: " . ($user ? "encontrado (ID: {$user['id']})" : "no encontrado"), 'LOGIN');
 }
 
 // Usuario no encontrado o inactivo
 if (!$user) {
-    error_log("[LOGIN] Usuario no encontrado o inactivo: {$username}");
+    debugLog("Usuario no encontrado o inactivo: {$username}", 'LOGIN');
     // Registrar intento fallido en auditoría
     logAuditAction('login_failed', 'user', 0, null, [
         'username' => $username,
@@ -101,10 +101,10 @@ if (!$user) {
     sendErrorResponse('Usuario o contraseña incorrectos', 401);
 }
 
-error_log("[LOGIN] Verificando contraseña para usuario ID: {$user['id']}");
+debugLog("Verificando contraseña para usuario ID: {$user['id']}", 'LOGIN');
 // Verificar contraseña
 if (!password_verify($data['password'], $user['password_hash'])) {
-    error_log("[LOGIN] Contraseña incorrecta para usuario ID: {$user['id']}");
+    debugLog("Contraseña incorrecta para usuario ID: {$user['id']}", 'LOGIN');
     // Registrar intento fallido en auditoría
     logAuditAction('login_failed', 'user', $user['id'], null, [
         'username' => $username,
@@ -114,7 +114,7 @@ if (!password_verify($data['password'], $user['password_hash'])) {
     sendErrorResponse('Usuario o contraseña incorrectos', 401);
 }
 
-error_log("[LOGIN] Login exitoso para usuario ID: {$user['id']} ({$user['dtic_id']})");
+debugLog("Login exitoso para usuario ID: {$user['id']} ({$user['dtic_id']})", 'LOGIN');
 
 // Login exitoso - rate limiting ya se maneja en BD
 
@@ -140,14 +140,14 @@ $_SESSION['last_activity'] = time();
 // Guardar sesión en base de datos
 try {
     executeQuery(
-        "INSERT INTO sessions (session_id, user_id, user_type, user_agent, ip_address, created_at, last_activity)
+        "INSERT INTO sesiones (session_id, user_id, user_type, user_agent, ip_address, created_at, last_activity)
          VALUES (?, ?, 'technician', ?, ?, NOW(), NOW())
          ON DUPLICATE KEY UPDATE last_activity = NOW()",
         [$sessionId, $user['id'], $userAgent, $ipAddress]
     );
-    error_log("[LOGIN] Sesión guardada en BD para user_id: {$user['id']}");
+    debugLog("Sesión guardada en BD para user_id: {$user['id']}", 'LOGIN');
 } catch (Exception $e) {
-    error_log("[LOGIN] Error guardando sesión en BD: " . $e->getMessage());
+    debugLog("Error guardando sesión en BD: " . $e->getMessage(), 'ERROR');
     // Continuar sin guardar en BD (sesión PHP seguirá funcionando)
 }
 
@@ -159,7 +159,7 @@ if (isset($data['remember_me']) && $data['remember_me']) {
 
     // Guardar token en BD
     executeQuery(
-        "UPDATE sessions SET remember_token = ?, remember_expires = DATE_ADD(NOW(), INTERVAL 30 DAY)
+        "UPDATE sesiones SET remember_token = ?, remember_expires = DATE_ADD(NOW(), INTERVAL 30 DAY)
          WHERE session_id = ?",
         [$tokenHash, $sessionId]
     );

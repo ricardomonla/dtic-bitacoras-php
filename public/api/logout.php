@@ -33,7 +33,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Obtener datos de la sesión actual
 $userId = $_SESSION['user_id'] ?? null;
 $sessionId = $_SESSION['session_id'] ?? null;
-error_log("[LOGOUT] Iniciando logout - user_id: {$userId}, session_id: {$sessionId}");
+debugLog("Iniciando logout - user_id: {$userId}, session_id: {$sessionId}", 'LOGOUT');
 
 // Registrar logout en auditoría si hay usuario autenticado
 if ($userId) {
@@ -42,15 +42,15 @@ if ($userId) {
         'ip_address' => getClientIP(),
         'manual_logout' => true
     ]);
-    error_log("[LOGOUT] Auditoría registrada para user_id: {$userId}");
+    debugLog("Auditoría registrada para user_id: {$userId}", 'LOGOUT');
 }
 
 // Eliminar sesión de base de datos
 if ($sessionId) {
     try {
-        executeQuery("DELETE FROM sessions WHERE session_id = ?", [$sessionId]);
+        executeQuery("DELETE FROM sesiones WHERE session_id = ?", [$sessionId]);
     } catch (Exception $e) {
-        error_log("Error eliminando sesión de BD: " . $e->getMessage());
+        debugLog("Error eliminando sesión de BD: " . $e->getMessage(), 'ERROR');
         // Continuar con el logout aunque falle la BD
     }
 }
@@ -59,9 +59,9 @@ if ($sessionId) {
 if (isset($_COOKIE['remember_token'])) {
     // Invalidar token en BD
     try {
-        executeQuery("UPDATE sessions SET remember_token = NULL, remember_expires = NULL WHERE remember_token IS NOT NULL");
+        executeQuery("UPDATE sesiones SET remember_token = NULL, remember_expires = NULL WHERE remember_token IS NOT NULL");
     } catch (Exception $e) {
-        error_log("Error limpiando remember tokens: " . $e->getMessage());
+        debugLog("Error limpiando remember tokens: " . $e->getMessage(), 'ERROR');
     }
 
     // Eliminar cookie

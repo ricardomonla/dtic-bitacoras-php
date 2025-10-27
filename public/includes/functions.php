@@ -30,9 +30,6 @@ function generateDTICId(string $prefix): string {
  */
 function getLastDTICId(string $prefix): ?string {
     try {
-<<<<<<< HEAD
-        $sql = "SELECT dtic_id FROM technicians WHERE dtic_id LIKE ? ORDER BY dtic_id DESC LIMIT 1";
-=======
         // Determinar tabla según prefijo
         $table = match($prefix) {
             'TEC' => 'tecnicos',
@@ -43,13 +40,12 @@ function getLastDTICId(string $prefix): ?string {
         };
 
         $sql = "SELECT dtic_id FROM {$table} WHERE dtic_id LIKE ? ORDER BY dtic_id DESC LIMIT 1";
->>>>>>> 6e79744 (feat: Renombrar tablas BD al español y mejorar UX búsqueda técnicos)
         $stmt = executeQuery($sql, [$prefix . '-%']);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $result ? $result['dtic_id'] : null;
     } catch (Exception $e) {
-        error_log("Error obteniendo último ID DTIC para {$prefix}: " . $e->getMessage());
+        debugLog("Error obteniendo último ID DTIC para {$prefix}: " . $e->getMessage(), 'ERROR');
         return null;
     }
 }
@@ -215,7 +211,7 @@ function logAuditAction(
 
         executeQuery($sql, $params);
     } catch (Exception $e) {
-        error_log("Error registrando auditoría: " . $e->getMessage());
+        debugLog("Error registrando auditoría: " . $e->getMessage(), 'ERROR');
     }
 }
 
@@ -376,5 +372,3 @@ function startSecureSession(): void {
 /**
  * Alias para compatibilidad - función duplicada eliminada
  */
-
-// Función cleanupExpiredSessions() movida a auth_middleware.php para evitar duplicación
