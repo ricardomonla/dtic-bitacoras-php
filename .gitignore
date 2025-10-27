@@ -1,0 +1,13 @@
+# Backup files
+*.sql
+backup.sql
+
+# Note: data/mysql/ is now tracked to share database state across machines
+# Remove this comment and uncomment the line below if you prefer local-only databases:
+# data/mysql/
+
+# Other common ignores
+.env
+.DS_Store
+*.log
+node_modules/

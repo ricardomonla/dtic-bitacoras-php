@@ -27,12 +27,13 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./data/mysql:/var/lib/mysql
+      - ./public/database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - dtic-network
 
-volumes:
-  mysql_data:
+# volumes:
+  # mysql_data: # Commented out - using bind mount instead
 
 networks:
   dtic-network:
