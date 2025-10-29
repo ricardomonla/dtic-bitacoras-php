@@ -148,6 +148,86 @@ run_docker_command() {
     fi
 }
 
+# Función auxiliar para mostrar lista de respaldos disponibles
+# Retorna: array de archivos de respaldo ordenados por fecha (más reciente primero)
+get_backup_files() {
+    local backup_files=()
+    if [ -d "$BACKUP_DIR" ]; then
+        # Obtener archivos ordenados por fecha de modificación (más reciente primero)
+        while IFS= read -r -d '' file; do
+            backup_files+=("$file")
+        done < <(find "$BACKUP_DIR" -name "db_backup_*.sql.gz" -type f -printf '%T@ %p\0' 2>/dev/null | sort -znr | cut -z -d' ' -f2-)
+    fi
+    echo "${backup_files[@]}"
+}
+
+# Función auxiliar para mostrar menú de selección de respaldo
+# Parámetros: $1 = array de archivos de respaldo
+show_backup_selection_menu() {
+    local backup_files=("$@")
+    local count=${#backup_files[@]}
+
+    if [ $count -eq 0 ]; then
+        echo ""
+        echo -e "${RED}❌ No hay archivos de respaldo disponibles${NC}"
+        echo ""
+        return 1
+    fi
+
+    show_menu_header "💾 Seleccionar Archivo de Respaldo"
+    echo -e "${WHITE}Archivos disponibles (ordenados por fecha - más reciente primero):${NC}"
+    show_menu_separator
+
+    local i=1
+    for backup_file in "${backup_files[@]}"; do
+        local filename=$(basename "$backup_file")
+        local file_size=$(du -h "$backup_file" | cut -f1)
+        local mod_date=$(date -r "$backup_file" '+%Y-%m-%d %H:%M:%S')
+
+        echo -e "${GREEN}$i)${NC} 📁 $filename"
+        echo -e "   📊 Tamaño: $file_size | 🕒 Fecha: $mod_date"
+        ((i++))
+    done
+
+    show_menu_separator
+    show_menu_option "0" "↩️  Cancelar y volver al menú anterior" "$BLUE"
+    show_menu_separator
+    show_selection_prompt "0-$count"
+
+    return 0
+}
+
+# Función auxiliar para obtener confirmación del usuario
+# Parámetros: $1 = mensaje de confirmación
+# Retorna: 0 = sí, 1 = no/cancelar
+get_user_confirmation() {
+    local message="$1"
+    local choice
+
+    echo ""
+    echo -e "${YELLOW}⚠️  $message${NC}"
+    echo ""
+    echo -e "${GREEN}s)${NC} ✅ Sí, proceder"
+    echo -e "${RED}n)${NC} ❌ No, cancelar"
+    echo ""
+    echo -n "Seleccione (s/n): "
+
+    read -r choice
+    case "$choice" in
+        [Ss]|[Ss][Ii])
+            return 0
+            ;;
+        [Nn]|[Nn][Oo])
+            echo -e "${BLUE}ℹ️  Operación cancelada por el usuario${NC}"
+            return 1
+            ;;
+        *)
+            echo -e "${RED}❌ Selección inválida. Operación cancelada.${NC}"
+            return 1
+            ;;
+    esac
+}
+
 # =============================================================================
 # FUNCIONES DE LOGGING
 # =============================================================================
@@ -592,14 +672,7 @@ handle_db_menu() {
                     show_continue_prompt
                     ;;
                 2)
-                    list_backups
-                    echo ""
-                    echo -n "Ingrese ruta del archivo de respaldo (o presione Enter para cancelar): "
-                    read -r backup_file
-                    if [ -n "$backup_file" ]; then
-                        restore_backup "$backup_file"
-                    fi
-                    show_continue_prompt
+                    handle_backup_restore_menu
                     ;;
                 3)
                     list_backups
@@ -613,6 +686,61 @@ handle_db_menu() {
             esac
         else
             show_menu_error "Opción inválida. Por favor seleccione 0-4."
+        fi
+    done
+}
+
+# Función para manejar el submenú de restauración de respaldo
+handle_backup_restore_menu() {
+    local choice
+    while true; do
+        # Obtener lista de archivos de respaldo
+        local backup_files=($(get_backup_files))
+        local backup_count=${#backup_files[@]}
+
+        # Mostrar menú de selección si hay respaldos disponibles
+        if ! show_backup_selection_menu "${backup_files[@]}"; then
+            show_continue_prompt
+            return
+        fi
+
+        read -r choice
+
+        if validate_menu_input "$choice" 0 "$backup_count"; then
+            if [ "$choice" -eq 0 ]; then
+                return
+            elif [ "$choice" -ge 1 ] && [ "$choice" -le "$backup_count" ]; then
+                local selected_file="${backup_files[$((choice - 1))]}"
+                local filename=$(basename "$selected_file")
+
+                echo ""
+                echo -e "${BLUE}📁 Archivo seleccionado: ${WHITE}$filename${NC}"
+                echo ""
+
+                # Mostrar información del archivo seleccionado
+                echo "📊 Información del respaldo:"
+                echo "   📁 Nombre: $filename"
+                echo "   📏 Tamaño: $(du -h "$selected_file" | cut -f1)"
+                echo "   🕒 Fecha: $(date -r "$selected_file" '+%Y-%m-%d %H:%M:%S')"
+                echo ""
+
+                # Confirmación antes de proceder
+                if get_user_confirmation "¿Está seguro de que desea restaurar la base de datos desde este respaldo? Esta acción reemplazará todos los datos actuales."; then
+                    echo ""
+                    if restore_backup "$selected_file"; then
+                        echo ""
+                        echo -e "${GREEN}✅ Restauración completada exitosamente${NC}"
+                    else
+                        echo ""
+                        echo -e "${RED}❌ La restauración falló${NC}"
+                    fi
+                fi
+
+                show_continue_prompt
+                return
+            fi
+        else
+            show_menu_error "Selección inválida. Por favor seleccione 0-$backup_count."
         fi
     done
 }
