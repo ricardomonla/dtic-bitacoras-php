@@ -31,8 +31,10 @@
 # Configuración
 # Usar variables de entorno para datos sensibles (con valores por defecto)
 BACKUP_DIR="_www-app/database/backups"
-CONTAINER_NAME="dtic-bitacoras-php-db-1"
-APP_CONTAINER="dtic-bitacoras-php-x-app-1"
+CONTAINER_NAME="dtic-bitacoras"
+APP_CONTAINER="dtic-bitacoras"
+DB_TYPE="${DB_TYPE:-sqlite}"
+DB_SQLITE_PATH="${DB_SQLITE_PATH:-_www-app/database/dtic_bitacoras.db}"
 DB_HOST="${DB_HOST:-db}"
 DB_NAME="${DB_NAME:-dtic_bitacoras_php}"
 DB_USER="${DB_USER:-dtic_user}"
@@ -40,6 +42,9 @@ DB_PASS="${DB_PASS:-dtic_password}"
 BACKUP_SCRIPT="/var/www/html/_www-app/backup.php"
 RESTORE_SCRIPT="/var/www/html/_www-app/restore.php"
 STATUS_SCRIPT="/var/www/html/_www-app/status.php"
+APP_PORT="${APP_PORT:-8080}"
+TEST_USER="${TEST_USER:-rmonla@frlr.utn.edu.ar}"
+TEST_PASS="${TEST_PASS:-password}"
 
 # Colores para salida
 RED='\033[0;31m'
@@ -264,10 +269,18 @@ info() {
 # Función para verificar si la base de datos es accesible
 # Retorna: 0 en éxito, 1 en fallo
 check_db_connection() {
-    if docker compose exec -T db mysql -u "$DB_USER" -p"$DB_PASS" -e "SELECT 1;" "$DB_NAME" >/dev/null 2>&1; then
-        return 0
+    if [ "$DB_TYPE" = "sqlite" ]; then
+        if [ -f "$DB_SQLITE_PATH" ] && sqlite3 "$DB_SQLITE_PATH" "SELECT 1;" >/dev/null 2>&1; then
+            return 0
+        else
+            return 1
+        fi
     else
-        return 1
+        if docker compose exec -T db mysql -u "$DB_USER" -p"$DB_PASS" -e "SELECT 1;" "$DB_NAME" >/dev/null 2>&1; then
+            return 0
+        else
+            return 1
+        fi
     fi
 }
 
@@ -316,17 +329,32 @@ restore_backup() {
 # Función para mostrar estado de base de datos
 show_db_status() {
     if check_db_connection; then
-        local tables=$(docker compose exec -T db mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME; SHOW TABLES;" 2>/dev/null | wc -l)
-        local tables_count=$((tables - 1))
-        local users=$(docker compose exec -T db mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME; SELECT COUNT(*) as count FROM tecnicos;" 2>/dev/null | tail -n1)
-        local sessions=$(docker compose exec -T db mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME; SELECT COUNT(*) as count FROM sesiones;" 2>/dev/null | tail -n1)
+        if [ "$DB_TYPE" = "sqlite" ]; then
+            local tables=$(sqlite3 "$DB_SQLITE_PATH" "SELECT COUNT(*) FROM sqlite_master WHERE type='table';" 2>/dev/null)
+            local users=$(sqlite3 "$DB_SQLITE_PATH" "SELECT COUNT(*) FROM tecnicos;" 2>/dev/null)
+            local sessions=$(sqlite3 "$DB_SQLITE_PATH" "SELECT COUNT(*) FROM sesiones;" 2>/dev/null)
+            local db_size=$(du -h "$DB_SQLITE_PATH" | cut -f1)
 
-        echo ""
-        echo "📊 Estado de Base de Datos:"
-        echo "   🏗️  Base de Datos: $DB_NAME"
-        echo "   📋 Tablas: $tables_count"
-        echo "   👥 Usuarios: ${users:-0}"
-        echo "   🔐 Sesiones: ${sessions:-0}"
+            echo ""
+            echo "📊 Estado de Base de Datos SQLite:"
+            echo "   🏗️  Base de Datos: $DB_SQLITE_PATH"
+            echo "   📏 Tamaño: $db_size"
+            echo "   📋 Tablas: ${tables:-0}"
+            echo "   👥 Usuarios: ${users:-0}"
+            echo "   🔐 Sesiones: ${sessions:-0}"
+        else
+            local tables=$(docker compose exec -T db mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME; SHOW TABLES;" 2>/dev/null | wc -l)
+            local tables_count=$((tables - 1))
+            local users=$(docker compose exec -T db mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME; SELECT COUNT(*) as count FROM tecnicos;" 2>/dev/null | tail -n1)
+            local sessions=$(docker compose exec -T db mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME; SELECT COUNT(*) as count FROM sesiones;" 2>/dev/null | tail -n1)
+
+            echo ""
+            echo "📊 Estado de Base de Datos MySQL:"
+            echo "   🏗️  Base de Datos: $DB_NAME"
+            echo "   📋 Tablas: $tables_count"
+            echo "   👥 Usuarios: ${users:-0}"
+            echo "   🔐 Sesiones: ${sessions:-0}"
+        fi
 
         if [ -d "$BACKUP_DIR" ]; then
             local backup_count=$(ls -1 "$BACKUP_DIR"/db_backup_*.sql.gz 2>/dev/null | wc -l)
@@ -361,7 +389,7 @@ list_backups() {
 
 # Función para verificar si los contenedores están ejecutándose
 check_containers_running() {
-    docker ps | grep -q "dtic-bitacoras-php"
+    docker ps | grep -q "dtic-bitacoras"
 }
 
 # =============================================================================
@@ -377,7 +405,7 @@ check_app_status() {
         local container_status="Ejecutándose"
 
         # Verificar si la app es accesible via HTTP
-        if curl -s --max-time 5 "http://localhost" >/dev/null 2>&1; then
+        if curl -s --max-time 5 "http://localhost:$APP_PORT" >/dev/null 2>&1; then
             local http_status="Accesible"
         else
             local http_status="No Accesible"
@@ -393,7 +421,7 @@ check_app_status() {
         echo ""
         echo "🌐 Estado de Aplicación:"
         echo "   🐳 Contenedor: $container_status"
-        echo "   🌍 Acceso HTTP: $http_status"
+        echo "   🌍 Acceso HTTP: $http_status (puerto $APP_PORT)"
         echo "   ❤️  Salud: $health_status"
         echo ""
 
@@ -406,59 +434,119 @@ check_app_status() {
     fi
 }
 
-# Función para iniciar contenedores (simplificada)
+# Función para iniciar aplicación (actualizada para host)
 start_containers() {
-    log "🚀 Iniciando contenedores..."
+    log "🚀 Iniciando aplicación web..."
 
-    if docker compose up -d && wait_for_db; then
-        success "Contenedores iniciados"
-        # Intentar restaurar último respaldo automáticamente
-        local latest_backup=$(ls -t "$BACKUP_DIR"/db_backup_*.sql.gz 2>/dev/null | head -n1)
-        [ -n "$latest_backup" ] && restore_backup "$latest_backup"
+    # Verificar si ya está ejecutándose
+    if docker ps | grep -q "$APP_CONTAINER"; then
+        warning "La aplicación ya está ejecutándose"
+        return 0
+    fi
+
+    # Iniciar contenedor con configuración actualizada
+    if docker run --rm -d -p "$APP_PORT:80" -v "$(pwd)/_www-app:/var/www/html" --name "$APP_CONTAINER" php:8.1-apache bash -c "a2enmod rewrite && apache2-foreground"; then
+        success "Aplicación iniciada en puerto $APP_PORT"
+
+        # Esperar a que esté listo
+        local attempt=1
+        while [ $attempt -le 10 ]; do
+            if curl -s --max-time 5 "http://localhost:$APP_PORT" >/dev/null 2>&1; then
+                success "Aplicación lista y accesible"
+                return 0
+            fi
+            sleep 2
+            ((attempt++))
+        done
+
+        warning "Aplicación iniciada pero no responde aún"
         return 0
     else
-        error "Fallo al iniciar contenedores"
+        error "Fallo al iniciar aplicación"
         return 1
     fi
 }
 
-# Función para detener contenedores con respaldo
+# Función para detener aplicación
 stop_containers() {
-    log "🛑 Deteniendo contenedores con respaldo..."
+    log "🛑 Deteniendo aplicación..."
 
-    if create_backup && docker compose down; then
-        success "Contenedores detenidos"
-        return 0
+    if docker ps | grep -q "$APP_CONTAINER"; then
+        if docker stop "$APP_CONTAINER"; then
+            success "Aplicación detenida"
+            return 0
+        else
+            error "Fallo al detener aplicación"
+            return 1
+        fi
     else
-        error "Fallo al detener contenedores"
-        return 1
+        warning "La aplicación no está ejecutándose"
+        return 0
     fi
 }
 
-# Función auxiliar para esperar a que la DB esté lista
-wait_for_db() {
+# Función para probar aplicación (login y funcionalidad)
+test_app_functionality() {
+    log "🧪 Probando funcionalidad de la aplicación..."
+
+    # Verificar que la aplicación esté ejecutándose
+    if ! docker ps | grep -q "$APP_CONTAINER"; then
+        error "La aplicación no está ejecutándose"
+        return 1
+    fi
+
+    # Esperar a que esté lista
     local attempt=1
-    while [ $attempt -le 30 ]; do
-        if docker compose exec -T db mysqladmin ping -h localhost -u "$DB_USER" -p"$DB_PASS" --silent 2>/dev/null; then
-            return 0
+    while [ $attempt -le 10 ]; do
+        if curl -s --max-time 5 "http://localhost:$APP_PORT/pages/login.php" >/dev/null 2>&1; then
+            break
         fi
         sleep 2
         ((attempt++))
     done
-    return 1
+
+    if [ $attempt -gt 10 ]; then
+        error "Aplicación no responde"
+        return 1
+    fi
+
+    # Probar página de login
+    if curl -s "http://localhost:$APP_PORT/pages/login.php" | grep -q "login\|Login"; then
+        success "Página de login accesible"
+    else
+        error "Página de login no funciona correctamente"
+        return 1
+    fi
+
+    # Probar API de login
+    local login_response=$(curl -s -X POST "http://localhost:$APP_PORT/api/login.php" \
+        -H "Content-Type: application/json" \
+        -d "{\"username\":\"$TEST_USER\",\"password\":\"$TEST_PASS\"}")
+
+    if echo "$login_response" | grep -q '"success":true'; then
+        success "Login exitoso con usuario de prueba"
+    else
+        error "Login fallido"
+        echo "Respuesta: $login_response"
+        return 1
+    fi
+
+    success "Todas las pruebas pasaron exitosamente"
+    return 0
 }
 
-# Función para mostrar información de uso (simplificada)
+# Función para mostrar información de uso (actualizada)
 usage() {
-    echo "DTIC Bitácoras - Script Mejorado v2.0"
+    echo "DTIC Bitácoras - Script Mejorado v3.0 (Host + SQLite)"
     echo ""
-    echo "Uso: $0 {menu|app-status|bd-status|docker-status}"
+    echo "Uso: $0 {menu|app-status|bd-status|docker-status|app-test}"
     echo ""
     echo "Comandos:"
     echo "  menu         - Menú interactivo de gestión"
     echo "  app-status   - Estado de la aplicación web"
-    echo "  bd-status    - Estado de la base de datos"
+    echo "  bd-status    - Estado de la base de datos SQLite"
     echo "  docker-status- Estado de los contenedores Docker"
+    echo "  app-test     - Probar funcionalidad completa de la aplicación"
 }
 
 # =============================================================================
@@ -490,6 +578,7 @@ show_app_menu() {
     echo -e "${WHITE}Seleccione una acción:${NC}"
     show_menu_separator
     show_menu_option "1" "🔍 Verificar Estado de Aplicación"
+    show_menu_option "5" "🧪 Probar Funcionalidad de Aplicación"
 
     if [ "$containers_up" = "true" ]; then
         show_menu_option "2" "🛑 ✅ Detener Aplicación"
@@ -503,7 +592,7 @@ show_app_menu() {
 
     show_menu_option "0" "↩️  Volver al Menú Principal" "$BLUE"
     show_menu_separator
-    show_selection_prompt "0-4"
+    show_selection_prompt "0-5"
 }
 
 # Función para mostrar submenú de operaciones de base de datos
@@ -554,9 +643,10 @@ show_status_menu() {
     show_menu_option "2" "💾 📊 Solo Estado de Base de Datos"
     show_menu_option "3" "🌐 📊 Solo Estado de Aplicación"
     show_menu_option "4" "🐳 📊 Solo Estado de Contenedores"
+    show_menu_option "5" "🧪 📊 Ejecutar Pruebas de Funcionalidad"
     show_menu_option "0" "↩️  Volver al Menú Principal" "$BLUE"
     show_menu_separator
-    show_selection_prompt "0-4"
+    show_selection_prompt "0-5"
 }
 
 # Función para mostrar submenú de ayuda
@@ -613,7 +703,7 @@ handle_app_menu() {
         # Verificar estado actual para determinar acción apropiada
         local containers_up=$(is_containers_running)
 
-        if validate_menu_input "$choice" 0 4; then
+        if validate_menu_input "$choice" 0 5; then
             case $choice in
                 1)
                     check_app_status
@@ -650,10 +740,14 @@ handle_app_menu() {
                     fi
                     show_continue_prompt
                     ;;
+                5)
+                    test_app_functionality
+                    show_continue_prompt
+                    ;;
                 0) return ;;
             esac
         else
-            show_menu_error "Opción inválida. Por favor seleccione 0-4."
+            show_menu_error "Opción inválida. Por favor seleccione 0-5."
         fi
     done
 }
@@ -808,7 +902,7 @@ handle_status_menu() {
         show_status_menu
         read -r choice
 
-        if validate_menu_input "$choice" 0 4; then
+        if validate_menu_input "$choice" 0 5; then
             case $choice in
                 1)
                     log "Estado completo del sistema..."
@@ -816,7 +910,7 @@ handle_status_menu() {
                     show_db_status
                     echo ""
                     echo "🐳 Estado de Contenedores:"
-                    run_docker_command docker ps | grep "dtic-bitacoras-php" || echo "No hay contenedores ejecutándose"
+                    run_docker_command docker ps | grep "dtic-bitacoras" || echo "No hay contenedores ejecutándose"
                     echo ""
                     show_continue_prompt
                     ;;
@@ -831,14 +925,18 @@ handle_status_menu() {
                 4)
                     echo ""
                     echo "🐳 Estado de Contenedores:"
-                    run_docker_command docker ps | grep "dtic-bitacoras-php" || echo "No hay contenedores ejecutándose"
+                    run_docker_command docker ps | grep "$APP_CONTAINER" || echo "No hay contenedores ejecutándose"
                     echo ""
+                    show_continue_prompt
+                    ;;
+                5)
+                    test_app_functionality
                     show_continue_prompt
                     ;;
                 0) return ;;
             esac
         else
-            show_menu_error "Opción inválida. Por favor seleccione 0-4."
+            show_menu_error "Opción inválida. Por favor seleccione 0-5."
         fi
     done
 }
@@ -987,7 +1085,7 @@ start_menu() {
 # =============================================================================
 
 # Lógica principal del script - despachador de comandos
-# Solo acepta los comandos especificados: menu, app-status, bd-status, docker-status
+# Comandos actualizados para host + SQLite
 case "${1:-}" in
     "menu")
         start_menu
@@ -1001,17 +1099,21 @@ case "${1:-}" in
     "docker-status")
         echo ""
         echo "🐳 Estado de Contenedores Docker:"
-        docker ps | grep "dtic-bitacoras-php" || echo "No hay contenedores ejecutándose"
+        docker ps | grep "dtic-bitacoras" || echo "No hay contenedores ejecutándose"
         echo ""
         ;;
+    "app-test")
+        test_app_functionality
+        ;;
     *)
-        echo "Uso: $0 {menu|app-status|bd-status|docker-status}"
+        echo "Uso: $0 {menu|app-status|bd-status|docker-status|app-test}"
         echo ""
         echo "Comandos disponibles:"
         echo "  menu         - Menú interactivo de gestión"
         echo "  app-status   - Mostrar estado de la aplicación web"
-        echo "  bd-status    - Mostrar estado de la base de datos"
+        echo "  bd-status    - Mostrar estado de la base de datos SQLite"
         echo "  docker-status- Mostrar estado de los contenedores Docker"
+        echo "  app-test     - Probar funcionalidad completa de la aplicación"
         echo ""
         exit 1
         ;;

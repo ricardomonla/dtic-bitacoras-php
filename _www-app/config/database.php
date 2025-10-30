@@ -5,11 +5,13 @@
  */
 
 // Configuración de conexión
+define('DB_TYPE', getenv('DB_TYPE') ?: 'sqlite'); // 'mysql' o 'sqlite'
 define('DB_HOST', getenv('DB_HOST') ?: 'db');
 define('DB_NAME', getenv('DB_NAME') ?: 'dtic_bitacoras_php');
 define('DB_USER', getenv('DB_USER') ?: 'dtic_user');
 define('DB_PASS', getenv('DB_PASSWORD') ?: 'dtic_password');
 define('DB_CHARSET', 'utf8mb4');
+define('DB_SQLITE_PATH', getenv('DB_SQLITE_PATH') ?: __DIR__ . '/../database/dtic_bitacoras.db');
 
 // Modo Debug - Controla logging y otras restricciones para desarrollo/producción
 define('DEBUG_MODE', getenv('DEBUG_MODE') ?: false);
@@ -41,12 +43,16 @@ function getDBConnection(): PDO {
 
     if ($pdo === null) {
         try {
-            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
-            $pdo = new PDO($dsn, DB_USER, DB_PASS, DB_OPTIONS);
+            if (DB_TYPE === 'sqlite') {
+                $dsn = "sqlite:" . DB_SQLITE_PATH;
+                $pdo = new PDO($dsn, null, null, DB_OPTIONS);
+            } else {
+                $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+                $pdo = new PDO($dsn, DB_USER, DB_PASS, DB_OPTIONS);
 
-            // Configurar zona horaria
-            $pdo->exec("SET time_zone = '-03:00'"); // Argentina Time Zone
-
+                // Configurar zona horaria
+                $pdo->exec("SET time_zone = '-03:00'"); // Argentina Time Zone
+            }
         } catch (PDOException $e) {
             debugLog("Error de conexión a BD: " . $e->getMessage(), 'ERROR');
             throw new PDOException("Error al conectar con la base de datos");
