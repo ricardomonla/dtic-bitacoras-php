@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: dtic_bitacoras_postgres
+    environment:
+      POSTGRES_DB: dtic_bitacoras
+      POSTGRES_USER: dtic_user
+      POSTGRES_PASSWORD: dtic_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - dtic_network
+
+  # Backend API Node.js/Express
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dtic_bitacoras_api
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://dtic_user:dtic_password@postgres:5432/dtic_bitacoras
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      PORT: 3001
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - dtic_network
+
+  # Frontend React/Vite
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dtic_bitacoras_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3001/api
+    depends_on:
+      - api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - dtic_network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  postgres_data:
+
+networks:
+  dtic_network:
+    driver: bridge
