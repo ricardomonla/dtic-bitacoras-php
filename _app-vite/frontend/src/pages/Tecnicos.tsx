@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTecnicosStore, Tecnico } from '../stores/tecnicosStore'
 import toast from 'react-hot-toast'
 import TecnicoProfileModal from '../components/TecnicoProfileModal'
+import ChangePasswordModal from '../components/ChangePasswordModal'
 
 const Tecnicos = () => {
   const {
@@ -25,6 +26,8 @@ const Tecnicos = () => {
   const [editingTecnico, setEditingTecnico] = useState<Tecnico | null>(null)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [profileTecnico, setProfileTecnico] = useState<Tecnico | null>(null)
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
+  const [changePasswordTecnico, setChangePasswordTecnico] = useState<Tecnico | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filters, setLocalFilters] = useState({
     department: '',
@@ -123,6 +126,14 @@ const Tecnicos = () => {
     if (tecnico) {
       setProfileTecnico(tecnico)
       setShowProfileModal(true)
+    }
+  }
+
+  const handleChangePassword = (id: number) => {
+    const tecnico = tecnicos.find(t => t.id === id)
+    if (tecnico) {
+      setChangePasswordTecnico(tecnico)
+      setShowChangePasswordModal(true)
     }
   }
 
@@ -386,6 +397,7 @@ const Tecnicos = () => {
                       onEdit={handleEditTecnico}
                       onDelete={handleDeleteTecnico}
                       onToggleStatus={handleToggleStatus}
+                      onChangePassword={handleChangePassword}
                       formatRole={formatRole}
                       formatDepartment={formatDepartment}
                       formatDate={formatDate}
@@ -415,6 +427,7 @@ const Tecnicos = () => {
                           onEdit={handleEditTecnico}
                           onDelete={handleDeleteTecnico}
                           onToggleStatus={handleToggleStatus}
+                          onChangePassword={handleChangePassword}
                           formatRole={formatRole}
                           formatDepartment={formatDepartment}
                           formatDate={formatDate}
@@ -456,6 +469,16 @@ const Tecnicos = () => {
           setProfileTecnico(null)
         }}
         onEdit={handleEditTecnico}
+      />
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        tecnico={changePasswordTecnico}
+        isOpen={showChangePasswordModal}
+        onClose={() => {
+          setShowChangePasswordModal(false)
+          setChangePasswordTecnico(null)
+        }}
       />
     </div>
   )
@@ -575,7 +598,7 @@ const TecnicoForm = ({ onSubmit, onCancel, initialData }: any) => {
 }
 
 // Componente para la tarjeta de técnico
-const TecnicoCard = ({ tecnico, onViewProfile, onEdit, onDelete, onToggleStatus, formatRole, formatDepartment, formatDate }: any) => {
+const TecnicoCard = ({ tecnico, onViewProfile, onEdit, onDelete, onToggleStatus, onChangePassword, formatRole, formatDepartment, formatDate }: any) => {
   return (
     <div className="col-md-6 col-lg-4 mb-3">
       <div className="card h-100">
@@ -615,7 +638,7 @@ const TecnicoCard = ({ tecnico, onViewProfile, onEdit, onDelete, onToggleStatus,
             <button className="btn btn-outline-warning btn-sm" title="Editar" onClick={() => onEdit(tecnico.id)}>
               <i className="fas fa-edit"></i>
             </button>
-            <button className="btn btn-outline-info btn-sm" title="Cambiar contraseña">
+            <button className="btn btn-outline-info btn-sm" title="Cambiar contraseña" onClick={() => onChangePassword(tecnico.id)}>
               <i className="fas fa-key"></i>
             </button>
             <button className="btn btn-outline-danger btn-sm" title="Eliminar técnico" onClick={() => onDelete(tecnico.id)}>
@@ -636,7 +659,7 @@ const TecnicoCard = ({ tecnico, onViewProfile, onEdit, onDelete, onToggleStatus,
 }
 
 // Componente para la fila de tabla de técnico
-const TecnicoRow = ({ tecnico, onViewProfile, onEdit, onDelete, onToggleStatus, formatRole, formatDepartment, formatDate }: any) => {
+const TecnicoRow = ({ tecnico, onViewProfile, onEdit, onDelete, onToggleStatus, onChangePassword, formatRole, formatDepartment, formatDate }: any) => {
   return (
     <tr>
       <td>{tecnico.full_name}</td>
@@ -657,7 +680,7 @@ const TecnicoRow = ({ tecnico, onViewProfile, onEdit, onDelete, onToggleStatus, 
           <button className="btn btn-outline-warning btn-sm" title="Editar" onClick={() => onEdit(tecnico.id)}>
             <i className="fas fa-edit"></i>
           </button>
-          <button className="btn btn-outline-info btn-sm" title="Cambiar contraseña" onClick={() => alert('Cambiar contraseña próximamente')}>
+          <button className="btn btn-outline-info btn-sm" title="Cambiar contraseña" onClick={() => onChangePassword(tecnico.id)}>
             <i className="fas fa-key"></i>
           </button>
           <button className="btn btn-outline-danger btn-sm" title="Eliminar técnico" onClick={() => onDelete(tecnico.id)}>
