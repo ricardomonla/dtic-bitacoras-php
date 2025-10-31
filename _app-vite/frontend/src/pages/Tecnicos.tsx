@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTecnicosStore, Tecnico } from '../stores/tecnicosStore'
 import toast from 'react-hot-toast'
+import TecnicoProfileModal from '../components/TecnicoProfileModal'
 
 const Tecnicos = () => {
   const {
@@ -22,6 +23,8 @@ const Tecnicos = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [editingTecnico, setEditingTecnico] = useState<Tecnico | null>(null)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [profileTecnico, setProfileTecnico] = useState<Tecnico | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filters, setLocalFilters] = useState({
     department: '',
@@ -112,6 +115,14 @@ const Tecnicos = () => {
       } catch (error) {
         // Error ya manejado en el store
       }
+    }
+  }
+
+  const handleViewProfile = (id: number) => {
+    const tecnico = tecnicos.find(t => t.id === id)
+    if (tecnico) {
+      setProfileTecnico(tecnico)
+      setShowProfileModal(true)
     }
   }
 
@@ -371,6 +382,7 @@ const Tecnicos = () => {
                     <TecnicoCard
                       key={tecnico.id}
                       tecnico={tecnico}
+                      onViewProfile={handleViewProfile}
                       onEdit={handleEditTecnico}
                       onDelete={handleDeleteTecnico}
                       onToggleStatus={handleToggleStatus}
@@ -399,6 +411,7 @@ const Tecnicos = () => {
                         <TecnicoRow
                           key={tecnico.id}
                           tecnico={tecnico}
+                          onViewProfile={handleViewProfile}
                           onEdit={handleEditTecnico}
                           onDelete={handleDeleteTecnico}
                           onToggleStatus={handleToggleStatus}
@@ -433,6 +446,17 @@ const Tecnicos = () => {
           </div>
         </div>
       </div>
+
+      {/* Profile Modal */}
+      <TecnicoProfileModal
+        tecnico={profileTecnico}
+        isOpen={showProfileModal}
+        onClose={() => {
+          setShowProfileModal(false)
+          setProfileTecnico(null)
+        }}
+        onEdit={handleEditTecnico}
+      />
     </div>
   )
 }
@@ -551,7 +575,7 @@ const TecnicoForm = ({ onSubmit, onCancel, initialData }: any) => {
 }
 
 // Componente para la tarjeta de técnico
-const TecnicoCard = ({ tecnico, onEdit, onDelete, onToggleStatus, formatRole, formatDepartment, formatDate }: any) => {
+const TecnicoCard = ({ tecnico, onViewProfile, onEdit, onDelete, onToggleStatus, formatRole, formatDepartment, formatDate }: any) => {
   return (
     <div className="col-md-6 col-lg-4 mb-3">
       <div className="card h-100">
@@ -585,7 +609,7 @@ const TecnicoCard = ({ tecnico, onEdit, onDelete, onToggleStatus, formatRole, fo
         </div>
         <div className="card-footer">
           <div className="btn-group w-100" role="group">
-            <button className="btn btn-outline-primary btn-sm" title="Ver Perfil">
+            <button className="btn btn-outline-primary btn-sm" title="Ver Perfil" onClick={() => onViewProfile(tecnico.id)}>
               <i className="fas fa-eye"></i>
             </button>
             <button className="btn btn-outline-warning btn-sm" title="Editar" onClick={() => onEdit(tecnico.id)}>
@@ -612,7 +636,7 @@ const TecnicoCard = ({ tecnico, onEdit, onDelete, onToggleStatus, formatRole, fo
 }
 
 // Componente para la fila de tabla de técnico
-const TecnicoRow = ({ tecnico, onEdit, onDelete, onToggleStatus, formatRole, formatDepartment, formatDate }: any) => {
+const TecnicoRow = ({ tecnico, onViewProfile, onEdit, onDelete, onToggleStatus, formatRole, formatDepartment, formatDate }: any) => {
   return (
     <tr>
       <td>{tecnico.full_name}</td>
@@ -627,7 +651,7 @@ const TecnicoRow = ({ tecnico, onEdit, onDelete, onToggleStatus, formatRole, for
       <td>{formatDate(tecnico.updated_at)}</td>
       <td>
         <div className="btn-group" role="group">
-          <button className="btn btn-outline-primary btn-sm" title="Ver" onClick={() => alert('Ver perfil próximamente')}>
+          <button className="btn btn-outline-primary btn-sm" title="Ver Perfil" onClick={() => onViewProfile(tecnico.id)}>
             <i className="fas fa-eye"></i>
           </button>
           <button className="btn btn-outline-warning btn-sm" title="Editar" onClick={() => onEdit(tecnico.id)}>
