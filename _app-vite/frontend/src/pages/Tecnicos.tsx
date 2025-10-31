@@ -4,6 +4,57 @@ import toast from 'react-hot-toast'
 import TecnicoProfileModal from '../components/TecnicoProfileModal'
 import ChangePasswordModal from '../components/ChangePasswordModal'
 
+// CSS para animaciones
+const styles = `
+  @keyframes slideInFromTop {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .edit-form-container {
+    border-left: 4px solid #ffc107;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+
+  .edit-form-container:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+
+  .edit-form-container.highlight-form {
+    animation: highlightPulse 2s ease-in-out;
+    border-left-color: #28a745;
+  }
+
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  @keyframes highlightPulse {
+    0%, 100% {
+      border-left-color: #ffc107;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    50% {
+      border-left-color: #28a745;
+      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+    }
+  }
+`
+
+// Inyectar estilos
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style')
+  styleSheet.textContent = styles
+  document.head.appendChild(styleSheet)
+}
+
 const Tecnicos = () => {
   const {
     tecnicos,
@@ -82,6 +133,24 @@ const Tecnicos = () => {
     if (tecnico) {
       setEditingTecnico(tecnico)
       setShowEditForm(true)
+
+      // Scroll suave al formulario de edición con animación mejorada
+      setTimeout(() => {
+        const editForm = document.getElementById('editFormSection')
+        if (editForm) {
+          // Primero hacer scroll al elemento
+          editForm.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          })
+
+          // Agregar clase para animación adicional
+          editForm.classList.add('highlight-form')
+          setTimeout(() => {
+            editForm.classList.remove('highlight-form')
+          }, 2000)
+        }
+      }, 150)
     }
   }
 
@@ -161,7 +230,7 @@ const Tecnicos = () => {
   }
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 scroll-smooth">
       {/* Page Header */}
       <div className="page-header tecnicos">
         <div>
@@ -353,7 +422,14 @@ const Tecnicos = () => {
 
               {/* Edit User Form */}
               {showEditForm && editingTecnico && (
-                <div className="mt-3 p-3 bg-light rounded">
+                <div
+                  id="editFormSection"
+                  className="mt-3 p-3 bg-light rounded edit-form-container"
+                  style={{
+                    scrollMarginTop: '20px',
+                    animation: 'slideInFromTop 0.5s ease-out'
+                  }}
+                >
                   <h6 className="fw-bold text-warning mb-3">
                     <i className="fas fa-edit me-2"></i>Editar Técnico
                   </h6>
