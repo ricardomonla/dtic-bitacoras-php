@@ -5,13 +5,21 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-// Importar configuración de base de datos
-const { pool } = require('./database');
+// Configuración de PostgreSQL
+const { Pool } = require('pg');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
 
 // Importar rutas
 const authRoutes = require('./routes/auth');
 const tecnicosRoutes = require('./routes/tecnicos');
 const tareasRoutes = require('./routes/tareas');
+const recursosRoutes = require('./routes/recursos');
+const usuariosAsignadosRoutes = require('./routes/usuarios_asignados');
 
 // Configuración de la aplicación
 const app = express();
@@ -68,6 +76,8 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/tecnicos', tecnicosRoutes);
 app.use('/api/tareas', tareasRoutes);
+app.use('/api/recursos', recursosRoutes);
+app.use('/api/usuarios_asignados', usuariosAsignadosRoutes);
 
 // Manejo de errores 404
 app.use('/api/*', (req, res) => {
