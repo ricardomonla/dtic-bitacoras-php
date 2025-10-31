@@ -47,7 +47,7 @@ const ChangePasswordModal = ({ tecnico, isOpen, onClose }: ChangePasswordModalPr
     try {
       setIsLoading(true)
 
-      const response = await fetch(`http://localhost:3001/api/tecnicos?action=change_password&id=${tecnico.id}`, {
+      const response = await fetch(`http://localhost:3001/api/tecnicos/${tecnico.id}?action=change_password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -299,13 +299,16 @@ router.post('/', [
 // PUT /api/tecnicos/:id - Actualizar técnico
 router.put('/:id', [
   param('id').isInt({ min: 1 }).toInt(),
+  query('action').optional().isIn(['change_password']),
   body('first_name').optional().trim().isLength({ min: 2, max: 50 }),
   body('last_name').optional().trim().isLength({ min: 2, max: 50 }),
   body('email').optional().isEmail().normalizeEmail(),
   body('department').optional().isIn(['dtic', 'sistemas', 'redes', 'seguridad']),
   body('role').optional().isIn(['admin', 'technician', 'viewer']),
   body('phone').optional(),
-  body('is_active').optional().isBoolean()
+  body('is_active').optional().isBoolean(),
+  body('new_password').optional().isLength({ min: 8 }),
+  body('force_change').optional().isBoolean()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -318,7 +321,13 @@ router.put('/:id', [
     }
 
     const { id } = req.params;
-    const { first_name, last_name, email, department, role, phone, is_active } = req.body;
+    const { action } = req.query;
+    const { first_name, last_name, email, department, role, phone, is_active, new_password, force_change } = req.body;
+
+    // Verificar si es cambio de contraseña
+    if (action === 'change_password') {
+      return await changeTechnicianPassword(id, { new_password, force_change }, res);
+    }
 
     // Verificar que el técnico existe
     const existingQuery = 'SELECT * FROM dtic.tecnicos WHERE id = $1';
@@ -489,5 +498,65 @@ router.delete('/:id', [
     });
   }
 });
+
+// Función para cambiar contraseña de técnico
+const changeTechnicianPassword = async (id, { new_password, force_change }, res) => {
+  try {
+    // Verificar que el técnico existe
+    const existingQuery = 'SELECT * FROM dtic.tecnicos WHERE id = $1';
+    const existingResult = await executeQuery(existingQuery, [id]);
+
+    if (existingResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Técnico no encontrado'
+      });
+    }
+
+    // Validar contraseña
+    if (!new_password || new_password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'La contraseña debe tener al menos 8 caracteres'
+      });
+    }
+
+    // Validar fortaleza de contraseña
+    const hasUpperCase = /[A-Z]/.test(new_password);
+    const hasLowerCase = /[a-z]/.test(new_password);
+    const hasNumbers = /\d/.test(new_password);
+    const hasNonalphas = /[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]/.test(new_password);
+
+    if (!(hasUpperCase && hasLowerCase && hasNumbers && hasNonalphas)) {
+      return res.status(400).json({
+        success: false,
+        message: 'La contraseña debe contener mayúsculas, minúsculas, números y caracteres especiales'
+      });
+    }
+
+    // Hashear nueva contraseña
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(new_password, 12);
+
+    // Actualizar contraseña
+    const query = 'UPDATE dtic.tecnicos SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2';
+    await executeQuery(query, [hashedPassword, id]);
+
+    // Log de auditoría
+    console.log(`[AUDIT] Contraseña cambiada para técnico ID: ${id}, force_change: ${force_change || false}`);
+
+    res.json({
+      success: true,
+      message: 'Contraseña cambiada exitosamente'
+    });
+
+  } catch (error) {
+    console.error('Error cambiando contraseña:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};
 
 module.exports = router;
