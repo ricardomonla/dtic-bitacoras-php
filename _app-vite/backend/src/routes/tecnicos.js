@@ -266,7 +266,7 @@ router.post('/', [
     // Generar DTIC ID
     const dticId = await generateDTICId('TEC');
 
-    // Insertar técnico
+    // Insertar técnico (apellido siempre en mayúsculas)
     const query = `
       INSERT INTO dtic.tecnicos
       (dtic_id, first_name, last_name, email, phone, department, role, is_active)
@@ -351,7 +351,7 @@ router.put('/:id', [
     }
     if (last_name !== undefined) {
       updateFields.push(`last_name = $${params.length + 1}`);
-      params.push(last_name.toUpperCase());
+      params.push(last_name.toUpperCase()); // Siempre convertir apellido a mayúsculas
     }
     if (email !== undefined) {
       updateFields.push(`email = $${params.length + 1}`);
