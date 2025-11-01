@@ -4,6 +4,7 @@ import { useEntityManagement } from '../hooks/useEntityManagement'
 import { EntityLayout } from '../components/common/EntityLayout'
 import { EntityForm, FormField } from '../components/common/EntityForm'
 import UsuarioProfileModal from '../components/UsuarioProfileModal'
+import ChangePasswordModal from '../components/ChangePasswordModal'
 import toast from 'react-hot-toast'
 
 // CSS para animaciones (igual que Técnicos)
@@ -57,7 +58,7 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(styleSheet)
 }
 
-const Usuarios = () => {
+const UsuariosRefactored = () => {
   const store = useUsuariosAsignadosStore()
   const {
     showEditForm,
@@ -71,7 +72,7 @@ const Usuarios = () => {
     handleUpdate,
     handleDelete,
     handleViewProfile
-  } = useEntityManagement(store, 'Usuario', 'Usuarios', 'usuarios')
+  } = useEntityManagement(store, 'Usuario')
 
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards')
   const [showFilters, setShowFilters] = useState(false)
@@ -81,6 +82,8 @@ const Usuarios = () => {
   })
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [profileUsuario, setProfileUsuario] = useState<UsuarioAsignado | null>(null)
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
+  const [changePasswordUsuario, setChangePasswordUsuario] = useState<UsuarioAsignado | null>(null)
 
   useEffect(() => {
     store.fetchUsuarios()
@@ -113,10 +116,18 @@ const Usuarios = () => {
   }
 
   const handleViewProfileClick = (id: number) => {
-    const usuario = store.usuarios.find(u => u.id === id)
+    const usuario = store.usuarios.find((u: UsuarioAsignado) => u.id === id)
     if (usuario) {
       setProfileUsuario(usuario)
       setShowProfileModal(true)
+    }
+  }
+
+  const handleChangePassword = (id: number) => {
+    const usuario = store.usuarios.find((u: UsuarioAsignado) => u.id === id)
+    if (usuario) {
+      setChangePasswordUsuario(usuario)
+      setShowChangePasswordModal(true)
     }
   }
 
@@ -151,19 +162,19 @@ const Usuarios = () => {
     },
     {
       title: 'Con Recursos',
-      value: store.usuarios.filter(u => (u.assigned_resources_count || 0) > 0).length,
+      value: store.usuarios.filter((u: UsuarioAsignado) => (u.assigned_resources_count || 0) > 0).length,
       subtitle: 'Tienen recursos asignados',
       color: 'success'
     },
     {
       title: 'Sin Recursos',
-      value: store.usuarios.filter(u => (u.assigned_resources_count || 0) === 0).length,
+      value: store.usuarios.filter((u: UsuarioAsignado) => (u.assigned_resources_count || 0) === 0).length,
       subtitle: 'Sin asignaciones activas',
       color: 'warning'
     },
     {
       title: 'Recursos Totales',
-      value: store.usuarios.reduce((total, u) => total + (u.assigned_resources_count || 0), 0),
+      value: store.usuarios.reduce((total: number, u: UsuarioAsignado) => total + (u.assigned_resources_count || 0), 0),
       subtitle: 'Asignados actualmente',
       color: 'info'
     }
@@ -335,6 +346,7 @@ const Usuarios = () => {
                       onViewProfile={handleViewProfileClick}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
+                      onChangePassword={handleChangePassword}
                     />
                   ))}
                 </div>
@@ -360,6 +372,7 @@ const Usuarios = () => {
                           onViewProfile={handleViewProfileClick}
                           onEdit={handleEdit}
                           onDelete={handleDelete}
+                          onChangePassword={handleChangePassword}
                         />
                       ))}
                     </tbody>
@@ -399,12 +412,22 @@ const Usuarios = () => {
         }}
         onEdit={handleEdit}
       />
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        tecnico={changePasswordUsuario}
+        isOpen={showChangePasswordModal}
+        onClose={() => {
+          setShowChangePasswordModal(false)
+          setChangePasswordUsuario(null)
+        }}
+      />
     </EntityLayout>
   )
 }
 
 // Componente para la tarjeta de usuario
-const UsuarioCard = ({ usuario, onViewProfile, onEdit, onDelete }: any) => {
+const UsuarioCard = ({ usuario, onViewProfile, onEdit, onDelete, onChangePassword }: any) => {
   return (
     <div className="col-md-6 col-lg-4 mb-3">
       <div className="card h-100">
@@ -441,6 +464,9 @@ const UsuarioCard = ({ usuario, onViewProfile, onEdit, onDelete }: any) => {
             <button className="btn btn-outline-warning btn-sm" title="Editar" onClick={() => onEdit(usuario.id)}>
               <i className="fas fa-edit"></i>
             </button>
+            <button className="btn btn-outline-info btn-sm" title="Cambiar contraseña" onClick={() => onChangePassword(usuario.id)}>
+              <i className="fas fa-key"></i>
+            </button>
             <button className="btn btn-outline-danger btn-sm" title="Eliminar usuario" onClick={() => onDelete(usuario.id)}>
               <i className="fas fa-trash"></i>
             </button>
@@ -452,7 +478,7 @@ const UsuarioCard = ({ usuario, onViewProfile, onEdit, onDelete }: any) => {
 }
 
 // Componente para la fila de tabla de usuario
-const UsuarioRow = ({ usuario, onViewProfile, onEdit, onDelete }: any) => {
+const UsuarioRow = ({ usuario, onViewProfile, onEdit, onDelete, onChangePassword }: any) => {
   return (
     <tr>
       <td>{usuario.full_name || `${usuario.first_name} ${usuario.last_name}`}</td>
@@ -469,6 +495,9 @@ const UsuarioRow = ({ usuario, onViewProfile, onEdit, onDelete }: any) => {
           <button className="btn btn-outline-warning btn-sm" title="Editar" onClick={() => onEdit(usuario.id)}>
             <i className="fas fa-edit"></i>
           </button>
+          <button className="btn btn-outline-info btn-sm" title="Cambiar contraseña" onClick={() => onChangePassword(usuario.id)}>
+            <i className="fas fa-key"></i>
+          </button>
           <button className="btn btn-outline-danger btn-sm" title="Eliminar usuario" onClick={() => onDelete(usuario.id)}>
             <i className="fas fa-trash"></i>
           </button>
@@ -478,4 +507,4 @@ const UsuarioRow = ({ usuario, onViewProfile, onEdit, onDelete }: any) => {
   )
 }
 
-export default Usuarios
+export default UsuariosRefactored
