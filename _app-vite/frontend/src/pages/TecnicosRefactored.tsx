@@ -224,12 +224,6 @@ const TecnicosRefactored = () => {
                   >
                     <i className="fas fa-search"></i>
                   </button>
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    disabled
-                  >
-                    <i className="fas fa-list"></i> Vista Tabla
-                  </button>
                 </div>
               </div>
 

@@ -258,12 +258,6 @@ const RecursosRefactored = () => {
                   >
                     <i className="fas fa-search"></i>
                   </button>
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    disabled
-                  >
-                    <i className="fas fa-list"></i> Vista Tabla
-                  </button>
                 </div>
               </div>
 
@@ -408,7 +402,7 @@ const RecursosRefactored = () => {
                         <th>Estado</th>
                         <th>Ubicación</th>
                         <th>Modelo</th>
-                        <th>Usuarios Asignados</th>
+                        <th>Serie</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
@@ -622,7 +616,7 @@ const RecursoRow = ({ recurso, onViewProfile, onEdit, onDelete, onAssign, onUnas
       </td>
       <td>{recurso.location || '-'}</td>
       <td>{recurso.model || '-'}</td>
-      <td>{recurso.assigned_users_count || 0}</td>
+      <td>{recurso.serial_number || '-'}</td>
       <td>
         <div className="btn-group" role="group">
           <button className="btn btn-outline-primary btn-sm" title="Ver Detalles" onClick={() => onViewProfile(recurso.id)}>

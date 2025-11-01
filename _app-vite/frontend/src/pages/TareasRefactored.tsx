@@ -239,12 +239,6 @@ const TareasRefactored = () => {
                   >
                     <i className="fas fa-search"></i>
                   </button>
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    disabled
-                  >
-                    <i className="fas fa-list"></i> Vista Tabla
-                  </button>
                 </div>
               </div>
 
@@ -391,7 +385,7 @@ const TareasRefactored = () => {
                         <th>Técnico</th>
                         <th>Prioridad</th>
                         <th>Estado</th>
-                        <th>Fecha Límite</th>
+                        <th>Fecha Creación</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
@@ -528,7 +522,7 @@ const TareaRow = ({ tarea, onViewProfile, onEdit, onDelete, onChangePassword, ut
           {utils.getBadge(tarea.status).text}
         </span>
       </td>
-      <td>{tarea.due_date ? utils.formatDate(tarea.due_date) : '-'}</td>
+      <td>{utils.formatDate(tarea.created_at)}</td>
       <td>
         <div className="btn-group" role="group">
           <button className="btn btn-outline-primary btn-sm" title="Ver Detalles" onClick={() => onViewProfile(tarea.id)}>
