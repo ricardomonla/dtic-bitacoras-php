@@ -30,10 +30,10 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// Rate limiting
+// Rate limiting - más permisivo para desarrollo
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // límite de 100 requests por windowMs
+  max: 1000, // límite de 1000 requests por windowMs (aumentado para desarrollo)
   message: 'Demasiadas solicitudes desde esta IP, por favor intenta más tarde.'
 });
 app.use('/api/', limiter);
@@ -57,8 +57,13 @@ app.use(cors({
 // Compresión
 app.use(compression());
 
-// Body parsing
-app.use(express.json({ limit: '10mb' }));
+// Body parsing with logging
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, res, buf) => {
+    console.log(`[PAYLOAD SIZE] ${req.method} ${req.path}: ${buf.length} bytes`);
+  }
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging básico

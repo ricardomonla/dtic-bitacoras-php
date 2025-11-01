@@ -31,14 +31,17 @@ interface PaginationInfo {
 }
 
 interface TecnicosState {
-  tecnicos: Tecnico[]
+  entities: Tecnico[]
   filters: TecnicosFilters
   pagination: PaginationInfo | null
   isLoading: boolean
   error: string | null
 
   // Actions
-  fetchTecnicos: (page?: number) => Promise<void>
+  fetchEntities: (page?: number) => Promise<void>
+  createEntity: (data: Partial<Tecnico>) => Promise<void>
+  updateEntity: (id: number, data: Partial<Tecnico>) => Promise<void>
+  deleteEntity: (id: number) => Promise<void>
   createTecnico: (data: Partial<Tecnico>) => Promise<void>
   updateTecnico: (id: number, data: Partial<Tecnico>) => Promise<void>
   deleteTecnico: (id: number) => Promise<void>
@@ -49,13 +52,13 @@ interface TecnicosState {
 }
 
 export const useTecnicosStore = create<TecnicosState>((set, get) => ({
-  tecnicos: [],
+  entities: [],
   filters: {},
   pagination: null,
   isLoading: false,
   error: null,
 
-  fetchTecnicos: async (page = 1) => {
+  fetchEntities: async (page = 1) => {
     console.log('[DEBUG] fetchTecnicos called with page:', page)
     set({ isLoading: true, error: null })
 
@@ -75,6 +78,10 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
       console.log('[DEBUG] Response status:', response.status)
       console.log('[DEBUG] Response headers:', Object.fromEntries(response.headers.entries()))
 
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
       const data = await response.json()
       console.log('[DEBUG] Response data:', data)
 
@@ -82,10 +89,10 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
         throw new Error(data.message || 'Error al cargar técnicos')
       }
 
-      console.log('[DEBUG] Setting tecnicos:', data.data.tecnicos?.length || 0, 'items')
+      console.log('[DEBUG] Setting entities:', data.data.tecnicos?.length || 0, 'items')
       set({
-        tecnicos: data.data.tecnicos,
-        pagination: data.data.pagination,
+        entities: data.data.tecnicos || [],
+        pagination: data.data.pagination || null,
         isLoading: false
       })
     } catch (error) {
@@ -97,8 +104,9 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
     }
   },
 
-  createTecnico: async (data) => {
-    console.log('[DEBUG] createTecnico called with data:', data)
+  createEntity: async (data) => {
+    console.log('[DEBUG] createEntity called with data:', data)
+    console.log('[DEBUG] Payload size:', JSON.stringify(data).length, 'bytes')
     set({ isLoading: true, error: null })
 
     try {
@@ -125,7 +133,7 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
 
       // Recargar la lista
       console.log('[DEBUG] Reloading tecnicos list after create')
-      await get().fetchTecnicos()
+      await get().fetchEntities()
       set({ isLoading: false })
     } catch (error) {
       console.error('[DEBUG] Error creating tecnico:', error)
@@ -137,8 +145,9 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
     }
   },
 
-  updateTecnico: async (id, data) => {
-    console.log('[DEBUG] updateTecnico called with id:', id, 'data:', data)
+  updateEntity: async (id, data) => {
+    console.log('[DEBUG] updateEntity called with id:', id, 'data:', data)
+    console.log('[DEBUG] Payload size:', JSON.stringify(data).length, 'bytes')
     set({ isLoading: true, error: null })
 
     try {
@@ -165,7 +174,7 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
 
       // Recargar la lista
       console.log('[DEBUG] Reloading tecnicos list after update')
-      await get().fetchTecnicos()
+      await get().fetchEntities()
       set({ isLoading: false })
     } catch (error) {
       console.error('[DEBUG] Error updating tecnico:', error)
@@ -177,7 +186,7 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
     }
   },
 
-  deleteTecnico: async (id) => {
+  deleteEntity: async (id) => {
     set({ isLoading: true, error: null })
 
     try {
@@ -192,7 +201,7 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
       }
 
       // Recargar la lista
-      await get().fetchTecnicos()
+      await get().fetchEntities()
       set({ isLoading: false })
     } catch (error) {
       set({
@@ -201,6 +210,18 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
       })
       throw error
     }
+  },
+
+  createTecnico: async (data) => {
+    return get().createEntity(data)
+  },
+
+  updateTecnico: async (id, data) => {
+    return get().updateEntity(id, data)
+  },
+
+  deleteTecnico: async (id) => {
+    return get().deleteEntity(id)
   },
 
   toggleTecnicoStatus: async (id, isActive) => {
@@ -218,6 +239,6 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
   },
 
   getTecnicoById: (id) => {
-    return get().tecnicos.find((tecnico) => tecnico.id === id)
+    return get().entities.find((tecnico) => tecnico.id === id)
   },
 }))

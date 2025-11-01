@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRecursosStore, Recurso } from '../stores/recursosStore'
-import { useUsuariosAsignadosStore, UsuarioAsignado } from '../stores/usuariosAsignadosStore'
+import { useUsuariosAsignadosStore } from '../stores/usuariosAsignadosStore'
 import toast from 'react-hot-toast'
 
 // CSS para animaciones (igual que Técnicos)
@@ -66,25 +66,15 @@ const Recursos = () => {
     createRecurso,
     updateRecurso,
     deleteRecurso,
-    assignRecurso,
-    unassignRecurso,
     setFilters,
     clearFilters
   } = useRecursosStore()
 
   const { usuarios, fetchUsuarios } = useUsuariosAsignadosStore()
 
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards')
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [showFilters, setShowFilters] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [editingRecurso, setEditingRecurso] = useState<Recurso | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filtersLocal, setFiltersLocal] = useState({
-    department: '',
-    role: '',
-    status: ''
-  })
+  const [showCreateForm, setShowCreateForm] = useState(false)
 
   // Estados para formularios
   const [formData, setFormData] = useState({
@@ -116,36 +106,30 @@ const Recursos = () => {
   }, [error])
 
   const handleSearch = (value: string) => {
-    setSearchTerm(value)
     setFilters({ search: value })
     fetchRecursos(1) // Reset to first page
   }
 
   const handleFilterChange = (key: string, value: string) => {
-    const newFilters = { ...filtersLocal, [key]: value }
-    setFiltersLocal(newFilters)
-    setFilters(newFilters)
+    setFilters({ [key]: value })
     fetchRecursos(1) // Reset to first page
   }
 
   const handleClearFilters = () => {
-    setSearchTerm('')
-    setFiltersLocal({ department: '', role: '', status: '' })
     clearFilters()
     fetchRecursos(1)
   }
 
-  const handleCreateTecnico = async (data: Partial<Recurso>) => {
+  const handleCreateRecurso = async (data: Partial<Recurso>) => {
     try {
       await createRecurso(data)
       toast.success('Recurso creado exitosamente')
-      setShowAddForm(false)
     } catch (error) {
       // Error ya manejado en el store
     }
   }
 
-  const handleEditTecnico = async (id: number) => {
+  const handleEditRecurso = async (id: number) => {
     // Buscar el recurso en la lista actual
     const recurso = recursos.find(r => r.id === id)
     if (recurso) {
@@ -172,7 +156,7 @@ const Recursos = () => {
     }
   }
 
-  const handleUpdateTecnico = async (data: Partial<Recurso>) => {
+  const handleUpdateRecurso = async (data: Partial<Recurso>) => {
     if (!editingRecurso) return
 
     try {
@@ -185,23 +169,11 @@ const Recursos = () => {
     }
   }
 
-  const handleDeleteTecnico = async (id: number) => {
+  const handleDeleteRecurso = async (id: number) => {
     if (window.confirm('¿Está seguro de eliminar este recurso?')) {
       try {
         await deleteRecurso(id)
         toast.success('Recurso eliminado exitosamente')
-      } catch (error) {
-        // Error ya manejado en el store
-      }
-    }
-  }
-
-  const handleToggleStatus = async (id: number, isActive: boolean) => {
-    const action = isActive ? 'reactivar' : 'desactivar'
-    if (window.confirm(`¿Está seguro de ${action} este recurso?`)) {
-      try {
-        await updateRecurso(id, { status: isActive ? 'available' : 'retired' })
-        toast.success(`Recurso ${action}do exitosamente`)
       } catch (error) {
         // Error ya manejado en el store
       }
@@ -214,10 +186,6 @@ const Recursos = () => {
       // TODO: Implementar modal de detalles
       toast.info(`Ver detalles del recurso: ${recurso.name}`)
     }
-  }
-
-  const handleChangePassword = (id: number) => {
-    // No aplica para recursos
   }
 
   const resetForm = () => {
@@ -568,7 +536,7 @@ const Recursos = () => {
                           type="button"
                           className="btn btn-success btn-sm"
                           id="saveResourceBtn"
-                          onClick={() => handleCreateTecnico(formData)}
+                          onClick={() => handleCreateRecurso(formData)}
                           disabled={!formData.name || !formData.category}
                         >
                           <i className="fas fa-save me-1"></i>Crear Recurso
@@ -644,7 +612,7 @@ const Recursos = () => {
                             <button
                               className="btn btn-outline-warning btn-sm"
                               title="Editar"
-                              onClick={() => handleEditTecnico(recurso.id)}
+                              onClick={() => handleEditRecurso(recurso.id)}
                             >
                               <i className="fas fa-edit"></i>
                             </button>
@@ -661,7 +629,7 @@ const Recursos = () => {
                             <button
                               className="btn btn-outline-danger btn-sm"
                               title="Eliminar"
-                              onClick={() => handleDeleteTecnico(recurso.id)}
+                              onClick={() => handleDeleteRecurso(recurso.id)}
                             >
                               <i className="fas fa-trash"></i>
                             </button>
@@ -711,7 +679,7 @@ const Recursos = () => {
                               <button
                                 className="btn btn-outline-warning btn-sm"
                                 title="Editar"
-                                onClick={() => handleEditTecnico(recurso.id)}
+                                onClick={() => handleEditRecurso(recurso.id)}
                               >
                                 <i className="fas fa-edit"></i>
                               </button>
@@ -728,7 +696,7 @@ const Recursos = () => {
                               <button
                                 className="btn btn-outline-danger btn-sm"
                                 title="Eliminar"
-                                onClick={() => handleDeleteTecnico(recurso.id)}
+                                onClick={() => handleDeleteRecurso(recurso.id)}
                               >
                                 <i className="fas fa-trash"></i>
                               </button>
@@ -816,7 +784,7 @@ const Recursos = () => {
             </button>
             <button
               className="btn btn-success"
-              onClick={() => handleCreateTecnico(formData)}
+              onClick={() => handleCreateRecurso(formData)}
               disabled={!formData.name || !formData.category}
             >
               <i className="fas fa-save me-2"></i>Crear Recurso
@@ -904,7 +872,7 @@ const Recursos = () => {
             </button>
             <button
               className="btn btn-warning"
-              onClick={() => handleUpdateTecnico(formData)}
+              onClick={() => handleUpdateRecurso(formData)}
               disabled={!formData.name || !formData.category}
             >
               <i className="fas fa-save me-2"></i>Actualizar Recurso
@@ -991,7 +959,7 @@ const Recursos = () => {
                     <button
                       className="btn btn-outline-warning btn-sm"
                       title="Editar"
-                      onClick={() => handleEditTecnico(recurso.id)}
+                      onClick={() => handleEditRecurso(recurso.id)}
                     >
                       <i className="fas fa-edit"></i>
                     </button>
@@ -1008,7 +976,7 @@ const Recursos = () => {
                     <button
                       className="btn btn-outline-danger btn-sm"
                       title="Eliminar"
-                      onClick={() => handleDeleteTecnico(recurso.id)}
+                      onClick={() => handleDeleteRecurso(recurso.id)}
                     >
                       <i className="fas fa-trash"></i>
                     </button>
