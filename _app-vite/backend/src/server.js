@@ -46,12 +46,12 @@ const authLimiter = rateLimit({
 });
 app.use('/api/auth/login', authLimiter);
 
-// CORS
+// CORS - Allow all origins for development and remote access
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://tu-dominio.com']
-    : ['http://localhost:5173', 'http://localhost:3000'],
-  credentials: true
+  origin: true, // Allow all origins
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // Compresión

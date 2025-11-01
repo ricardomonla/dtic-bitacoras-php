@@ -1,69 +1,17 @@
-# DTIC Bitácoras - React Migration
+# DTIC Bitácoras - Aplicación Vite
 
-Migración del sistema DTIC Bitácoras de PHP a React con Node.js backend.
+Sistema de gestión de bitácoras para el Departamento de Tecnología de la Información y Comunicación (DTIC).
 
-## Arquitectura
+## 🚀 Inicio Rápido
 
-- **Frontend**: React + TypeScript + Vite
-- **Backend**: Node.js + Express + PostgreSQL
-- **Estado**: Zustand
-- **Estilos**: Bootstrap + CSS personalizado
-- **Contenedores**: Docker
+### Usando Docker Compose (Recomendado)
 
-## Estructura del Proyecto
-
-```
-_app-vite/
-├── docker-compose.yml          # Configuración de contenedores
-├── docker/
-│   └── init.sql               # Inicialización de base de datos
-├── backend/                   # API Node.js/Express
-│   ├── Dockerfile
-│   ├── package.json
-│   ├── src/
-│   │   ├── server.js          # Servidor principal
-│   │   ├── routes/            # Rutas de la API
-│   │   │   ├── auth.js
-│   │   │   ├── tecnicos.js
-│   │   │   └── tareas.js
-│   │   └── middleware/
-│   │       └── auth.js
-├── frontend/                  # Aplicación React
-│   ├── Dockerfile
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── index.html
-│   ├── src/
-│   │   ├── main.tsx
-│   │   ├── App.tsx
-│   │   ├── index.css
-│   │   ├── stores/            # Zustand stores
-│   │   │   ├── authStore.ts
-│   │   │   └── tecnicosStore.ts
-│   │   ├── components/
-│   │   │   ├── layout/
-│   │   │   │   └── Navbar.tsx
-│   │   │   └── auth/
-│   │   │       └── PrivateRoute.tsx
-│   │   └── pages/             # Páginas principales
-│   │       ├── Login.tsx
-│   │       ├── Dashboard.tsx
-│   │       ├── Tecnicos.tsx
-│   │       └── ...
-```
-
-## Instalación y Ejecución
-
-### Prerrequisitos
-- Docker y Docker Compose
-- Node.js 18+ (solo para desarrollo local)
-
-### Inicio Rápido
 ```bash
 # Clonar el repositorio
-cd _app-vite
+git clone <repository-url>
+cd dtic-bitacoras-php/_app-vite
 
-# Construir e iniciar contenedores
+# Ejecutar la aplicación completa
 docker-compose up --build
 
 # Acceder a la aplicación
@@ -73,115 +21,139 @@ docker-compose up --build
 ```
 
 ### Desarrollo Local
-```bash
-# Backend
-cd backend
-npm install
-npm run dev
 
-# Frontend
-cd frontend
+#### Backend
+```bash
+cd _app-vite/backend
 npm install
 npm run dev
 ```
 
-## API Endpoints
+#### Frontend
+```bash
+cd _app-vite/frontend
+npm install
+npm run dev
+```
 
-### Autenticación
-- `POST /api/auth/login` - Iniciar sesión
-- `POST /api/auth/logout` - Cerrar sesión
-- `GET /api/auth/me` - Información del usuario actual
+## 🔧 Configuración para Despliegue Remoto
 
-### Técnicos
-- `GET /api/tecnicos` - Listar técnicos con filtros
-- `GET /api/tecnicos/:id` - Obtener técnico específico
-- `POST /api/tecnicos` - Crear nuevo técnico
-- `PUT /api/tecnicos/:id` - Actualizar técnico
-- `DELETE /api/tecnicos/:id` - Eliminar técnico
+### 1. Variables de Entorno del Backend
 
-### Tareas
-- `GET /api/tareas` - Listar tareas
-- `POST /api/tareas` - Crear tarea
-- `PUT /api/tareas/:id` - Actualizar tarea
-- `DELETE /api/tareas/:id` - Eliminar tarea
+Crear archivo `_app-vite/backend/.env`:
 
-## Características Implementadas
-
-### ✅ Completado
-- Configuración Docker completa
-- API backend con Express y PostgreSQL
-- Autenticación JWT
-- Gestión completa de técnicos (CRUD)
-- Estados globales con Zustand
-- Componentes básicos de UI
-- Sistema de routing
-
-### 🔄 En Desarrollo
-- Formularios con validación completa
-- Sistema de búsqueda y filtros avanzados
-- Paginación
-- Manejo de errores mejorado
-- Tests unitarios
-
-### 📋 Pendiente
-- Módulos adicionales (Tareas, Recursos, etc.)
-- Sistema de notificaciones
-- Reportes y estadísticas
-- Calendario interactivo
-- Gestión de archivos
-- Auditoría completa
-
-## Variables de Entorno
-
-### Backend (.env)
 ```env
-NODE_ENV=development
-DATABASE_URL=postgresql://dtic_user:dtic_password@postgres:5432/dtic_bitacoras
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
+NODE_ENV=production
 PORT=3001
+DATABASE_URL=postgresql://username:password@your-db-host:5432/database_name
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
 ```
 
-### Frontend (.env)
+### 2. Variables de Entorno del Frontend
+
+Crear archivo `_app-vite/frontend/.env`:
+
 ```env
-VITE_API_URL=http://localhost:3001/api
+VITE_API_URL=http://your-server-ip:3001/api
 ```
 
-## Base de Datos
+### 3. Configuración CORS
 
-### Esquema PostgreSQL
-- `tecnicos` - Información de técnicos
-- `tareas` - Tareas asignadas
-- `audit_log` - Registro de auditoría
+En `_app-vite/backend/src/server.js`, actualizar la configuración CORS:
 
-### Datos de Prueba
-Se incluyen datos de ejemplo para desarrollo:
-- 6 técnicos con diferentes roles
-- Contraseñas de prueba (cambiar en producción)
+```javascript
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://your-server-ip:5173',
+    'https://your-domain.com'
+  ],
+  credentials: true
+}));
+```
 
-## Scripts Disponibles
+### 4. Docker Compose para Producción
 
-### Backend
+```yaml
+# docker-compose.prod.yml
+services:
+  frontend:
+    environment:
+      VITE_API_URL: http://your-server-ip:3001/api
+    ports:
+      - "80:5173"
+
+  api:
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://user:pass@db-host:5432/db
+    ports:
+      - "3001:3001"
+```
+
+## 📁 Estructura del Proyecto
+
+```
+_app-vite/
+├── backend/                 # API Node.js/Express
+│   ├── src/
+│   │   ├── routes/         # Endpoints de la API
+│   │   ├── middleware/     # Middleware de autenticación
+│   │   └── server.js       # Servidor principal
+│   └── Dockerfile
+├── frontend/                # Aplicación React/Vite
+│   ├── src/
+│   │   ├── components/     # Componentes reutilizables
+│   │   ├── pages/          # Páginas principales
+│   │   ├── stores/         # Zustand stores
+│   │   └── hooks/          # Custom hooks
+│   └── Dockerfile
+├── docker-compose.yml       # Configuración Docker
+└── README.md
+```
+
+## 🔍 Solución de Problemas
+
+### Error "NetworkError when attempting to fetch resource"
+
+1. **Verificar configuración CORS**: Asegurarse de que el backend permita el origen del frontend
+2. **Verificar VITE_API_URL**: Confirmar que apunte al servidor backend correcto
+3. **Verificar conectividad**: Probar que el backend esté ejecutándose y accesible
+
+### Comandos Útiles
+
 ```bash
-npm start      # Producción
-npm run dev    # Desarrollo con nodemon
-npm test       # Ejecutar tests
+# Ver logs de Docker
+docker-compose logs -f
+
+# Reiniciar servicios
+docker-compose restart
+
+# Acceder a base de datos
+docker-compose exec postgres psql -U dtic_user -d dtic_bitacoras
+
+# Limpiar contenedores
+docker-compose down -v
 ```
 
-### Frontend
-```bash
-npm run dev    # Desarrollo
-npm run build  # Construir para producción
-npm run preview # Vista previa de producción
-```
+## 🛠️ Tecnologías Utilizadas
 
-## Contribución
+- **Frontend**: React 18, TypeScript, Vite, Bootstrap 5, Zustand
+- **Backend**: Node.js, Express.js, PostgreSQL, JWT
+- **Infraestructura**: Docker, Docker Compose
 
-1. Crear rama para nueva funcionalidad
-2. Implementar cambios
-3. Agregar tests si corresponde
-4. Hacer commit con mensaje descriptivo
-5. Crear Pull Request
+## 📝 Notas de Desarrollo
 
-## Licencia
+- La aplicación utiliza una arquitectura modular con componentes reutilizables
+- Los stores de Zustand manejan el estado global de la aplicación
+- La API sigue principios RESTful con validación de datos
+- Se implementa autenticación JWT (actualmente comentada para desarrollo)
 
-Este proyecto es propiedad del DTIC - Gobierno de la Provincia de Buenos Aires.
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -am 'Agrega nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request

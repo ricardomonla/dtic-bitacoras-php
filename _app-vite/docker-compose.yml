@@ -44,8 +44,6 @@ services:
     container_name: dtic_bitacoras_frontend
     ports:
       - "5173:5173"
-    environment:
-      VITE_API_URL: http://localhost:3001/api
     depends_on:
       - api
     volumes:
