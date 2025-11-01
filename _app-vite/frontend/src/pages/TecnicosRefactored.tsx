@@ -364,11 +364,12 @@ const TecnicosRefactored = () => {
                     <thead>
                       <tr>
                         <th>Nombre</th>
+                        <th>ID DTIC</th>
                         <th>Email</th>
                         <th>Rol</th>
                         <th>Departamento</th>
-                        <th>Estado</th>
                         <th>Último Acceso</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
@@ -502,15 +503,16 @@ const TecnicoRow = ({ tecnico, onViewProfile, onEdit, onDelete, onToggleStatus, 
   return (
     <tr>
       <td>{tecnico.full_name}</td>
+      <td>{tecnico.dtic_id || '-'}</td>
       <td>{tecnico.email}</td>
       <td><span className="badge bg-info">{utils.formatRole(tecnico.role)}</span></td>
       <td>{utils.formatDepartment(tecnico.department)}</td>
+      <td>{utils.formatDate(tecnico.updated_at)}</td>
       <td>
         <span className={`badge ${tecnico.is_active ? 'bg-success' : 'bg-warning'}`}>
           {tecnico.is_active ? 'Activo' : 'Inactivo'}
         </span>
       </td>
-      <td>{utils.formatDate(tecnico.updated_at)}</td>
       <td>
         <div className="btn-group" role="group">
           <button className="btn btn-outline-primary btn-sm" title="Ver Perfil" onClick={() => onViewProfile(tecnico.id)}>

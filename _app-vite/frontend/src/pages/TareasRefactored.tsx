@@ -382,10 +382,11 @@ const TareasRefactored = () => {
                     <thead>
                       <tr>
                         <th>Título</th>
+                        <th>ID DTIC</th>
                         <th>Técnico</th>
                         <th>Prioridad</th>
-                        <th>Estado</th>
                         <th>Fecha Creación</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
@@ -515,14 +516,15 @@ const TareaRow = ({ tarea, onViewProfile, onEdit, onDelete, onChangePassword, ut
   return (
     <tr>
       <td>{tarea.title}</td>
+      <td>{tarea.dtic_id || '-'}</td>
       <td>{tarea.technician_name || '-'}</td>
       <td><span className="badge bg-info">{utils.formatPriority(tarea.priority)}</span></td>
+      <td>{utils.formatDate(tarea.created_at)}</td>
       <td>
         <span className={`badge ${tarea.status === 'pending' ? 'bg-warning' : tarea.status === 'in_progress' ? 'bg-info' : tarea.status === 'completed' ? 'bg-success' : 'bg-secondary'}`}>
           {utils.getBadge(tarea.status).text}
         </span>
       </td>
-      <td>{utils.formatDate(tarea.created_at)}</td>
       <td>
         <div className="btn-group" role="group">
           <button className="btn btn-outline-primary btn-sm" title="Ver Detalles" onClick={() => onViewProfile(tarea.id)}>

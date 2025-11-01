@@ -398,11 +398,12 @@ const RecursosRefactored = () => {
                     <thead>
                       <tr>
                         <th>Nombre</th>
+                        <th>ID DTIC</th>
                         <th>Categoría</th>
-                        <th>Estado</th>
                         <th>Ubicación</th>
                         <th>Modelo</th>
                         <th>Serie</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
@@ -608,15 +609,16 @@ const RecursoRow = ({ recurso, onViewProfile, onEdit, onDelete, onAssign, onUnas
   return (
     <tr>
       <td>{recurso.name}</td>
+      <td>{recurso.dtic_id || '-'}</td>
       <td><span className="badge bg-info">{utils.formatCategory(recurso.category)}</span></td>
+      <td>{recurso.location || '-'}</td>
+      <td>{recurso.model || '-'}</td>
+      <td>{recurso.serial_number || '-'}</td>
       <td>
         <span className={`badge ${recurso.status === 'available' ? 'bg-success' : recurso.status === 'assigned' ? 'bg-info' : recurso.status === 'maintenance' ? 'bg-warning' : 'bg-secondary'}`}>
           {utils.getBadge(recurso.status).text}
         </span>
       </td>
-      <td>{recurso.location || '-'}</td>
-      <td>{recurso.model || '-'}</td>
-      <td>{recurso.serial_number || '-'}</td>
       <td>
         <div className="btn-group" role="group">
           <button className="btn btn-outline-primary btn-sm" title="Ver Detalles" onClick={() => onViewProfile(recurso.id)}>

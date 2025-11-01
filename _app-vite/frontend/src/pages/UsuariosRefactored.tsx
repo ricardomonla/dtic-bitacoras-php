@@ -326,6 +326,7 @@ const UsuariosRefactored = () => {
                         <th>Departamento</th>
                         <th>Cargo</th>
                         <th>Recursos Asignados</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
@@ -452,6 +453,9 @@ const UsuarioRow = ({ usuario, onViewProfile, onEdit, onDelete, onChangePassword
       <td>{usuario.department || '-'}</td>
       <td>{usuario.position || '-'}</td>
       <td>{usuario.assigned_resources_count || 0}</td>
+      <td>
+        <span className="badge bg-success">Activo</span>
+      </td>
       <td>
         <div className="btn-group" role="group">
           <button className="btn btn-outline-primary btn-sm" title="Ver Perfil" onClick={() => onViewProfile(usuario.id)}>
