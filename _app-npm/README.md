@@ -1,6 +1,18 @@
-# DTIC Bitácoras - Aplicación Vite
+# DTIC Bitácoras - Sistema de Gestión Integral
 
-Sistema de gestión de bitácoras para el Departamento de Tecnología de la Información y Comunicación (DTIC).
+## 📋 Descripción del Sistema
+
+DTIC Bitácoras es un sistema web completo de gestión de recursos tecnológicos y tareas para el Departamento de Tecnología de la Información y Comunicación (DTIC). Desarrollado con tecnologías modernas, permite administrar eficientemente el inventario de hardware/software, asignar recursos a usuarios, gestionar tareas técnicas y mantener un registro completo de todas las operaciones.
+
+### 🎯 Propósito y Alcance
+
+El sistema está diseñado para:
+- **Gestión de Recursos**: Controlar inventario de hardware, software, equipos de red y herramientas
+- **Administración de Personal**: Gestionar técnicos del DTIC con diferentes roles y permisos
+- **Asignación de Recursos**: Vincular recursos tecnológicos con usuarios finales
+- **Seguimiento de Tareas**: Administrar y monitorear tareas técnicas asignadas a técnicos
+- **Auditoría Completa**: Mantener registro detallado de todas las operaciones del sistema
+- **Reportes y Estadísticas**: Generar informes sobre el estado del inventario y rendimiento
 
 ## 🚀 Inicio Rápido
 
@@ -81,32 +93,141 @@ VITE_API_URL=https://tu-dominio.com/api
 make up
 ```
 
+## 🏗️ Arquitectura del Sistema
+
+### Arquitectura General
+
+El sistema sigue una arquitectura de **3 capas** con contenedores Docker:
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │     Backend      │    │   Database      │
+│   React/Vite    │◄──►│  Node.js/Express │◄──►│  PostgreSQL     │
+│   Puerto 5173   │    │   Puerto 3001    │    │   Puerto 5432   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+### Componentes Principales
+
+#### 🖥️ Frontend (React + Vite)
+- **Framework**: React 18 con TypeScript
+- **Estado Global**: Zustand para gestión de estado
+- **UI Components**: Bootstrap + FontAwesome
+- **Rutas**: React Router con protección de rutas
+- **Configuración**: Sistema de entidades dinámicas vía YAML
+
+#### 🚀 Backend (Node.js + Express)
+- **Runtime**: Node.js 18 con Alpine Linux
+- **Framework**: Express.js con middleware avanzado
+- **Base de Datos**: PostgreSQL con pool de conexiones
+- **Autenticación**: JWT con bcrypt para hashing
+- **API**: RESTful con validación de datos
+- **Seguridad**: Helmet, CORS, Rate Limiting
+
+#### 🗄️ Base de Datos (PostgreSQL)
+- **Motor**: PostgreSQL 15
+- **Esquema**: `dtic` con tablas normalizadas
+- **Índices**: Optimizados para búsquedas comunes
+- **Auditoría**: Triggers automáticos para `updated_at`
+- **Datos de Ejemplo**: Incluye usuarios y recursos de prueba
+
+### Entidades del Sistema
+
+#### 👥 Técnicos
+- Gestión de usuarios del sistema DTIC
+- Roles: Admin, Técnico, Visualizador
+- Autenticación y autorización JWT
+- Perfiles con información de contacto
+
+#### 📦 Recursos
+- Inventario de hardware, software y equipos
+- Categorías: Hardware, Software, Redes, Seguridad, Herramientas
+- Estados: Disponible, Asignado, Mantenimiento, Retirado
+- Asignación a usuarios finales
+
+#### 👤 Usuarios Asignados
+- Usuarios finales que pueden tener recursos asignados
+- Información básica: nombre, email, departamento, cargo
+- Vinculación con recursos tecnológicos
+
+#### 📋 Tareas
+- Gestión de tareas técnicas asignadas a técnicos
+- Estados: Pendiente, En Progreso, Completada, Cancelada
+- Prioridades: Baja, Media, Alta, Urgente
+- Seguimiento de fechas límite
+
+### Funcionalidades Clave
+
+#### 🔐 Sistema de Autenticación
+- Login seguro con JWT
+- Roles y permisos granulares
+- Cambio de contraseña
+- Sesiones persistentes
+
+#### 📊 Dashboard y Estadísticas
+- Métricas en tiempo real
+- Gráficos de estado de recursos
+- Contadores de tareas por estado
+- Información consolidada del sistema
+
+#### 🔍 Gestión Dinámica de Entidades
+- Sistema configurable vía archivos YAML
+- Formularios dinámicos
+- Tablas con filtros y búsqueda
+- Modales para acciones específicas
+
+#### 📈 Reportes y Análisis
+- Estados de proyectos
+- Calendarios de tareas
+- Reportes personalizados
+- Exportación de datos
+
 ## 📁 Estructura del Proyecto
 
 ```
 _app-npm/
-├── backend/                 # API Node.js/Express
+├── backend/                          # API REST Node.js/Express
 │   ├── src/
-│   │   ├── routes/         # Endpoints de la API
-│   │   ├── middleware/     # Middleware de autenticación
-│   │   └── server.js       # Servidor principal
-│   └── Dockerfile
-├── frontend/                # Aplicación React/Vite
+│   │   ├── routes/                  # Endpoints por entidad
+│   │   │   ├── auth.js             # Autenticación
+│   │   │   ├── tecnicos.js         # Gestión de técnicos
+│   │   │   ├── recursos.js         # Gestión de recursos
+│   │   │   ├── tareas.js           # Gestión de tareas
+│   │   │   └── usuarios_asignados.js # Gestión de usuarios
+│   │   ├── middleware/             # Middleware de seguridad
+│   │   │   └── auth.js            # Verificación JWT
+│   │   └── server.js              # Servidor principal
+│   ├── Dockerfile                  # Contenedor backend
+│   └── package.json               # Dependencias Node.js
+├── frontend/                        # SPA React/Vite
 │   ├── src/
-│   │   ├── components/     # Componentes reutilizables
-│   │   ├── pages/          # Páginas principales
-│   │   ├── stores/         # Zustand stores
-│   │   └── hooks/          # Custom hooks
-│   └── Dockerfile
-├── docker/                  # Configuración Docker
-│   └── init.sql            # Inicialización de BD
-├── docker-compose.yml       # Configuración base Docker
-├── docker-compose.override.yml  # Override por entorno
-├── .env.example            # Variables de entorno ejemplo
-├── setup.sh                # Script de instalación
-├── deploy.sh               # Script de despliegue interactivo
-├── Makefile                # Comandos Make
-└── README.md
+│   │   ├── components/             # Componentes reutilizables
+│   │   │   ├── common/            # Componentes genéricos
+│   │   │   ├── layout/            # Layout y navegación
+│   │   │   └── auth/              # Componentes de auth
+│   │   ├── pages/                 # Páginas principales
+│   │   │   ├── Dashboard.tsx      # Dashboard principal
+│   │   │   ├── EntityPage.tsx     # Páginas dinámicas
+│   │   │   ├── Login.tsx          # Página de login
+│   │   │   └── Reportes.tsx       # Reportes del sistema
+│   │   ├── stores/                # Estado global (Zustand)
+│   │   │   ├── authStore.ts       # Estado de autenticación
+│   │   │   └── genericEntityStore.ts # Estado de entidades
+│   │   ├── config/                # Configuración
+│   │   │   └── entities.yml       # Definición de entidades
+│   │   └── utils/                 # Utilidades
+│   ├── Dockerfile                 # Contenedor frontend
+│   ├── package.json              # Dependencias frontend
+│   └── vite.config.ts            # Configuración Vite
+├── docker/                         # Configuración Docker
+│   └── init.sql                   # Inicialización BD
+├── docker-compose.yml             # Orquestación de servicios
+├── docker-compose.override.yml    # Override por entorno
+├── .env.example                   # Variables de entorno
+├── setup.sh                       # Script de instalación
+├── deploy.sh                      # Script de despliegue
+├── Makefile                       # Comandos Make
+└── README.md                      # Esta documentación
 ```
 
 ## 🛠️ Comandos Disponibles
@@ -252,45 +373,325 @@ make restore
 
 - `dtic_network`: Red interna para comunicación entre servicios
 
-## 🧪 Desarrollo
+## 🧪 Desarrollo y Testing
 
-### Ejecutar en Modo Desarrollo
+### Entorno de Desarrollo
 
+#### Configuración Inicial
 ```bash
-# Frontend
+# Clonar repositorio
+git clone <repository-url>
+cd dtic-bitacoras-php/_app-npm
+
+# Configuración automática
+./setup.sh
+
+# O configuración manual
+make setup
+```
+
+#### Ejecución en Modo Desarrollo
+```bash
+# Todos los servicios
+make up
+
+# Solo frontend (puerto 5173)
 make dev-frontend
 
-# Backend
+# Solo backend (puerto 3001)
 make dev-backend
 
-# Base de datos
+# Acceder a base de datos
 make dev-db
 ```
 
-### Tests
+#### Desarrollo con Hot Reload
+- **Frontend**: Cambios automáticos con Vite HMR
+- **Backend**: Reinicio automático con nodemon
+- **Base de Datos**: Persistente con volúmenes Docker
 
+### Testing
+
+#### Ejecutar Tests
 ```bash
-make test           # Todos los tests
+# Suite completa
+make test
+
+# Tests específicos
 make test-backend   # Tests del backend
 make test-frontend  # Tests del frontend
+
+# Tests con coverage
+make test-coverage
 ```
 
-## 🤝 Contribución
+#### Tipos de Tests
+- **Unit Tests**: Componentes individuales y funciones utilitarias
+- **Integration Tests**: Endpoints de API y interacciones con BD
+- **E2E Tests**: Flujos completos de usuario con Playwright/Cypress
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -am 'Agrega nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Abre un Pull Request
+### Debugging
 
-## 📝 Notas de Desarrollo
+#### Logs en Tiempo Real
+```bash
+# Todos los servicios
+make logs
 
-- La aplicación utiliza una arquitectura modular con componentes reutilizables
-- Los stores de Zustand manejan el estado global de la aplicación
-- La API sigue principios RESTful con validación de datos
-- Se implementa autenticación JWT
-- La base de datos incluye datos de ejemplo para desarrollo
+# Servicio específico
+make logs-api       # Backend
+make logs-frontend  # Frontend
+make logs-db        # Base de datos
+```
 
-## 📞 Soporte
+#### Acceso a Contenedores
+```bash
+# Shell en backend
+docker-compose exec api sh
 
-Para soporte técnico o reportar issues, por favor crea un issue en el repositorio del proyecto.
+# PostgreSQL CLI
+docker-compose exec postgres psql -U dtic_user -d dtic_bitacoras
+
+# Inspeccionar red
+docker network inspect dtic_bitacoras_dtic_network
+```
+
+### Base de Datos de Desarrollo
+
+#### Conexión Directa
+```bash
+# Desde host
+psql -h localhost -p 5432 -U dtic_user -d dtic_bitacoras
+
+# Desde contenedor
+make dev-db
+```
+
+#### Datos de Prueba
+La base de datos incluye datos de ejemplo:
+- **7 Técnicos**: Admin, técnicos y visualizadores
+- **6 Recursos**: Hardware, software y herramientas
+- **5 Usuarios Asignados**: Personal administrativo
+- **Asignaciones**: Recursos vinculados a usuarios
+
+#### Reset de Datos
+```bash
+# Recrear base de datos
+make clean
+make up
+
+# O desde contenedor
+docker-compose exec postgres psql -U dtic_user -d dtic_bitacoras -c "DROP SCHEMA dtic CASCADE; CREATE SCHEMA dtic;"
+```
+
+## 🤝 Contribución y Desarrollo
+
+### Flujo de Trabajo
+
+1. **Fork y Clone**
+   ```bash
+   git clone <tu-fork-url>
+   cd dtic-bitacoras-php/_app-npm
+   git checkout -b feature/nueva-funcionalidad
+   ```
+
+2. **Desarrollo**
+   ```bash
+   # Instalar dependencias
+   make setup
+
+   # Ejecutar en desarrollo
+   make up
+
+   # Tests continuos
+   make test-watch
+   ```
+
+3. **Commits y Pull Request**
+   ```bash
+   git add .
+   git commit -m "feat: descripción de la funcionalidad"
+   git push origin feature/nueva-funcionalidad
+   # Crear PR en GitHub
+   ```
+
+### Estándares de Código
+
+#### Frontend (TypeScript/React)
+- **Linter**: ESLint con reglas de Airbnb
+- **Formatter**: Prettier
+- **Tipos**: TypeScript estricto
+- **Componentes**: Funcionales con hooks
+- **Estado**: Zustand para estado global
+
+#### Backend (Node.js)
+- **Linter**: ESLint Node.js
+- **Estructura**: MVC con separación de responsabilidades
+- **Validación**: Joi para schemas de datos
+- **Errores**: Manejo centralizado de errores
+- **Logs**: Winston para logging estructurado
+
+#### Base de Datos
+- **Migrations**: Versionado de schema
+- **Seeds**: Datos de prueba consistentes
+- **Índices**: Optimización de consultas
+- **Constraints**: Integridad referencial
+
+### Documentación
+
+#### Código
+- **JSDoc**: Comentarios en funciones complejas
+- **README**: Actualización de documentación
+- **API Docs**: Swagger/OpenAPI para endpoints
+
+#### Commits
+- **Conventional Commits**: `feat:`, `fix:`, `docs:`, `refactor:`
+- **Descripciones**: Claras y específicas
+- **Issues**: Referencia a issues relacionados
+
+## 📋 API Reference
+
+### Endpoints Principales
+
+#### Autenticación
+```
+POST   /api/auth/login              # Login de usuario
+POST   /api/auth/logout             # Logout (cliente-side)
+GET    /api/auth/verify             # Verificar token
+```
+
+#### Técnicos
+```
+GET    /api/tecnicos                # Listar técnicos
+POST   /api/tecnicos                # Crear técnico
+PUT    /api/tecnicos/:id            # Actualizar técnico
+DELETE /api/tecnicos/:id            # Eliminar técnico
+PATCH  /api/tecnicos/:id/toggle     # Activar/desactivar
+```
+
+#### Recursos
+```
+GET    /api/recursos                # Listar recursos
+POST   /api/recursos                # Crear recurso
+PUT    /api/recursos/:id            # Actualizar recurso
+DELETE /api/recursos/:id            # Eliminar recurso
+POST   /api/recursos/:id/assign     # Asignar a usuario
+DELETE /api/recursos/:id/unassign   # Desasignar
+```
+
+#### Tareas
+```
+GET    /api/tareas                  # Listar tareas
+POST   /api/tareas                  # Crear tarea
+PUT    /api/tareas/:id              # Actualizar tarea
+DELETE /api/tareas/:id              # Eliminar tarea
+```
+
+#### Usuarios Asignados
+```
+GET    /api/usuarios_asignados      # Listar usuarios
+POST   /api/usuarios_asignados      # Crear usuario
+PUT    /api/usuarios_asignados/:id  # Actualizar usuario
+DELETE /api/usuarios_asignados/:id  # Eliminar usuario
+```
+
+### Configuración Dinámica
+```
+GET    /api/config/entities.yml     # Configuración de entidades
+```
+
+## 🔧 Configuración Avanzada
+
+### Variables de Entorno
+
+| Variable | Descripción | Default |
+|----------|-------------|---------|
+| `NODE_ENV` | Ambiente (development/production) | development |
+| `PORT` | Puerto del backend | 3001 |
+| `DATABASE_URL` | URL de conexión PostgreSQL | - |
+| `JWT_SECRET` | Clave secreta para JWT | - |
+| `JWT_EXPIRES_IN` | Expiración del token | 24h |
+| `CORS_ORIGIN` | Origen permitido para CORS | * |
+
+### Docker Compose Overrides
+
+```yaml
+# docker-compose.override.yml
+services:
+  api:
+    environment:
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "80:3001"
+
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+```
+
+## 📊 Monitoreo y Métricas
+
+### Health Checks
+- **Endpoint**: `GET /health`
+- **Base de Datos**: Verificación de conexión
+- **Servicios**: Estado de dependencias
+
+### Métricas de Rendimiento
+- **Response Times**: Tiempos de respuesta por endpoint
+- **Database Queries**: Consultas lentas y optimización
+- **Memory Usage**: Uso de memoria por contenedor
+- **Error Rates**: Tasa de errores por servicio
+
+## 🚨 Solución de Problemas Comunes
+
+### Problemas de Conexión
+```bash
+# Verificar servicios
+docker-compose ps
+
+# Logs de errores
+make logs
+
+# Reiniciar servicios
+make restart
+```
+
+### Problemas de Base de Datos
+```bash
+# Verificar conexión
+make health-check
+
+# Reset de datos
+make clean && make up
+```
+
+### Problemas de Frontend
+```bash
+# Limpiar cache
+rm -rf node_modules/.vite
+make dev-frontend
+```
+
+## 📞 Soporte y Contacto
+
+### Canales de Soporte
+- **Issues**: GitHub Issues para bugs y features
+- **Discussions**: GitHub Discussions para preguntas
+- **Wiki**: Documentación detallada en GitHub Wiki
+
+### Reportar Bugs
+1. Verificar si ya existe el issue
+2. Incluir pasos para reproducir
+3. Adjuntar logs relevantes
+4. Especificar versión y entorno
+
+### Solicitar Features
+1. Describir la funcionalidad deseada
+2. Explicar el caso de uso
+3. Proponer implementación si es posible
+
+---
+
+**Desarrollado por el Departamento de Tecnología de la Información y Comunicación (DTIC)**
+**Versión**: 1.0.0
+**Última actualización**: Noviembre 2025
