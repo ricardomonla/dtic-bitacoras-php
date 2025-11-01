@@ -25,6 +25,8 @@ function App() {
           <Route path="/calendario" element={<PrivateRoute><Calendario /></PrivateRoute>} />
           <Route path="/recursos" element={<PrivateRoute><EntityPage /></PrivateRoute>} />
           <Route path="/estadoproyecto" element={<PrivateRoute><Estadoproyecto /></PrivateRoute>} />
+          {/* Dynamic entity routes */}
+          <Route path="/entity/:entityKey" element={<PrivateRoute><EntityPage /></PrivateRoute>} />
         </Routes>
       </main>
       <Toaster

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useGenericEntityStore, EntityConfig } from '../stores/genericEntityStore'
 import { useEntityManagement } from '../hooks/useEntityManagement'
-import { EntityUtils } from '../utils/entityUtils'
+import { EntityUtils, tecnicoUtils, recursoUtils, tareaUtils, createEntityUtils } from '../utils/entityUtils'
 import { createActionHandlers, getActionIcon, getActionColor, getActionLabel } from '../utils/entityActions'
 import { EntityLayout } from '../components/common/EntityLayout'
 import { EntityForm, FormField } from '../components/common/EntityForm'
@@ -55,8 +55,13 @@ if (typeof document !== 'undefined') {
 }
 
 const EntityPage = () => {
-  const { entityKey } = useParams<{ entityKey: string }>()
+  const params = useParams<{ entityKey?: string }>()
+  const entityKey = params.entityKey || window.location.pathname.split('/').filter(Boolean)[0] // Extract from URL path
   const store = useGenericEntityStore()
+
+  // console.log('EntityPage - Current URL:', window.location.pathname)
+  // console.log('EntityPage - Extracted entityKey:', entityKey)
+  // console.log('EntityPage - Params:', params)
 
   const {
     showEditForm,
@@ -73,6 +78,7 @@ const EntityPage = () => {
   } = useEntityManagement(store, entityKey || '')
 
   const [config, setConfig] = useState<EntityConfig | null>(null)
+  const [entityUtils, setEntityUtils] = useState<EntityUtils | null>(null)
   const [showFilters, setShowFilters] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filters, setLocalFilters] = useState<Record<string, any>>({})
@@ -88,32 +94,83 @@ const EntityPage = () => {
   useEffect(() => {
     const loadConfig = async () => {
       try {
+        // console.log('Loading config for entityKey:', entityKey)
         const response = await fetch('/src/config/entities.yml')
-        const yamlText = await response.text()
-        const entitiesConfig = yaml.load(yamlText) as any
+        // console.log('Fetch response status:', response.status)
 
-        if (entityKey && entitiesConfig.entities[entityKey]) {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+
+        const yamlText = await response.text()
+        // console.log('YAML text length:', yamlText.length)
+
+        const entitiesConfig = yaml.load(yamlText) as any
+        // console.log('Parsed entities config:', entitiesConfig)
+        // console.log('Available entity keys:', Object.keys(entitiesConfig.entities || {}))
+
+        if (entityKey && entitiesConfig.entities && entitiesConfig.entities[entityKey]) {
           const entityConfig = entitiesConfig.entities[entityKey]
+          // console.log('Found entity config for', entityKey, ':', entityConfig)
           setConfig(entityConfig)
           store.setConfig(entityConfig)
+
+          // Create entity utils based on entity type
+          let utils: EntityUtils
+          switch (entityKey) {
+            case 'tecnicos':
+              utils = tecnicoUtils
+              break
+            case 'recursos':
+              utils = recursoUtils
+              break
+            case 'tareas':
+              utils = tareaUtils
+              break
+            case 'usuarios':
+              utils = createEntityUtils({
+                formatters: {
+                  date: (date: string) => new Date(date).toLocaleDateString('es-AR'),
+                  status: (status: string) => status === 'active' ? 'Activo' : 'Inactivo'
+                },
+                icons: {},
+                badges: {
+                  active: { text: 'Activo', class: 'bg-success' },
+                  inactive: { text: 'Inactivo', class: 'bg-warning' }
+                }
+              })
+              break
+            default:
+              utils = tecnicoUtils // fallback
+          }
+          setEntityUtils(utils)
+        } else {
+          console.error('Entity key not found:', entityKey, 'Available keys:', Object.keys(entitiesConfig.entities || {}))
+          toast.error(`Entidad '${entityKey}' no encontrada en configuración. Claves disponibles: ${Object.keys(entitiesConfig.entities || {}).join(', ')}`)
+          return
         }
       } catch (error) {
         console.error('Error loading entity config:', error)
-        toast.error('Error cargando configuración de entidad')
+        toast.error(`Error cargando configuración: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+        return
       }
     }
 
     if (entityKey) {
       loadConfig()
+    } else {
+      console.error('No entityKey provided')
+      toast.error('No se pudo determinar la entidad a cargar')
     }
-  }, [entityKey, store])
+  }, [entityKey])
 
   // Load entities when config is ready
   useEffect(() => {
-    if (config) {
+    if (config && entityUtils) {
+      // console.log('Loading entities for config:', config.name)
       store.fetchEntities()
     }
-  }, [config, store])
+  }, [config, entityUtils])
 
   // Handle errors
   useEffect(() => {
@@ -180,17 +237,38 @@ const EntityPage = () => {
   const calculateStats = () => {
     if (!config?.stats) return []
 
-    return config.stats.map((stat: any) => ({
-      ...stat,
-      value: eval(stat.value.replace('entities', 'store.entities'))
-    }))
+    return config.stats.map((stat: any) => {
+      try {
+        // Replace 'entities' with 'store.entities' and evaluate
+        const expression = stat.value.replace(/entities/g, 'store.entities')
+        const value = eval(expression)
+        return {
+          ...stat,
+          value: typeof value === 'number' ? value : 0
+        }
+      } catch (error) {
+        console.error('Error calculating stat:', stat.title, error)
+        return {
+          ...stat,
+          value: 0
+        }
+      }
+    })
   }
 
-  if (!config) {
+  if (!config || !entityUtils) {
     return (
       <div className="text-center py-5">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Cargando...</span>
+        </div>
+        <p className="mt-3 text-muted">
+          Cargando configuración para <strong>{entityKey}</strong>...
+        </p>
+        <div className="mt-3">
+          <small className="text-muted">
+            Si esta pantalla persiste, verifica que la entidad esté configurada correctamente.
+          </small>
         </div>
       </div>
     )
@@ -366,7 +444,7 @@ const EntityPage = () => {
                               handler(entity, ...args)
                             }
                           }}
-                          utils={EntityUtils}
+                          utils={entityUtils}
                         />
                       ))}
                     </tbody>
@@ -403,16 +481,35 @@ const EntityPage = () => {
 
 // Generic Entity Row Component
 const EntityRow = ({ entity, config, onAction, utils }: any) => {
+  // console.log('EntityRow - Rendering entity:', entity)
+  // console.log('EntityRow - Config:', config)
+  // console.log('EntityRow - Utils:', utils)
+
   return (
     <tr>
-      {config.table.columns.map((column: any) => (
-        <td key={column.key}>
-          {column.formatter
-            ? utils[column.formatter](entity[column.key])
-            : entity[column.key] || '-'
+      {config.table.columns.map((column: any) => {
+        // console.log('EntityRow - Processing column:', column.key, 'Value:', entity[column.key])
+        let cellValue: string = '-'
+
+        try {
+          if (column.formatter && utils && utils[column.formatter]) {
+            cellValue = utils[column.formatter](entity[column.key])
+            // console.log('EntityRow - Formatted value:', cellValue)
+          } else {
+            cellValue = entity[column.key] || '-'
+            // console.log('EntityRow - Raw value:', cellValue)
           }
-        </td>
-      ))}
+        } catch (error) {
+          console.error('EntityRow - Error formatting column', column.key, ':', error)
+          cellValue = entity[column.key] || '-'
+        }
+
+        return (
+          <td key={column.key}>
+            {cellValue}
+          </td>
+        )
+      })}
       <td>
         <div className="btn-group" role="group">
           {config.actions.map((action: any) => (

@@ -80,9 +80,37 @@ export const useGenericEntityStore = create<GenericEntityStore>()(
           }
 
           const data = await response.json()
+          // Handle different API response formats
+          let entities = []
+          let pagination = null
+
+          if (data.success && data.data) {
+            // API response format: { success: true, data: { tecnicos: [...], pagination: {...} } }
+            if (Array.isArray(data.data)) {
+              entities = data.data
+            } else if (data.data.tecnicos) {
+              entities = data.data.tecnicos
+              pagination = data.data.pagination
+            } else if (data.data.recursos) {
+              entities = data.data.recursos
+              pagination = data.data.pagination
+            } else if (data.data.usuarios) {
+              entities = data.data.usuarios
+              pagination = data.data.pagination
+            } else if (data.data.tareas) {
+              entities = data.data.tareas
+              pagination = data.data.pagination
+            } else {
+              entities = data.data
+            }
+          } else {
+            // Fallback to direct data
+            entities = data.data || data
+          }
+
           set({
-            entities: data.data || data,
-            pagination: data.pagination || null,
+            entities,
+            pagination,
             loading: false
           })
         } catch (error) {
