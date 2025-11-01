@@ -3,12 +3,9 @@ import { Toaster } from 'react-hot-toast'
 import Navbar from './components/layout/Navbar'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
-import Tecnicos from './pages/TecnicosRefactored'
-import Tareas from './pages/TareasRefactored'
+import EntityPage from './pages/EntityPage'
 import Reportes from './pages/Reportes'
-import Usuarios from './pages/UsuariosRefactored'
 import Calendario from './pages/Calendario'
-import Recursos from './pages/Recursos'
 import Estadoproyecto from './pages/Estadoproyecto'
 import PrivateRoute from './components/auth/PrivateRoute'
 
@@ -21,12 +18,12 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-          <Route path="/tecnicos" element={<PrivateRoute><Tecnicos /></PrivateRoute>} />
-          <Route path="/tareas" element={<PrivateRoute><Tareas /></PrivateRoute>} />
+          <Route path="/tecnicos" element={<PrivateRoute><EntityPage /></PrivateRoute>} />
+          <Route path="/tareas" element={<PrivateRoute><EntityPage /></PrivateRoute>} />
           <Route path="/reportes" element={<PrivateRoute><Reportes /></PrivateRoute>} />
-          <Route path="/usuarios" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
+          <Route path="/usuarios" element={<PrivateRoute><EntityPage /></PrivateRoute>} />
           <Route path="/calendario" element={<PrivateRoute><Calendario /></PrivateRoute>} />
-          <Route path="/recursos" element={<PrivateRoute><Recursos /></PrivateRoute>} />
+          <Route path="/recursos" element={<PrivateRoute><EntityPage /></PrivateRoute>} />
           <Route path="/estadoproyecto" element={<PrivateRoute><Estadoproyecto /></PrivateRoute>} />
         </Routes>
       </main>
