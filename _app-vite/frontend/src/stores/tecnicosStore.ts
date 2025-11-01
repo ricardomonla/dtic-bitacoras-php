@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
+
 export interface Tecnico {
   id: number
   dtic_id: string
@@ -71,7 +73,7 @@ export const useTecnicosStore = create<TecnicosState>((set, get) => ({
         ...filters
       })
 
-      const url = `/api/tecnicos?${params}`
+      const url = `${API_BASE}/tecnicos?${params}`
       console.log('[DEBUG] Fetching URL:', url)
 
       const response = await fetch(url)

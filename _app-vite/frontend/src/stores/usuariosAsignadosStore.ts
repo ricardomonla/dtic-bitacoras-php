@@ -52,7 +52,7 @@ interface UsuariosAsignadosState {
   getUsuarioById: (id: number) => UsuarioAsignado | undefined
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 export const useUsuariosAsignadosStore = create<UsuariosAsignadosState>((set, get) => ({
   usuarios: [],
