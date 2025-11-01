@@ -44,6 +44,9 @@ interface UsuariosAsignadosState {
 
   // Actions
   fetchUsuarios: (page?: number) => Promise<void>
+  createEntity: (data: Partial<UsuarioAsignado>) => Promise<void>
+  updateEntity: (id: number, data: Partial<UsuarioAsignado>) => Promise<void>
+  deleteEntity: (id: number) => Promise<void>
   createUsuario: (data: Partial<UsuarioAsignado>) => Promise<boolean>
   updateUsuario: (id: number, data: Partial<UsuarioAsignado>) => Promise<boolean>
   deleteUsuario: (id: number) => Promise<boolean>
@@ -67,6 +70,95 @@ export const useUsuariosAsignadosStore = create<UsuariosAsignadosState>((set, ge
   filters: {
     search: '',
     department: ''
+  },
+
+  createEntity: async (data) => {
+    console.log('[DEBUG] createEntity called with data:', data)
+    set({ loading: true, error: null })
+
+    try {
+      const response = await fetch(`${API_BASE}/usuarios_asignados`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Usuario asignado creado exitosamente')
+        get().fetchUsuarios() // Recargar lista
+        set({ loading: false })
+      } else {
+        throw new Error(result.message || 'Error al crear usuario asignado')
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido'
+      set({ error: message, loading: false })
+      toast.error(`Error al crear usuario asignado: ${message}`)
+      throw error
+    }
+  },
+
+  updateEntity: async (id, data) => {
+    console.log('[DEBUG] updateEntity called with id:', id, 'data:', data)
+    set({ loading: true, error: null })
+
+    try {
+      const response = await fetch(`${API_BASE}/usuarios_asignados/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Usuario asignado actualizado exitosamente')
+        get().fetchUsuarios() // Recargar lista
+        set({ loading: false })
+      } else {
+        throw new Error(result.message || 'Error al actualizar usuario asignado')
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido'
+      set({ error: message, loading: false })
+      toast.error(`Error al actualizar usuario asignado: ${message}`)
+      throw error
+    }
+  },
+
+  deleteEntity: async (id) => {
+    if (!confirm('¿Está seguro de eliminar este usuario asignado? Esta acción no se puede deshacer.')) {
+      throw new Error('Operación cancelada por el usuario')
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const response = await fetch(`${API_BASE}/usuarios_asignados/${id}`, {
+        method: 'DELETE'
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Usuario asignado eliminado exitosamente')
+        get().fetchUsuarios() // Recargar lista
+        set({ loading: false })
+      } else {
+        throw new Error(result.message || 'Error al eliminar usuario asignado')
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido'
+      set({ error: message, loading: false })
+      toast.error(`Error al eliminar usuario asignado: ${message}`)
+      throw error
+    }
   },
 
   fetchUsuarios: async (page = 1) => {

@@ -74,7 +74,7 @@ const Recursos = () => {
     handleUpdate,
     handleDelete,
     handleViewProfile
-  } = useEntityManagement(store, 'Recurso')
+  } = useEntityManagement(store, 'Recurso', 'Recursos', 'recursos')
 
   const { usuarios, fetchUsuarios } = useUsuariosAsignadosStore()
 

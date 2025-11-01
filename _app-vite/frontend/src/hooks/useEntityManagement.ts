@@ -19,10 +19,10 @@ export interface EntityManagementActions<T> {
 }
 
 export interface EntityStore<T> {
-  entities: T[]
+  entities?: T[]
   loading: boolean
   error: string | null
-  pagination: {
+  pagination?: {
     page: number
     limit: number
     total: number
@@ -38,9 +38,10 @@ export interface EntityStore<T> {
 }
 
 export const useEntityManagement = <T extends { id: number; name?: string; full_name?: string }>(
-  store: EntityStore<T>,
+  store: EntityStore<T> & { [key: string]: any },
   entityName: string,
-  entityNamePlural: string = entityName + 's'
+  entityNamePlural: string = entityName + 's',
+  entitiesKey: string = 'entities'
 ): EntityManagementState<T> & EntityManagementActions<T> => {
   const [showEditForm, setShowEditForm] = useState(false)
   const [editingEntity, setEditingEntity] = useState<T | null>(null)
@@ -58,26 +59,33 @@ export const useEntityManagement = <T extends { id: number; name?: string; full_
 
   const handleEdit = async (id: number) => {
     console.log('[DEBUG] handleEdit called with id:', id)
-    console.log('[DEBUG] store.entities:', store.entities)
-    console.log('[DEBUG] store.entities type:', typeof store.entities)
-    console.log('[DEBUG] store.entities length:', store.entities?.length)
+    console.log('[DEBUG] entitiesKey:', entitiesKey)
+    console.log('[DEBUG] store[entitiesKey]:', store[entitiesKey])
+    console.log('[DEBUG] store[entitiesKey] type:', typeof store[entitiesKey])
+    console.log('[DEBUG] store[entitiesKey] length:', store[entitiesKey]?.length)
+    console.log('[DEBUG] entityName:', entityName)
 
-    if (!store.entities || !Array.isArray(store.entities)) {
-      console.error('[DEBUG] store.entities is not an array or is undefined')
+    const entities = store[entitiesKey]
+    if (!entities || !Array.isArray(entities)) {
+      console.error('[DEBUG] store[entitiesKey] is not an array or is undefined')
       return
     }
 
-    const entity = store.entities.find(e => e.id === id)
+    const entity = entities.find(e => e.id === id)
     console.log('[DEBUG] Found entity:', entity)
+    console.log('[DEBUG] Entity id type:', typeof entity?.id, 'Entity id value:', entity?.id)
 
     if (entity) {
+      console.log('[DEBUG] Setting editingEntity and showEditForm')
       setEditingEntity(entity)
       setShowEditForm(true)
 
       // Scroll suave al formulario de edición con animación mejorada
       setTimeout(() => {
         const editForm = document.getElementById('editFormSection')
+        console.log('[DEBUG] Looking for editFormSection element:', editForm)
         if (editForm) {
+          console.log('[DEBUG] Scrolling to edit form')
           editForm.scrollIntoView({
             behavior: 'smooth',
             block: 'start'
@@ -88,16 +96,19 @@ export const useEntityManagement = <T extends { id: number; name?: string; full_
           setTimeout(() => {
             editForm.classList.remove('highlight-form')
           }, 2000)
+        } else {
+          console.warn('[DEBUG] editFormSection element not found')
         }
       }, 150)
     } else {
-      console.warn(`Entity with id ${id} not found in store. Available entities:`, store.entities.map(e => e.id))
+      console.warn(`Entity with id ${id} not found in store. Available entities:`, entities.map(e => e.id))
     }
   }
 
   const handleUpdate = async (data: Partial<T>) => {
     console.log('[DEBUG] handleUpdate called with data:', data)
     console.log('[DEBUG] editingEntity:', editingEntity)
+    console.log('[DEBUG] store.updateEntity available:', typeof store.updateEntity)
 
     if (!editingEntity) {
       console.warn('[DEBUG] No editingEntity found, returning early')
@@ -106,6 +117,7 @@ export const useEntityManagement = <T extends { id: number; name?: string; full_
 
     try {
       console.log('[DEBUG] Calling store.updateEntity with id:', editingEntity.id)
+      console.log('[DEBUG] Data to send:', data)
       await store.updateEntity(editingEntity.id, data)
       console.log('[DEBUG] Update successful, showing success toast')
       toast.success(`${entityName} actualizado exitosamente`)
@@ -117,7 +129,8 @@ export const useEntityManagement = <T extends { id: number; name?: string; full_
       console.log('[DEBUG] Form should be closed now')
     } catch (error) {
       console.error('[DEBUG] Error in handleUpdate:', error)
-      // Error handled by store
+      console.error('[DEBUG] Error details:', error instanceof Error ? error.message : error)
+      toast.error(`Error al actualizar ${entityName.toLowerCase()}: ${error instanceof Error ? error.message : 'Error desconocido'}`)
     }
   }
 
@@ -133,7 +146,8 @@ export const useEntityManagement = <T extends { id: number; name?: string; full_
   }
 
   const handleViewProfile = (id: number) => {
-    const entity = store.entities.find(e => e.id === id)
+    const entities = store[entitiesKey]
+    const entity = entities?.find(e => e.id === id)
     if (entity) {
       toast.info(`Ver detalles del ${entityName.toLowerCase()}: ${entity.full_name || entity.name || 'Sin nombre'}`)
     }

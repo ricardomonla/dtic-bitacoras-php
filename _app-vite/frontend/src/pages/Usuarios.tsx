@@ -71,7 +71,7 @@ const Usuarios = () => {
     handleUpdate,
     handleDelete,
     handleViewProfile
-  } = useEntityManagement(store, 'Usuario')
+  } = useEntityManagement(store, 'Usuario', 'Usuarios', 'usuarios')
 
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards')
   const [showFilters, setShowFilters] = useState(false)
