@@ -1,3 +1,82 @@
 USUARIOS
     Los "Usuarios" en este contexto no son usuarios del sistema (como login/accounts), sino que son las personas o entidades que CONSUMEN los servicios del DTIC - es decir, los usuarios finales que reciben los recursos, técnicos, y servicios del departamento.
     Los "Usuarios" serían los beneficiarios/clientes finales del sistema DTIC, no los operadores/administradores.
+
+TECNICOS
+    Operadores y administradores del sistema DTIC que gestionan recursos, usuarios y tareas.
+    Campos clave: dtic_id, first_name, last_name, email, phone, department, role, is_active
+    Funcionalidades: CRUD completo, gestión de contraseñas, asignación de recursos, creación de tareas
+    Estados: active/inactive
+    Roles: admin, technician, viewer
+    Departamentos: dtic, sistemas, redes, seguridad
+
+USUARIOS_ASIGNADOS
+    Personas o entidades que CONSUMEN los servicios del DTIC (beneficiarios/clientes finales).
+    Campos clave: dtic_id, first_name, last_name, email, phone, department, position
+    Funcionalidades: CRUD completo, asignación de recursos, recepción de servicios
+    Relaciones: Puede tener múltiples recursos asignados, genera historial de uso
+
+RECURSOS
+    Hardware, software, equipos y activos gestionados por el DTIC.
+    Campos clave: dtic_id, name, description, category, status, location, technical_specs, serial_number, model
+    Categorías: hardware, software, network, security, tools, facilities
+    Estados: available, assigned, maintenance, retired
+    Funcionalidades: CRUD completo, asignación a usuarios, historial de cambios, gestión de estado
+
+TAREAS
+    Trabajos de mantenimiento, instalación, soporte técnico y otras actividades del DTIC.
+    Campos clave: dtic_id, title, description, status, priority, technician_id, due_date, completed_at
+    Estados: pending, in_progress, completed, cancelled
+    Prioridades: low, medium, high, urgent
+    Funcionalidades: CRUD completo, asignación a técnicos, seguimiento de progreso, fechas límite
+
+RECURSO_ASIGNACIONES
+    Relaciones entre recursos y usuarios asignados (entidad relacional).
+    Campos clave: recurso_id, user_id, assigned_by, assigned_at, unassigned_at, unassigned_by, activo
+    Funcionalidades: Crear/desactivar asignaciones, auditoría de cambios, control de estado activo
+
+RECURSO_HISTORIAL
+    Auditoría completa de todos los cambios realizados en recursos.
+    Campos clave: recurso_id, action, details, tecnico_id, usuario_id, created_at
+    Acciones: assigned, unassigned, created, updated, maintenance, retired
+    Funcionalidades: Seguimiento completo del ciclo de vida de recursos, reportes históricos
+
+TAREA_HISTORIAL
+    Seguimiento de cambios y progreso en tareas.
+    Campos clave: tarea_id, action, details, tecnico_id, created_at
+    Acciones: created, assigned, status_changed, completed, cancelled
+    Funcionalidades: Auditoría de tareas, métricas de productividad, reportes de eficiencia
+
+DEPARTAMENTOS
+    Estructura organizacional del DTIC.
+    Campos clave: code, name, description, manager_id, is_active
+    Funcionalidades: Clasificación de técnicos y usuarios, organización jerárquica
+
+CATEGORIAS_RECURSOS
+    Clasificación de tipos de recursos disponibles.
+    Campos clave: code, name, description, icon, color, is_active
+    Funcionalidades: Agrupación lógica de recursos, interfaz visual diferenciada
+
+PRIORIDADES_TAREAS
+    Niveles de urgencia y tiempo de respuesta para tareas.
+    Campos clave: level, name, color, response_time_hours, is_active
+    Funcionalidades: SLA (Service Level Agreement), priorización automática
+
+REPORTES_PROGRAMADOS
+    Reportes automáticos del sistema DTIC.
+    Campos clave: name, type, frequency, filters, recipients, is_active, last_run, next_run
+    Tipos: recursos, tareas, usuarios, rendimiento
+    Frecuencias: daily, weekly, monthly, quarterly
+    Funcionalidades: Generación automática, envío por email, filtros configurables
+
+LOGS_SISTEMA
+    Auditoría general de todas las operaciones del sistema.
+    Campos clave: user_id, action, module, details, ip_address, user_agent, created_at
+    Módulos: auth, recursos, tareas, usuarios, reportes
+    Funcionalidades: Seguridad, debugging, análisis de uso, compliance
+
+CONFIGURACIONES_SISTEMA
+    Configuraciones globales del sistema DTIC.
+    Campos clave: key, value, description, category, is_encrypted, updated_by, updated_at
+    Categorías: email, security, ui, api, database
+    Funcionalidades: Configuración centralizada, valores encriptados para datos sensibles

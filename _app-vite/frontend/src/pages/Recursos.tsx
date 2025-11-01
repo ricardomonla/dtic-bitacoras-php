@@ -6,6 +6,7 @@ import { recursoUtils } from '../utils/entityUtils'
 import { EntityLayout } from '../components/common/EntityLayout'
 import { EntityForm, FormField } from '../components/common/EntityForm'
 import RecursoProfileModal from '../components/RecursoProfileModal'
+import ChangePasswordModal from '../components/ChangePasswordModal'
 import toast from 'react-hot-toast'
 
 // CSS para animaciones (igual que Técnicos)
@@ -60,7 +61,7 @@ if (typeof document !== 'undefined') {
 }
 
 
-const Recursos = () => {
+const RecursosRefactored = () => {
   const store = useRecursosStore()
   const {
     showEditForm,
@@ -74,7 +75,7 @@ const Recursos = () => {
     handleUpdate,
     handleDelete,
     handleViewProfile
-  } = useEntityManagement(store, 'Recurso', 'Recursos', 'recursos')
+  } = useEntityManagement(store, 'Recurso')
 
   const { usuarios, fetchUsuarios } = useUsuariosAsignadosStore()
 
@@ -91,6 +92,8 @@ const Recursos = () => {
   })
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [profileRecurso, setProfileRecurso] = useState<Recurso | null>(null)
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
+  const [changePasswordTecnico, setChangePasswordTecnico] = useState<Recurso | null>(null)
 
   useEffect(() => {
     store.fetchRecursos()
@@ -150,10 +153,18 @@ const Recursos = () => {
   }
 
   const handleViewProfileClick = (id: number) => {
-    const recurso = store.recursos.find(r => r.id === id)
+    const recurso = store.recursos.find((r: Recurso) => r.id === id)
     if (recurso) {
       setProfileRecurso(recurso)
       setShowProfileModal(true)
+    }
+  }
+
+  const handleChangePassword = (id: number) => {
+    const recurso = store.recursos.find((r: Recurso) => r.id === id)
+    if (recurso) {
+      setChangePasswordTecnico(recurso)
+      setShowChangePasswordModal(true)
     }
   }
 
@@ -202,19 +213,19 @@ const Recursos = () => {
     },
     {
       title: 'Disponibles',
-      value: store.recursos.filter(r => r.status === 'available').length,
+      value: store.recursos.filter((r: Recurso) => r.status === 'available').length,
       subtitle: 'Listos para asignar',
       color: 'success'
     },
     {
       title: 'Asignados',
-      value: store.recursos.filter(r => r.status === 'assigned').length,
+      value: store.recursos.filter((r: Recurso) => r.status === 'assigned').length,
       subtitle: 'En uso actualmente',
       color: 'info'
     },
     {
       title: 'En Mantenimiento',
-      value: store.recursos.filter(r => r.status === 'maintenance').length,
+      value: store.recursos.filter((r: Recurso) => r.status === 'maintenance').length,
       subtitle: 'Fuera de servicio',
       color: 'warning'
     }
@@ -417,6 +428,7 @@ const Recursos = () => {
                         setShowAssignModal(true)
                       }}
                       onUnassign={handleUnassignRecurso}
+                      onChangePassword={handleChangePassword}
                       utils={recursoUtils}
                     />
                   ))}
@@ -448,6 +460,7 @@ const Recursos = () => {
                             setShowAssignModal(true)
                           }}
                           onUnassign={handleUnassignRecurso}
+                          onChangePassword={handleChangePassword}
                           utils={recursoUtils}
                         />
                       ))}
@@ -554,12 +567,22 @@ const Recursos = () => {
         }}
         onEdit={handleEdit}
       />
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        tecnico={changePasswordTecnico}
+        isOpen={showChangePasswordModal}
+        onClose={() => {
+          setShowChangePasswordModal(false)
+          setChangePasswordTecnico(null)
+        }}
+      />
     </EntityLayout>
   )
 }
 
 // Componente para la tarjeta de recurso
-const RecursoCard = ({ recurso, onViewProfile, onEdit, onDelete, onAssign, onUnassign, utils }: any) => {
+const RecursoCard = ({ recurso, onViewProfile, onEdit, onDelete, onAssign, onUnassign, onChangePassword, utils }: any) => {
   return (
     <div className="col-md-6 col-lg-4 mb-3">
       <div className="card h-100">
@@ -605,6 +628,9 @@ const RecursoCard = ({ recurso, onViewProfile, onEdit, onDelete, onAssign, onUna
             <button className="btn btn-outline-warning btn-sm" title="Editar" onClick={() => onEdit(recurso.id)}>
               <i className="fas fa-edit"></i>
             </button>
+            <button className="btn btn-outline-info btn-sm" title="Cambiar contraseña" onClick={() => onChangePassword(recurso.id)}>
+              <i className="fas fa-key"></i>
+            </button>
             <button className="btn btn-outline-success btn-sm" title="Asignar Usuario" onClick={onAssign}>
               <i className="fas fa-user-plus"></i>
             </button>
@@ -619,7 +645,7 @@ const RecursoCard = ({ recurso, onViewProfile, onEdit, onDelete, onAssign, onUna
 }
 
 // Componente para la fila de tabla de recurso
-const RecursoRow = ({ recurso, onViewProfile, onEdit, onDelete, onAssign, onUnassign, utils }: any) => {
+const RecursoRow = ({ recurso, onViewProfile, onEdit, onDelete, onAssign, onUnassign, onChangePassword, utils }: any) => {
   return (
     <tr>
       <td>{recurso.name}</td>
@@ -640,6 +666,9 @@ const RecursoRow = ({ recurso, onViewProfile, onEdit, onDelete, onAssign, onUnas
           <button className="btn btn-outline-warning btn-sm" title="Editar" onClick={() => onEdit(recurso.id)}>
             <i className="fas fa-edit"></i>
           </button>
+          <button className="btn btn-outline-info btn-sm" title="Cambiar contraseña" onClick={() => onChangePassword(recurso.id)}>
+            <i className="fas fa-key"></i>
+          </button>
           <button className="btn btn-outline-success btn-sm" title="Asignar Usuario" onClick={onAssign}>
             <i className="fas fa-user-plus"></i>
           </button>
@@ -652,4 +681,4 @@ const RecursoRow = ({ recurso, onViewProfile, onEdit, onDelete, onAssign, onUnas
   )
 }
 
-export default Recursos
+export default RecursosRefactored
