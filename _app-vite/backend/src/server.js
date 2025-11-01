@@ -82,6 +82,27 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tecnicos', tecnicosRoutes);
 app.use('/api/tareas', tareasRoutes);
 app.use('/api/recursos', recursosRoutes);
+// Ruta para servir el archivo de configuración YAML
+app.get('/api/config/entities.yml', (req, res) => {
+  const path = require('path');
+  const fs = require('fs');
+
+  // El archivo está montado en /host/_app-vite/frontend/src/config/entities.yml
+  const configPath = path.join('/host', '_app-vite', 'frontend', 'src', 'config', 'entities.yml');
+
+  fs.readFile(configPath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error leyendo archivo de configuración:', err);
+      return res.status(500).json({
+        success: false,
+        message: 'Error al leer el archivo de configuración'
+      });
+    }
+
+    res.setHeader('Content-Type', 'text/yaml');
+    res.send(data);
+  });
+});
 app.use('/api/usuarios_asignados', usuariosAsignadosRoutes);
 
 // Manejo de errores 404
