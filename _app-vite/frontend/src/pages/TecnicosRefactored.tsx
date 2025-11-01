@@ -67,7 +67,7 @@ const TecnicosRefactored = () => {
     handleViewProfile
   } = useEntityManagement(store, 'Técnico')
 
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards')
+  const [viewMode] = useState<'table'>('table')
   const [showFilters, setShowFilters] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [profileTecnico, setProfileTecnico] = useState<Tecnico | null>(null)
@@ -224,28 +224,12 @@ const TecnicosRefactored = () => {
                   >
                     <i className="fas fa-search"></i>
                   </button>
-                  <input
-                    type="radio"
-                    className="btn-check"
-                    name="viewMode"
-                    id="cardView"
-                    checked={viewMode === 'cards'}
-                    onChange={() => setViewMode('cards')}
-                  />
-                  <label className="btn btn-outline-primary btn-sm" htmlFor="cardView">
-                    <i className="fas fa-th"></i>
-                  </label>
-                  <input
-                    type="radio"
-                    className="btn-check"
-                    name="viewMode"
-                    id="tableView"
-                    checked={viewMode === 'table'}
-                    onChange={() => setViewMode('table')}
-                  />
-                  <label className="btn btn-outline-primary btn-sm" htmlFor="tableView">
-                    <i className="fas fa-list"></i>
-                  </label>
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    disabled
+                  >
+                    <i className="fas fa-list"></i> Vista Tabla
+                  </button>
                 </div>
               </div>
 
@@ -379,21 +363,6 @@ const TecnicosRefactored = () => {
                   <i className="fas fa-users fa-3x text-muted mb-3"></i>
                   <h4>No hay técnicos registrados</h4>
                   <p className="text-muted">Comienza agregando tu primer técnico al sistema.</p>
-                </div>
-              ) : viewMode === 'cards' ? (
-                <div className="row">
-                  {store.entities.map((tecnico) => (
-                    <TecnicoCard
-                      key={tecnico.id}
-                      tecnico={tecnico}
-                      onViewProfile={handleViewProfileClick}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      onToggleStatus={handleToggleStatus}
-                      onChangePassword={handleChangePassword}
-                      utils={tecnicoUtils}
-                    />
-                  ))}
                 </div>
               ) : (
                 <div className="table-responsive">

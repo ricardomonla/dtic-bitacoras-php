@@ -79,7 +79,7 @@ const RecursosRefactored = () => {
 
   const { usuarios, fetchUsuarios } = useUsuariosAsignadosStore()
 
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards')
+  const [viewMode] = useState<'table'>('table')
   const [showFilters, setShowFilters] = useState(false)
   const [showAssignModal, setShowAssignModal] = useState(false)
   const [selectedRecurso, setSelectedRecurso] = useState<Recurso | null>(null)
@@ -258,28 +258,12 @@ const RecursosRefactored = () => {
                   >
                     <i className="fas fa-search"></i>
                   </button>
-                  <input
-                    type="radio"
-                    className="btn-check"
-                    name="viewMode"
-                    id="cardView"
-                    checked={viewMode === 'cards'}
-                    onChange={() => setViewMode('cards')}
-                  />
-                  <label className="btn btn-outline-primary btn-sm" htmlFor="cardView">
-                    <i className="fas fa-th"></i>
-                  </label>
-                  <input
-                    type="radio"
-                    className="btn-check"
-                    name="viewMode"
-                    id="tableView"
-                    checked={viewMode === 'table'}
-                    onChange={() => setViewMode('table')}
-                  />
-                  <label className="btn btn-outline-primary btn-sm" htmlFor="tableView">
-                    <i className="fas fa-list"></i>
-                  </label>
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    disabled
+                  >
+                    <i className="fas fa-list"></i> Vista Tabla
+                  </button>
                 </div>
               </div>
 
@@ -413,25 +397,6 @@ const RecursosRefactored = () => {
                   <i className="fas fa-boxes fa-3x text-muted mb-3"></i>
                   <h4>No hay recursos registrados</h4>
                   <p className="text-muted">Comienza agregando tu primer recurso al sistema.</p>
-                </div>
-              ) : viewMode === 'cards' ? (
-                <div className="row">
-                  {store.recursos.map((recurso) => (
-                    <RecursoCard
-                      key={recurso.id}
-                      recurso={recurso}
-                      onViewProfile={handleViewProfileClick}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      onAssign={() => {
-                        setSelectedRecurso(recurso)
-                        setShowAssignModal(true)
-                      }}
-                      onUnassign={handleUnassignRecurso}
-                      onChangePassword={handleChangePassword}
-                      utils={recursoUtils}
-                    />
-                  ))}
                 </div>
               ) : (
                 <div className="table-responsive">
