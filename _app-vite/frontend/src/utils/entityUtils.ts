@@ -135,14 +135,66 @@ export class EntityUtils {
     return this.config.categories?.[category] || category
   }
 
+  formatPriority(priority: string): string {
+    return this.config.formatters.priority(priority)
+  }
+
+  formatStatus(status: string): string {
+    return this.config.formatters.status(status)
+  }
+
   formatDate(dateString: string): string {
     return this.config.formatters.date(dateString)
+  }
+}
+
+// Configuración específica para tareas
+export const tareaConfig: EntityConfig = {
+  formatters: {
+    priority: (priority: string) => ({
+      'low': 'Baja',
+      'medium': 'Media',
+      'high': 'Alta',
+      'urgent': 'Urgente'
+    }[priority] || priority),
+
+    status: (status: string) => ({
+      'pending': 'Pendiente',
+      'in_progress': 'En Progreso',
+      'completed': 'Completada',
+      'cancelled': 'Cancelada'
+    }[status] || status),
+
+    date: (date: string) => new Date(date).toLocaleDateString('es-AR')
+  },
+
+  icons: {
+    'low': 'fa-arrow-down',
+    'medium': 'fa-minus',
+    'high': 'fa-arrow-up',
+    'urgent': 'fa-exclamation-triangle',
+    'pending': 'fa-clock',
+    'in_progress': 'fa-play',
+    'completed': 'fa-check',
+    'cancelled': 'fa-times'
+  },
+
+  badges: {
+    'pending': { text: 'Pendiente', class: 'bg-warning' },
+    'in_progress': { text: 'En Progreso', class: 'bg-info' },
+    'completed': { text: 'Completada', class: 'bg-success' },
+    'cancelled': { text: 'Cancelada', class: 'bg-secondary' },
+    'low': { text: 'Baja', class: 'bg-success' },
+    'medium': { text: 'Media', class: 'bg-warning' },
+    'high': { text: 'Alta', class: 'bg-danger' },
+    'urgent': { text: 'Urgente', class: 'bg-dark' }
   }
 }
 
 // Instancias pre-configuradas
 export const tecnicoUtils = new EntityUtils(tecnicoConfig)
 export const recursoUtils = new EntityUtils(recursoConfig)
+export const tareaUtils = new EntityUtils(tareaConfig)
 
 // Función helper para crear utilidades personalizadas
 export const createEntityUtils = (config: EntityConfig) => new EntityUtils(config)
