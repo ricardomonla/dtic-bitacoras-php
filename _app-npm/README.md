@@ -22,8 +22,8 @@ El sistema está diseñado para:
 # Configuración inicial
 ./setup.sh
 
-# Despliegue interactivo
-./deploy.sh
+# Instalación y despliegue interactivo
+./install.sh
 ```
 
 ### Opción 2: Usando Make
@@ -224,8 +224,8 @@ _app-npm/
 ├── docker-compose.yml             # Orquestación de servicios
 ├── docker-compose.override.yml    # Override por entorno
 ├── .env.example                   # Variables de entorno
-├── setup.sh                       # Script de instalación
-├── deploy.sh                      # Script de despliegue
+├── setup.sh                       # Script de configuración inicial
+├── install.sh                     # Script de instalación y despliegue
 ├── Makefile                       # Comandos Make
 └── README.md                      # Esta documentación
 ```
@@ -236,7 +236,7 @@ _app-npm/
 
 ```bash
 ./setup.sh          # Configuración inicial
-./deploy.sh         # Menú interactivo de despliegue
+./install.sh        # Menú interactivo de instalación y despliegue
 ```
 
 ### Comandos Make
