@@ -137,7 +137,10 @@ const EntityPage = () => {
                 badges: {
                   active: { text: 'Activo', class: 'bg-success' },
                   inactive: { text: 'Inactivo', class: 'bg-warning' }
-                }
+                },
+                roles: {},
+                departments: {},
+                categories: {}
               })
               break
             default:

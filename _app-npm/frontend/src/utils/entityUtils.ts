@@ -14,6 +14,12 @@ export interface EntityConfig {
   departments?: Record<string, string>
 }
 
+export interface PartialEntityConfig extends Partial<EntityConfig> {
+  formatters: Record<string, (value: any) => string>
+  icons: Record<string, string>
+  badges: Record<string, BadgeConfig>
+}
+
 // Configuración específica para técnicos
 export const tecnicoConfig: EntityConfig = {
   formatters: {
@@ -29,6 +35,8 @@ export const tecnicoConfig: EntityConfig = {
       'redes': 'Redes',
       'seguridad': 'Seguridad'
     }[dept] || dept),
+
+    status: (status: boolean) => status ? 'Activo' : 'Inactivo',
 
     date: (date: string) => new Date(date).toLocaleDateString('es-AR')
   },
@@ -72,6 +80,13 @@ export const recursoConfig: EntityConfig = {
       'tools': 'Herramientas',
       'facilities': 'Instalaciones'
     }[category] || category),
+
+    status: (status: string) => ({
+      'available': 'Disponible',
+      'assigned': 'Asignado',
+      'maintenance': 'Mantenimiento',
+      'retired': 'Retirado'
+    }[status] || status),
 
     date: (date: string) => new Date(date).toLocaleDateString('es-AR')
   },
@@ -197,4 +212,4 @@ export const recursoUtils = new EntityUtils(recursoConfig)
 export const tareaUtils = new EntityUtils(tareaConfig)
 
 // Función helper para crear utilidades personalizadas
-export const createEntityUtils = (config: EntityConfig) => new EntityUtils(config)
+export const createEntityUtils = (config: PartialEntityConfig) => new EntityUtils(config as EntityConfig)

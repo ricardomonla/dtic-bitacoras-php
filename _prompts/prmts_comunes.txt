@@ -2,4 +2,4 @@ COMMITED
 OK
 Exporta en español éste último "Task Completed" dentro del directorio _tareasTerminadas respetando la forma del nombre YYYYMMDD_HHMMSS_[descripción].md.
 
-Carga y sube el commit en español con todos los cambios realizados.
+Usando un solo comando combinado, carga y sube el commit en español y con todos los cambios realizados.
