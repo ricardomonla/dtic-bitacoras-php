@@ -1,2 +1,3 @@
-Exporta el "Task Completed" dentro del directorio _tareasTerminadas.
-Genera el commit en español con todos los cambios realizados.
+COMMITED
+OK
+Exporta el "Task Completed" dentro del directorio _tareasTerminadas. Genera el commit en español con todos los cambios realizados.

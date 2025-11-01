@@ -54,13 +54,18 @@ const Navbar = () => {
   }
 
   const navItems = [
-    { path: '/dashboard', icon: 'fas fa-tachometer-alt', label: 'Dashboard', color: 'text-primary' },
-    { path: '/tecnicos', icon: 'fas fa-users', label: 'Técnicos', color: 'text-success' },
-    { path: '/tareas', icon: 'fas fa-tasks', label: 'Tareas', color: 'text-warning' },
-    { path: '/recursos', icon: 'fas fa-server', label: 'Recursos', color: 'text-info' },
-    { path: '/calendario', icon: 'fas fa-calendar', label: 'Calendario', color: 'text-secondary' },
-    { path: '/reportes', icon: 'fas fa-chart-bar', label: 'Reportes', color: 'text-danger' },
-    ...(user?.role === 'admin' ? [{ path: '/usuarios', icon: 'fas fa-user-cog', label: 'Usuarios', color: 'text-dark' }] : [])
+    // Grupo 1: Visión General y Planificación
+    { path: '/dashboard', icon: 'fas fa-tachometer-alt', label: 'Dashboard', color: 'text-primary', group: 'vision' },
+    { path: '/calendario', icon: 'fas fa-calendar', label: 'Calendario', color: 'text-secondary', group: 'vision' },
+
+    // Grupo 2: Gestión de Beneficiarios y Recursos
+    ...(user?.role === 'admin' ? [{ path: '/usuarios', icon: 'fas fa-user-cog', label: 'Usuarios', color: 'text-dark', group: 'gestion' }] : []),
+    { path: '/recursos', icon: 'fas fa-server', label: 'Recursos', color: 'text-info', group: 'gestion' },
+
+    // Grupo 3: Operaciones y Análisis
+    { path: '/tecnicos', icon: 'fas fa-users', label: 'Técnicos', color: 'text-success', group: 'operaciones' },
+    { path: '/tareas', icon: 'fas fa-tasks', label: 'Tareas', color: 'text-warning', group: 'operaciones' },
+    { path: '/reportes', icon: 'fas fa-chart-bar', label: 'Reportes', color: 'text-danger', group: 'reportes' }
   ]
 
   return (
@@ -91,7 +96,30 @@ const Navbar = () => {
 
         .nav-item-modern {
           position: relative;
-          margin: 0 8px;
+          margin: 0 4px;
+        }
+
+        .nav-group-vision {
+          margin-right: 20px;
+        }
+
+        .nav-group-gestion {
+          margin-right: 20px;
+        }
+
+        .nav-group-operaciones {
+          margin-right: 20px;
+        }
+
+        .nav-group-separators::before {
+          content: '';
+          position: absolute;
+          left: -12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 1px;
+          height: 60%;
+          background: rgba(255, 255, 255, 0.3);
         }
 
         .nav-link-modern {
@@ -379,17 +407,25 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="collapse navbar-collapse desktop-nav">
             <ul className="navbar-nav me-auto">
-              {navItems.map((item) => (
-                <li key={item.path} className="nav-item nav-item-modern">
-                  <Link
-                    to={item.path}
-                    className={`nav-link nav-link-modern ${isActive(item.path) ? 'active' : ''}`}
+              {navItems.map((item, index) => {
+                const prevItem = index > 0 ? navItems[index - 1] : null
+                const showSeparator = prevItem && prevItem.group !== item.group
+
+                return (
+                  <li
+                    key={item.path}
+                    className={`nav-item nav-item-modern ${showSeparator ? 'nav-group-separators' : ''}`}
                   >
-                    <i className={item.icon}></i>
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+                    <Link
+                      to={item.path}
+                      className={`nav-link nav-link-modern ${isActive(item.path) ? 'active' : ''}`}
+                    >
+                      <i className={item.icon}></i>
+                      {item.label}
+                    </Link>
+                  </li>
+                )
+              })}
             </ul>
 
             {/* User Menu */}
