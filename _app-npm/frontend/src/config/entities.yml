@@ -285,11 +285,6 @@ entities:
         label: "Editar"
         icon: "fa-edit"
         color: "warning"
-      - key: "changePassword"
-        label: "Cambiar contraseña"
-        icon: "fa-key"
-        color: "info"
-        modal: "changePassword"
       - key: "assign"
         label: "Asignar Usuario"
         icon: "fa-user-plus"
@@ -319,8 +314,6 @@ entities:
     modals:
       - key: "profile"
         component: "RecursoProfileModal"
-      - key: "changePassword"
-        component: "ChangePasswordModal"
       - key: "assign"
         component: "AssignUserModal"
 
@@ -412,11 +405,6 @@ entities:
         label: "Editar"
         icon: "fa-edit"
         color: "warning"
-      - key: "changePassword"
-        label: "Cambiar contraseña"
-        icon: "fa-key"
-        color: "info"
-        modal: "changePassword"
       - key: "delete"
         label: "Eliminar usuario"
         icon: "fa-trash"
@@ -441,8 +429,6 @@ entities:
     modals:
       - key: "profile"
         component: "UsuarioProfileModal"
-      - key: "changePassword"
-        component: "ChangePasswordModal"
 
   tareas:
     name: "Tareas"
@@ -570,11 +556,6 @@ entities:
         label: "Editar"
         icon: "fa-edit"
         color: "warning"
-      - key: "changePassword"
-        label: "Cambiar contraseña"
-        icon: "fa-key"
-        color: "info"
-        modal: "changePassword"
       - key: "delete"
         label: "Eliminar tarea"
         icon: "fa-trash"
@@ -599,5 +580,3 @@ entities:
     modals:
       - key: "profile"
         component: "TareaProfileModal"
-      - key: "changePassword"
-        component: "ChangePasswordModal"
