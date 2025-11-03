@@ -6,7 +6,7 @@ import { EntityUtils, tecnicoUtils, recursoUtils, tareaUtils, createEntityUtils 
 import { createActionHandlers, getActionIcon, getActionColor, getActionLabel } from '../utils/entityActions'
 import { EntityLayout } from '../components/common/EntityLayout'
 import { EntityForm, FormField } from '../components/common/EntityForm'
-import TecnicoProfileModal from '../components/TecnicoProfileModal'
+import { ProfileModal } from '../components/common/ProfileModal'
 import toast from 'react-hot-toast'
 
 // Import YAML parser
@@ -492,8 +492,10 @@ const EntityPage = () => {
 
       {/* Modals */}
       {showProfileModal && profileEntity && config?.modals && (
-        <TecnicoProfileModal
-          tecnico={profileEntity}
+        <ProfileModal
+          entity={profileEntity}
+          entityKey={entityKey || ''}
+          config={config}
           isOpen={showProfileModal}
           onClose={() => setShowProfileModal(false)}
           onEdit={handleViewProfileClick}
