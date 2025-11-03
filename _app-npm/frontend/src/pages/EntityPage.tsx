@@ -12,7 +12,7 @@ import toast from 'react-hot-toast'
 // Import YAML parser
 import yaml from 'js-yaml'
 
-// CSS para animaciones
+// CSS para animaciones y estética mejorada
 const styles = `
   @keyframes slideInFromTop {
     0% { opacity: 0; transform: translateY(-20px); }
@@ -45,6 +45,176 @@ const styles = `
       border-left-color: #28a745;
       box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
     }
+  }
+
+  /* Estética mejorada para tablas */
+  .entity-table {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+
+  .entity-table thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 1rem 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .entity-table tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f1f3f4;
+  }
+
+  .entity-table tbody tr:hover {
+    background-color: #f8f9ff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .entity-table tbody tr:nth-child(even) {
+    background-color: #fafbfc;
+  }
+
+  .entity-table tbody tr:nth-child(even):hover {
+    background-color: #f0f2ff;
+  }
+
+  .entity-table tbody td {
+    padding: 0.875rem 0.75rem;
+    vertical-align: middle;
+    border: none;
+  }
+
+  /* Estilos para badges en celdas */
+  .entity-table .badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  /* Botones de acción mejorados */
+  .entity-actions .btn {
+    border-radius: 6px;
+    margin: 0 1px;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .entity-actions .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .entity-actions .btn-outline-primary:hover {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+
+  .entity-actions .btn-outline-warning:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+  }
+
+  .entity-actions .btn-outline-info:hover {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+  }
+
+  .entity-actions .btn-outline-success:hover {
+    background-color: #28a745;
+    border-color: #28a745;
+  }
+
+  .entity-actions .btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+
+  /* Estilos para estados vacíos */
+  .empty-state {
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #6c757d;
+  }
+
+  .empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  .empty-state h4 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Responsive improvements */
+  @media (max-width: 768px) {
+    .entity-table {
+      font-size: 0.875rem;
+    }
+
+    .entity-table thead th,
+    .entity-table tbody td {
+      padding: 0.5rem 0.375rem;
+    }
+
+    .entity-actions .btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .entity-actions .btn i {
+      font-size: 0.875rem;
+    }
+  }
+
+  /* Estilos para filtros */
+  .filters-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .filters-section .form-label {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .filters-section .input-group-text {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+  }
+
+  /* Estilos para formularios */
+  .form-section {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .form-section .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0 !important;
+  }
+
+  .form-section .card-header h5 {
+    margin: 0;
+    font-weight: 600;
   }
 `
 
@@ -313,76 +483,87 @@ const EntityPage = () => {
 
               {/* Search and Filters */}
               {showFilters && (
-                <div className="mt-3 p-3 bg-light rounded">
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label small fw-bold">Buscar {config.name.toLowerCase()}</label>
-                      <div className="input-group">
-                        <span className="input-group-text">
-                          <i className="fas fa-search"></i>
-                        </span>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder={`Nombre, descripción, ID DTIC...`}
-                          value={searchTerm}
-                          onChange={(e) => handleSearch(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    {config.filters.map((filter: any) => (
-                      <div key={filter.key} className="col-md-2">
-                        <label className="form-label small fw-bold">{filter.label}</label>
-                        {filter.type === 'select' ? (
-                          <select
-                            className="form-select form-select-sm"
-                            value={filters[filter.key] || ''}
-                            onChange={(e) => handleFilterChange(filter.key, e.target.value)}
-                          >
-                            {filter.options.map((option: any) => (
-                              <option key={option.value} value={option.value}>
-                                {option.label}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
+                <div className="mt-3 filters-section">
+                  <div className="p-3">
+                    <div className="row g-3">
+                      <div className="col-md-6">
+                        <label className="form-label small fw-bold">Buscar {config.name.toLowerCase()}</label>
+                        <div className="input-group">
+                          <span className="input-group-text">
+                            <i className="fas fa-search"></i>
+                          </span>
                           <input
-                            type={filter.type}
-                            className="form-control form-control-sm"
-                            placeholder={filter.placeholder}
-                            value={filters[filter.key] || ''}
-                            onChange={(e) => handleFilterChange(filter.key, e.target.value)}
+                            type="text"
+                            className="form-control"
+                            placeholder={`Nombre, descripción, ID DTIC...`}
+                            value={searchTerm}
+                            onChange={(e) => handleSearch(e.target.value)}
                           />
-                        )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center mt-3">
-                    <button
-                      className="btn btn-outline-secondary btn-sm"
-                      onClick={handleClearFilters}
-                    >
-                      <i className="fas fa-times me-1"></i>Limpiar filtros
-                    </button>
-                    <button
-                      className="btn btn-outline-secondary btn-sm"
-                      onClick={() => setShowFilters(false)}
-                    >
-                      <i className="fas fa-chevron-up me-1"></i>Ocultar
-                    </button>
+                      {config.filters.map((filter: any) => (
+                        <div key={filter.key} className="col-md-2">
+                          <label className="form-label small fw-bold">{filter.label}</label>
+                          {filter.type === 'select' ? (
+                            <select
+                              className="form-select form-select-sm"
+                              value={filters[filter.key] || ''}
+                              onChange={(e) => handleFilterChange(filter.key, e.target.value)}
+                            >
+                              {filter.options.map((option: any) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              type={filter.type}
+                              className="form-control form-control-sm"
+                              placeholder={filter.placeholder}
+                              value={filters[filter.key] || ''}
+                              onChange={(e) => handleFilterChange(filter.key, e.target.value)}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="d-flex justify-content-between align-items-center mt-3">
+                      <button
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={handleClearFilters}
+                      >
+                        <i className="fas fa-times me-1"></i>Limpiar filtros
+                      </button>
+                      <button
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={() => setShowFilters(false)}
+                      >
+                        <i className="fas fa-chevron-up me-1"></i>Ocultar
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Create Form */}
               {showCreateForm && (
-                <div className="mt-3 p-3 bg-light rounded">
-                  <EntityForm
-                    fields={config.fields}
-                    onSubmit={handleCreate}
-                    onCancel={() => setShowCreateForm(false)}
-                    title={`Agregar Nuevo ${config.name.slice(0, -1)}`}
-                  />
+                <div className="mt-3 form-section">
+                  <div className="card">
+                    <div className="card-header">
+                      <h5 className="mb-0">
+                        <i className="fas fa-plus me-2"></i>
+                        Agregar Nuevo {config.name.slice(0, -1)}
+                      </h5>
+                    </div>
+                    <div className="card-body">
+                      <EntityForm
+                        fields={config.fields}
+                        onSubmit={handleCreate}
+                        onCancel={() => setShowCreateForm(false)}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -390,22 +571,31 @@ const EntityPage = () => {
               {showEditForm && editingEntity && (
                 <div
                   id="editFormSection"
-                  className="mt-3 p-3 bg-light rounded edit-form-container"
+                  className="mt-3 form-section edit-form-container"
                   style={{
                     scrollMarginTop: '20px',
                     animation: 'slideInFromTop 0.5s ease-out'
                   }}
                 >
-                  <EntityForm
-                    fields={config.fields}
-                    onSubmit={handleUpdate}
-                    onCancel={() => {
-                      setShowEditForm(false)
-                      setEditingEntity(null)
-                    }}
-                    initialData={editingEntity}
-                    title={`Editar ${config.name.slice(0, -1)}`}
-                  />
+                  <div className="card">
+                    <div className="card-header">
+                      <h5 className="mb-0">
+                        <i className="fas fa-edit me-2"></i>
+                        Editar {config.name.slice(0, -1)}
+                      </h5>
+                    </div>
+                    <div className="card-body">
+                      <EntityForm
+                        fields={config.fields}
+                        onSubmit={handleUpdate}
+                        onCancel={() => {
+                          setShowEditForm(false)
+                          setEditingEntity(null)
+                        }}
+                        initialData={editingEntity}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -423,14 +613,14 @@ const EntityPage = () => {
                   {store.error}
                 </div>
               ) : store.entities.length === 0 ? (
-                <div className="text-center py-5">
+                <div className="empty-state">
                   <i className={`fas ${config.icon} fa-3x text-muted mb-3`}></i>
                   <h4>No hay {config.name.toLowerCase()} registrados</h4>
                   <p className="text-muted">Comienza agregando tu primer {config.name.slice(0, -1).toLowerCase()} al sistema.</p>
                 </div>
               ) : (
                 <div className="table-responsive">
-                  <table className="table table-hover">
+                  <table className="table entity-table">
                     <thead>
                       <tr>
                         {config.table.columns.map((column: any) => (
@@ -518,12 +708,19 @@ const EntityRow = ({ entity, config, onAction, utils }: any) => {
     <tr>
       {config.table.columns.map((column: any) => {
         // console.log('EntityRow - Processing column:', column.key, 'Value:', entity[column.key])
-        let cellValue: string = '-'
+        let cellValue: string | JSX.Element = '-'
 
         try {
           if (column.formatter && utils && utils[column.formatter]) {
-            cellValue = utils[column.formatter](entity[column.key])
-            // console.log('EntityRow - Formatted value:', cellValue)
+            const formattedValue = utils[column.formatter](entity[column.key])
+            // console.log('EntityRow - Formatted value:', formattedValue)
+
+            // If formatter returns JSX (like badges), use it directly
+            if (React.isValidElement(formattedValue)) {
+              cellValue = formattedValue
+            } else {
+              cellValue = formattedValue || '-'
+            }
           } else {
             cellValue = entity[column.key] || '-'
             // console.log('EntityRow - Raw value:', cellValue)
@@ -540,7 +737,7 @@ const EntityRow = ({ entity, config, onAction, utils }: any) => {
         )
       })}
       <td>
-        <div className="btn-group" role="group">
+        <div className="entity-actions">
           {config.actions.map((action: any) => (
             <button
               key={action.key}
