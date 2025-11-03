@@ -38,16 +38,19 @@ export const EntityLayout = ({
       </div>
 
       {/* Statistics Cards */}
-      <div className="row mb-3">
+      <div className="row mb-4">
         {stats.map((stat, index) => (
-          <div key={index} className="col-md-3 mb-2">
-            <div className="card text-center">
-              <div className="card-body py-2">
-                <div className={`h4 text-${stat.color} mb-1 fw-bold`}>
+          <div key={index} className="col-md-3 mb-3">
+            <div className="card h-100">
+              <div className="card-header">
+                <i className={`fas fa-chart-line text-${stat.color} me-2`}></i>
+                {stat.title}
+              </div>
+              <div className="card-body text-center">
+                <div className={`display-4 text-${stat.color} mb-2 fw-bold`}>
                   {stat.value}
                 </div>
-                <h6 className="card-title mb-1" style={{ fontSize: '0.9rem' }}>{stat.title}</h6>
-                <small className="text-muted" style={{ fontSize: '0.75rem' }}>{stat.subtitle}</small>
+                <small className="text-muted">{stat.subtitle}</small>
               </div>
             </div>
           </div>

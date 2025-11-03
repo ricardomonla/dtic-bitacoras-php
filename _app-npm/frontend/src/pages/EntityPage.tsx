@@ -283,6 +283,7 @@ const EntityPage = () => {
       subtitle={config.subtitle}
       icon={config.icon}
       stats={calculateStats()}
+      className="entity-page"
     >
       {/* Entity List */}
       <div className="row">
