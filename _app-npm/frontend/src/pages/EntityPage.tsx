@@ -6,6 +6,7 @@ import { EntityUtils, tecnicoUtils, recursoUtils, tareaUtils, createEntityUtils 
 import { createActionHandlers, getActionIcon, getActionColor, getActionLabel } from '../utils/entityActions'
 import { EntityLayout } from '../components/common/EntityLayout'
 import { EntityForm, FormField } from '../components/common/EntityForm'
+import TecnicoProfileModal from '../components/TecnicoProfileModal'
 import toast from 'react-hot-toast'
 
 // Import YAML parser
@@ -207,6 +208,8 @@ const EntityPage = () => {
     if (entity) {
       setProfileEntity(entity)
       setShowProfileModal(true)
+    } else {
+      console.error('Entity not found for view profile:', id)
     }
   }
 
@@ -443,9 +446,18 @@ const EntityPage = () => {
                           entity={entity}
                           config={config}
                           onAction={(actionKey, ...args) => {
-                            const handler = actionHandlers[actionKey]
-                            if (handler) {
-                              handler(entity, ...args)
+                            if (actionKey === 'view') {
+                              handleViewProfileClick(entity.id)
+                            } else if (actionKey === 'changePassword') {
+                              handleChangePassword(entity.id)
+                            } else if (actionKey === 'assign') {
+                              setSelectedEntity(entity)
+                              setShowAssignModal(true)
+                            } else {
+                              const handler = actionHandlers[actionKey]
+                              if (handler) {
+                                handler(entity, ...args)
+                              }
                             }
                           }}
                           utils={entityUtils}
@@ -478,10 +490,19 @@ const EntityPage = () => {
         </div>
       </div>
 
-      {/* Modals would be rendered here based on config.modals */}
+      {/* Modals */}
+      {showProfileModal && profileEntity && config?.modals && (
+        <TecnicoProfileModal
+          tecnico={profileEntity}
+          isOpen={showProfileModal}
+          onClose={() => setShowProfileModal(false)}
+          onEdit={handleViewProfileClick}
+        />
+      )}
     </EntityLayout>
   )
 }
+
 
 // Generic Entity Row Component
 const EntityRow = ({ entity, config, onAction, utils }: any) => {

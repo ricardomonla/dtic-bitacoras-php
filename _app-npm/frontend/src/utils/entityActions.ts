@@ -14,8 +14,9 @@ export const createActionHandlers = (entityKey: string): ActionHandlers => {
 
   return {
     view: (entity: any) => {
-      // This will be handled by the modal system
+      // This will be handled by the modal system in EntityPage
       console.log('View entity:', entity)
+      // The actual modal opening is handled in EntityPage.tsx
     },
 
     edit: (entity: any) => {

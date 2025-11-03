@@ -1,7 +1,9 @@
 COMMITED
 OK
-Exporta en español éste último "Task Completed" dentro del directorio _tareasTerminadas respetando la forma del nombre YYYYMMDD_HHMMSS_[descripción].md.
+Exporta en español "Task Completed", con los cambios referidos al dentro del directorio _tareasTerminadas respetando la forma del nombre YYYYMMDD_HHMMSS_[descripción].md.
 
 Exporta en español el "Task Completed" del "Análisis de Acciones por Módulo" dentro del directorio _tareasTerminadas respetando la forma del nombre YYYYMMDD_HHMMSS_[descripción].md. trata de usar un solo comando combinado.
 
 Carga y sube el commit en español y con todos los cambios realizados. Trata de usar un solo comando combinado.
+
+Exporta en español el "Task Completed", con los cambios referidos al calendario dentro del directorio _tareasTerminadas respetando la forma del nombre YYYYMMDD_HHMMSS_[descripción].md. Trata de usar un solo comando combinado.
