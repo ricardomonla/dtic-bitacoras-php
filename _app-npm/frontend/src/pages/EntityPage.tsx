@@ -448,6 +448,8 @@ const EntityPage = () => {
                           onAction={(actionKey, ...args) => {
                             if (actionKey === 'view') {
                               handleViewProfileClick(entity.id)
+                            } else if (actionKey === 'edit') {
+                              handleEdit(entity.id)
                             } else if (actionKey === 'changePassword') {
                               handleChangePassword(entity.id)
                             } else if (actionKey === 'assign') {
