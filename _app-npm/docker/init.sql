@@ -71,17 +71,24 @@ CREATE INDEX IF NOT EXISTS idx_audit_entity ON audit_log (entity_type, entity_id
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log (created_at);
 
 -- Función para generar DTIC ID
-CREATE OR REPLACE FUNCTION generate_dtic_id(prefix TEXT)
+CREATE OR REPLACE FUNCTION dtic.generate_dtic_id(prefix TEXT)
 RETURNS TEXT AS $$
 DECLARE
     counter INTEGER;
     new_id TEXT;
 BEGIN
-    -- Obtener el último contador para este prefijo
+    -- Obtener el último contador para este prefijo desde todas las tablas
     SELECT COALESCE(MAX(CAST(SUBSTRING(dtic_id FROM LENGTH(prefix) + 2) AS INTEGER)), 0) + 1
     INTO counter
-    FROM tecnicos
-    WHERE dtic_id LIKE prefix || '-%';
+    FROM (
+        SELECT dtic_id FROM dtic.tecnicos WHERE dtic_id LIKE prefix || '-%'
+        UNION ALL
+        SELECT dtic_id FROM dtic.tareas WHERE dtic_id LIKE prefix || '-%'
+        UNION ALL
+        SELECT dtic_id FROM dtic.recursos WHERE dtic_id LIKE prefix || '-%'
+        UNION ALL
+        SELECT dtic_id FROM dtic.usuarios_asignados WHERE dtic_id LIKE prefix || '-%'
+    ) AS all_ids;
 
     -- Generar nuevo ID
     new_id := prefix || '-' || LPAD(counter::TEXT, 4, '0');

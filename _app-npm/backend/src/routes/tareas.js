@@ -6,11 +6,9 @@ const router = express.Router();
 
 // Función helper para generar DTIC ID para tareas
 const generateDTICId = async (prefix = 'TAR') => {
-  const query = `
-    SELECT generate_dtic_id($1) as new_id
-  `;
-  const result = await executeQuery(query, [prefix]);
-  return result.rows[0].new_id;
+  // Generar ID simple con formato TAR-XXXX
+  const random = Math.floor(Math.random() * 10000);
+  return `${prefix}-${random.toString().padStart(4, '0')}`;
 };
 
 // GET /api/tareas - Obtener lista de tareas

@@ -97,6 +97,9 @@ export const useGenericEntityStore = create<GenericEntityStore>()(
             } else if (data.data.usuarios) {
               entities = data.data.usuarios
               pagination = data.data.pagination
+            } else if (data.data.tasks) {
+              entities = data.data.tasks
+              pagination = data.data.pagination
             } else if (data.data.tareas) {
               entities = data.data.tareas
               pagination = data.data.pagination
