@@ -346,6 +346,50 @@ const EntityPage = () => {
     }
   }, [config, entityUtils])
 
+  // Sort entities based on entity type
+  const getSortedEntities = () => {
+    if (!store.entities) return []
+
+    return [...store.entities].sort((a, b) => {
+      switch (entityKey) {
+        case 'tecnicos':
+          // Primero por Rol, luego por Nombre
+          const roleOrder = { 'admin': 0, 'technician': 1, 'viewer': 2 }
+          const roleA = roleOrder[a.role] ?? 3
+          const roleB = roleOrder[b.role] ?? 3
+          if (roleA !== roleB) return roleA - roleB
+          return (a.first_name + ' ' + a.last_name).localeCompare(b.first_name + ' ' + b.last_name)
+
+        case 'recursos':
+          // Primero por Categoría, luego por Nombre
+          const categoryOrder = { 'hardware': 0, 'software': 1, 'network': 2, 'security': 3, 'tools': 4, 'facilities': 5 }
+          const catA = categoryOrder[a.category] ?? 6
+          const catB = categoryOrder[b.category] ?? 6
+          if (catA !== catB) return catA - catB
+          return a.name.localeCompare(b.name)
+
+        case 'usuarios':
+          // Primero por Departamento, luego por Nombre
+          const deptOrder = { 'dtic': 0, 'sistemas': 1, 'redes': 2, 'seguridad': 3 }
+          const deptA = deptOrder[a.department] ?? 4
+          const deptB = deptOrder[b.department] ?? 4
+          if (deptA !== deptB) return deptA - deptB
+          return (a.first_name + ' ' + a.last_name).localeCompare(b.first_name + ' ' + b.last_name)
+
+        case 'tareas':
+          // Primero por Estado, luego por Nombre
+          const statusOrder = { 'urgent': 0, 'pending': 1, 'in_progress': 2, 'completed': 3, 'cancelled': 4 }
+          const statusA = statusOrder[a.status] ?? 5
+          const statusB = statusOrder[b.status] ?? 5
+          if (statusA !== statusB) return statusA - statusB
+          return a.title.localeCompare(b.title)
+
+        default:
+          return 0
+      }
+    })
+  }
+
   // Handle errors
   useEffect(() => {
     if (store.error) {
@@ -630,7 +674,7 @@ const EntityPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {store.entities.map((entity: any) => (
+                      {getSortedEntities().map((entity: any) => (
                         <EntityRow
                           key={entity.id}
                           entity={entity}

@@ -54,15 +54,15 @@ entities:
         type: "tel"
     table:
       columns:
+        - key: "role"
+          label: "Rol"
+          formatter: "formatRole"
         - key: "full_name"
           label: "Nombre"
         - key: "dtic_id"
           label: "ID DTIC"
         - key: "email"
           label: "Email"
-        - key: "role"
-          label: "Rol"
-          formatter: "formatRole"
         - key: "department"
           label: "Departamento"
           formatter: "formatDepartment"
@@ -222,13 +222,13 @@ entities:
         type: "text"
     table:
       columns:
+        - key: "category"
+          label: "Categoría"
+          formatter: "formatCategory"
         - key: "name"
           label: "Nombre"
         - key: "dtic_id"
           label: "ID DTIC"
-        - key: "category"
-          label: "Categoría"
-          formatter: "formatCategory"
         - key: "location"
           label: "Ubicación"
         - key: "model"
@@ -365,14 +365,14 @@ entities:
         type: "text"
     table:
       columns:
+        - key: "department"
+          label: "Departamento"
         - key: "full_name"
           label: "Nombre"
         - key: "dtic_id"
           label: "ID DTIC"
         - key: "email"
           label: "Email"
-        - key: "department"
-          label: "Departamento"
         - key: "position"
           label: "Cargo"
         - key: "assigned_resources_count"
@@ -492,6 +492,9 @@ entities:
         type: "text"
     table:
       columns:
+        - key: "status"
+          label: "Estado"
+          formatter: "formatStatus"
         - key: "title"
           label: "Título"
         - key: "dtic_id"
@@ -504,9 +507,6 @@ entities:
         - key: "created_at"
           label: "Fecha Creación"
           formatter: "formatDate"
-        - key: "status"
-          label: "Estado"
-          formatter: "formatStatus"
     filters:
       - key: "technician_id"
         label: "Técnico"
