@@ -91,37 +91,42 @@ const Reportes = () => {
       const usuarios = usuariosRes.ok ? await usuariosRes.json() : []
 
       // Calculate report data
+      const tareasArray = Array.isArray(tareas) ? tareas : []
+      const recursosArray = Array.isArray(recursos) ? recursos : []
+      const usuariosArray = Array.isArray(usuarios) ? usuarios : []
+      const tecnicosArray = Array.isArray(tecnicos) ? tecnicos : []
+
       const tasksData = {
-        total: tareas.length,
-        completed: tareas.filter((t: any) => t.status === 'completed').length,
-        pending: tareas.filter((t: any) => t.status === 'pending').length,
-        inProgress: tareas.filter((t: any) => t.status === 'in_progress').length,
-        cancelled: tareas.filter((t: any) => t.status === 'cancelled').length,
-        completionRate: tareas.length > 0 ? Math.round((tareas.filter((t: any) => t.status === 'completed').length / tareas.length) * 100) : 0,
+        total: tareasArray.length,
+        completed: tareasArray.filter((t: any) => t.status === 'completed').length,
+        pending: tareasArray.filter((t: any) => t.status === 'pending').length,
+        inProgress: tareasArray.filter((t: any) => t.status === 'in_progress').length,
+        cancelled: tareasArray.filter((t: any) => t.status === 'cancelled').length,
+        completionRate: tareasArray.length > 0 ? Math.round((tareasArray.filter((t: any) => t.status === 'completed').length / tareasArray.length) * 100) : 0,
         averageTime: 3.2 // Mock data
       }
 
       const resourcesData = {
-        total: recursos.length,
-        available: recursos.filter((r: any) => r.status === 'available').length,
-        assigned: recursos.filter((r: any) => r.status === 'assigned').length,
-        maintenance: recursos.filter((r: any) => r.status === 'maintenance').length,
-        retired: recursos.filter((r: any) => r.status === 'retired').length,
-        utilizationRate: recursos.length > 0 ? Math.round((recursos.filter((r: any) => r.status === 'assigned').length / recursos.length) * 100) : 0
+        total: recursosArray.length,
+        available: recursosArray.filter((r: any) => r.status === 'available').length,
+        assigned: recursosArray.filter((r: any) => r.status === 'assigned').length,
+        maintenance: recursosArray.filter((r: any) => r.status === 'maintenance').length,
+        retired: recursosArray.filter((r: any) => r.status === 'retired').length,
+        utilizationRate: recursosArray.length > 0 ? Math.round((recursosArray.filter((r: any) => r.status === 'assigned').length / recursosArray.length) * 100) : 0
       }
 
       const usersData = {
-        total: usuarios.length,
-        withResources: usuarios.filter((u: any) => (u.assigned_resources_count || 0) > 0).length,
-        withoutResources: usuarios.filter((u: any) => (u.assigned_resources_count || 0) === 0).length,
-        totalAssignedResources: usuarios.reduce((total: number, u: any) => total + (u.assigned_resources_count || 0), 0)
+        total: usuariosArray.length,
+        withResources: usuariosArray.filter((u: any) => (u.assigned_resources_count || 0) > 0).length,
+        withoutResources: usuariosArray.filter((u: any) => (u.assigned_resources_count || 0) === 0).length,
+        totalAssignedResources: usuariosArray.reduce((total: number, u: any) => total + (u.assigned_resources_count || 0), 0)
       }
 
       const techniciansData = {
-        total: tecnicos.length,
-        active: tecnicos.filter((t: any) => t.is_active).length,
-        inactive: tecnicos.filter((t: any) => !t.is_active).length,
-        admins: tecnicos.filter((t: any) => t.role === 'admin').length
+        total: tecnicosArray.length,
+        active: tecnicosArray.filter((t: any) => t.is_active).length,
+        inactive: tecnicosArray.filter((t: any) => !t.is_active).length,
+        admins: tecnicosArray.filter((t: any) => t.role === 'admin').length
       }
 
       setReportData({
@@ -144,10 +149,21 @@ const Reportes = () => {
     script.src = 'https://cdn.jsdelivr.net/npm/chart.js'
     script.onload = () => {
       setTimeout(() => {
-        // Tasks Status Chart
+        // Destroy existing charts to prevent "Canvas is already in use" error
         const tasksCtx = document.getElementById('tasksChart') as HTMLCanvasElement
+        const resourcesCtx = document.getElementById('resourcesChart') as HTMLCanvasElement
+
+        // Destroy existing chart instances if they exist
+        if ((window as any).tasksChartInstance) {
+          (window as any).tasksChartInstance.destroy()
+        }
+        if ((window as any).resourcesChartInstance) {
+          (window as any).resourcesChartInstance.destroy()
+        }
+
+        // Tasks Status Chart
         if (tasksCtx) {
-          new (window as any).Chart(tasksCtx, {
+          (window as any).tasksChartInstance = new (window as any).Chart(tasksCtx, {
             type: 'doughnut',
             data: {
               labels: ['Pendientes', 'En Progreso', 'Completadas', 'Canceladas'],
@@ -174,9 +190,8 @@ const Reportes = () => {
         }
 
         // Resources Chart
-        const resourcesCtx = document.getElementById('resourcesChart') as HTMLCanvasElement
         if (resourcesCtx) {
-          new (window as any).Chart(resourcesCtx, {
+          (window as any).resourcesChartInstance = new (window as any).Chart(resourcesCtx, {
             type: 'bar',
             data: {
               labels: ['Hardware', 'Software', 'Redes', 'Herramientas'],

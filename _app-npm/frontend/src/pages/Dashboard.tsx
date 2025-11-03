@@ -88,32 +88,37 @@ const Dashboard = () => {
       const usuarios = usuariosRes.ok ? await usuariosRes.json() : []
 
       // Calculate statistics
+      const tecnicosArray = Array.isArray(tecnicos) ? tecnicos : []
+      const tareasArray = Array.isArray(tareas) ? tareas : []
+      const recursosArray = Array.isArray(recursos) ? recursos : []
+      const usuariosArray = Array.isArray(usuarios) ? usuarios : []
+
       const tecnicosStats = {
-        total: tecnicos.length,
-        activos: tecnicos.filter((t: any) => t.is_active).length,
-        inactivos: tecnicos.filter((t: any) => !t.is_active).length,
-        administradores: tecnicos.filter((t: any) => t.role === 'admin').length
+        total: tecnicosArray.length,
+        activos: tecnicosArray.filter((t: any) => t.is_active).length,
+        inactivos: tecnicosArray.filter((t: any) => !t.is_active).length,
+        administradores: tecnicosArray.filter((t: any) => t.role === 'admin').length
       }
 
       const tareasStats = {
-        total: tareas.length,
-        pendientes: tareas.filter((t: any) => t.status === 'pending').length,
-        enProgreso: tareas.filter((t: any) => t.status === 'in_progress').length,
-        completadas: tareas.filter((t: any) => t.status === 'completed').length,
-        canceladas: tareas.filter((t: any) => t.status === 'cancelled').length
+        total: tareasArray.length,
+        pendientes: tareasArray.filter((t: any) => t.status === 'pending').length,
+        enProgreso: tareasArray.filter((t: any) => t.status === 'in_progress').length,
+        completadas: tareasArray.filter((t: any) => t.status === 'completed').length,
+        canceladas: tareasArray.filter((t: any) => t.status === 'cancelled').length
       }
 
       const recursosStats = {
-        total: recursos.length,
-        disponibles: recursos.filter((r: any) => r.status === 'available').length,
-        asignados: recursos.filter((r: any) => r.status === 'assigned').length,
-        mantenimiento: recursos.filter((r: any) => r.status === 'maintenance').length
+        total: recursosArray.length,
+        disponibles: recursosArray.filter((r: any) => r.status === 'available').length,
+        asignados: recursosArray.filter((r: any) => r.status === 'assigned').length,
+        mantenimiento: recursosArray.filter((r: any) => r.status === 'maintenance').length
       }
 
       const usuariosStats = {
-        total: usuarios.length,
-        conRecursos: usuarios.filter((u: any) => (u.assigned_resources_count || 0) > 0).length,
-        sinRecursos: usuarios.filter((u: any) => (u.assigned_resources_count || 0) === 0).length
+        total: usuariosArray.length,
+        conRecursos: usuariosArray.filter((u: any) => (u.assigned_resources_count || 0) > 0).length,
+        sinRecursos: usuariosArray.filter((u: any) => (u.assigned_resources_count || 0) === 0).length
       }
 
       setStats({
@@ -199,18 +204,24 @@ const Dashboard = () => {
 
   const updateDateTime = () => {
     const now = new Date()
-    const options: Intl.DateTimeFormatOptions = {
+
+    // Formatear fecha en español de Argentina
+    const dateOptions: Intl.DateTimeFormatOptions = {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     }
-    setCurrentDate(now.toLocaleDateString('es-ES', options))
-    setCurrentTime(now.toLocaleTimeString('es-ES', {
+    setCurrentDate(now.toLocaleDateString('es-AR', dateOptions))
+
+    // Formatear hora
+    const timeOptions: Intl.DateTimeFormatOptions = {
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
-    }))
+      second: '2-digit',
+      hour12: false
+    }
+    setCurrentTime(now.toLocaleTimeString('es-AR', timeOptions))
   }
 
   const getEventTypeIcon = (type: string) => {
@@ -275,32 +286,40 @@ const Dashboard = () => {
         </p>
         <div className="row mt-4">
           <div className="col-md-3">
-            <div className="text-center">
-              <div id="current-date" className="h5 text-muted">{currentDate}</div>
-              <small className="text-secondary">Fecha Actual</small>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="text-center">
-              <div id="current-time" className="h5 text-muted">{currentTime}</div>
-              <small className="text-secondary">Hora Actual</small>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="text-center">
-              <div id="system-status" className="h5 text-success">
-                <i className="fas fa-circle text-success me-1"></i>Online
+            <div className="card h-100 border-0 bg-light">
+              <div className="card-body text-center">
+                <div id="current-date" className="h5 text-muted mb-1">{currentDate}</div>
+                <small className="text-secondary">Fecha Actual</small>
               </div>
-              <small className="text-secondary">Estado del Sistema</small>
             </div>
           </div>
           <div className="col-md-3">
-            <div className="text-center">
-              <div id="user-status" className="h5 text-primary">
-                <i className="fas fa-user text-success me-1"></i>
-                {user ? 'Conectado' : 'Público'}
+            <div className="card h-100 border-0 bg-light">
+              <div className="card-body text-center">
+                <div id="current-time" className="h5 text-muted mb-1">{currentTime}</div>
+                <small className="text-secondary">Hora Actual</small>
               </div>
-              <small className="text-secondary">Estado de Sesión</small>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="card h-100 border-0 bg-light">
+              <div className="card-body text-center">
+                <div id="system-status" className="h5 text-success mb-1">
+                  <i className="fas fa-circle text-success me-1"></i>Online
+                </div>
+                <small className="text-secondary">Estado del Sistema</small>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="card h-100 border-0 bg-light">
+              <div className="card-body text-center">
+                <div id="user-status" className="h5 text-primary mb-1">
+                  <i className="fas fa-user text-success me-1"></i>
+                  {user ? 'Conectado' : 'Público'}
+                </div>
+                <small className="text-secondary">Estado de Sesión</small>
+              </div>
             </div>
           </div>
         </div>

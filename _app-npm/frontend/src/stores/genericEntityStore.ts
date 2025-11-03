@@ -39,6 +39,9 @@ export interface GenericEntityActions {
   deleteEntity: (id: number) => Promise<void>
   setFilters: (filters: Record<string, any>) => void
   clearFilters: () => void
+  setEntities: (entities: any[]) => void
+  setLoading: (loading: boolean) => void
+  setError: (error: string | null) => void
   reset: () => void
 }
 
@@ -207,6 +210,18 @@ export const useGenericEntityStore = create<GenericEntityStore>()(
 
       clearFilters: () => {
         set({ filters: {} })
+      },
+
+      setEntities: (entities: any[]) => {
+        set({ entities })
+      },
+
+      setLoading: (loading: boolean) => {
+        set({ loading })
+      },
+
+      setError: (error: string | null) => {
+        set({ error })
       },
 
       reset: () => {

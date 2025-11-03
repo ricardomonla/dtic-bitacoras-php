@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useGenericEntityStore, EntityConfig } from '../stores/genericEntityStore'
 import { useEntityManagement } from '../hooks/useEntityManagement'
@@ -227,7 +227,10 @@ if (typeof document !== 'undefined') {
 
 const EntityPage = () => {
   const params = useParams<{ entityKey?: string }>()
-  const entityKey = params.entityKey || window.location.pathname.split('/').filter(Boolean)[0] // Extract from URL path
+  // Extract entity key from URL path - handle both direct routes (/recursos) and dynamic routes (/entity/recursos)
+  const pathname = window.location.pathname
+  const pathParts = pathname.split('/').filter(Boolean)
+  const entityKey = params.entityKey || pathParts[0] // Use first part of path or param
   const store = useGenericEntityStore()
 
   // console.log('EntityPage - Current URL:', window.location.pathname)
@@ -341,10 +344,20 @@ const EntityPage = () => {
   // Load entities when config is ready
   useEffect(() => {
     if (config && entityUtils) {
-      // console.log('Loading entities for config:', config.name)
+      // console.log('Loading entities for config:', config.name, 'entityKey:', entityKey)
       store.fetchEntities()
     }
-  }, [config, entityUtils])
+  }, [config, entityUtils, entityKey])
+
+  // Clear entities when entityKey changes to prevent stale data
+  useEffect(() => {
+    if (entityKey) {
+      // console.log('Entity key changed to:', entityKey, '- clearing entities')
+      store.setEntities([])
+      store.setError(null)
+      // Don't set loading here, let the fetchEntities call handle it
+    }
+  }, [entityKey])
 
   // Sort entities based on entity type
   const getSortedEntities = () => {
@@ -366,7 +379,7 @@ const EntityPage = () => {
           const catA = categoryOrder[a.category] ?? 6
           const catB = categoryOrder[b.category] ?? 6
           if (catA !== catB) return catA - catB
-          return a.name.localeCompare(b.name)
+          return (a.name || '').localeCompare(b.name || '')
 
         case 'usuarios':
           // Primero por Departamento, luego por Nombre
@@ -382,7 +395,7 @@ const EntityPage = () => {
           const statusA = statusOrder[a.status] ?? 5
           const statusB = statusOrder[b.status] ?? 5
           if (statusA !== statusB) return statusA - statusB
-          return a.title.localeCompare(b.title)
+          return (a.title || '').localeCompare(b.title || '')
 
         default:
           return 0
