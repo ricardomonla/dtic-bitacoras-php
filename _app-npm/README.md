@@ -134,27 +134,100 @@ El sistema sigue una arquitectura de **3 capas** con contenedores Docker:
 ### Entidades del Sistema
 
 #### 👥 Técnicos
-- Gestión de usuarios del sistema DTIC
-- Roles: Admin, Técnico, Visualizador
-- Autenticación y autorización JWT
-- Perfiles con información de contacto
+Los **técnicos** son los profesionales especializados del DTIC que resuelven las tareas asignadas al departamento. Son los responsables directos de ejecutar y completar las actividades del sistema.
+
+**Características principales:**
+- **ID único**: Identificador único del técnico
+- **Información personal**: Nombre, apellido, email, teléfono
+- **Rol**: Administrador, Técnico, Visualizador
+- **Departamento**: Área específica dentro del DTIC
+- **Estado**: Activo, Inactivo
+- **Tareas asignadas**: Número y lista de tareas bajo su responsabilidad
+- **Historial de actividad**: Registro de tareas completadas y en progreso
+- **Permisos**: Nivel de acceso al sistema según su rol
+
+**Roles definidos:**
+- **Administrador**: Acceso completo, gestión de usuarios y configuración
+- **Técnico**: Ejecución de tareas, gestión de recursos asignados
+- **Visualizador**: Solo lectura, acceso a reportes y consultas
 
 #### 📦 Recursos
-- Inventario de hardware, software y equipos
-- Categorías: Hardware, Software, Redes, Seguridad, Herramientas
-- Estados: Disponible, Asignado, Mantenimiento, Retirado
-- Asignación a usuarios finales
+Los **recursos** son los elementos físicos o digitales que utiliza el DTIC para realizar sus tareas operativas. Cada recurso tiene características específicas y puede estar asignado a usuarios para su utilización.
+
+**Características principales:**
+- **ID único**: Identificador alfanumérico único (ej: RES-001)
+- **Nombre**: Descripción clara del recurso
+- **Categoría**: Clasificación jerárquica (Hardware, Software, Redes, Seguridad, Herramientas)
+- **Estado**: Disponible, Asignado, Mantenimiento, Retirado
+- **Ubicación**: Lugar físico donde se encuentra el recurso
+- **Información técnica**: Modelo, serie, especificaciones técnicas
+- **Historial de uso**: Registro de tareas en las que ha sido utilizado
+- **Última tarea**: Información de la tarea más reciente donde participó
+
+**Ejemplos de recursos:**
+- Laptops, proyectores, servidores (Hardware)
+- Licencias de software, antivirus (Software)
+- Routers, switches, cables (Redes)
+- Certificados, firewalls (Seguridad)
+- Kits de herramientas, testers (Herramientas)
 
 #### 👤 Usuarios Asignados
-- Usuarios finales que pueden tener recursos asignados
-- Información básica: nombre, email, departamento, cargo
-- Vinculación con recursos tecnológicos
+Los **usuarios** son las personas que trabajan con los recursos del DTIC en sus actividades diarias. A diferencia de los técnicos, no resuelven tareas del sistema sino que utilizan los recursos asignados para realizar su trabajo operativo.
+
+**Características principales:**
+- **ID único**: Identificador único del usuario
+- **Información personal**: Nombre, apellido, email, teléfono
+- **Rol operativo**: Operador, Supervisor, Analista, Invitado
+- **Departamento**: Área específica donde opera
+- **Estado**: Activo, Inactivo
+- **Recursos asignados**: Lista de recursos bajo su responsabilidad
+- **Historial de uso**: Registro de recursos utilizados
+
+**Roles operativos:**
+- **Operador**: Uso básico de recursos asignados
+- **Supervisor**: Coordinación de recursos y supervisión de operadores
+- **Analista**: Análisis de datos y reportes usando recursos específicos
+- **Invitado**: Acceso limitado a recursos específicos por tiempo determinado
 
 #### 📋 Tareas
-- Gestión de tareas técnicas asignadas a técnicos
-- Estados: Pendiente, En Progreso, Completada, Cancelada
-- Prioridades: Baja, Media, Alta, Urgente
-- Seguimiento de fechas límite
+Las **tareas** son las actividades específicas que debe realizar el DTIC, asignadas a técnicos para su resolución. Cada tarea tiene un ciclo de vida completo desde su creación hasta su finalización.
+
+**Características principales:**
+- **ID único**: Identificador alfanumérico único (ej: TSK-001)
+- **Título**: Descripción breve de la tarea
+- **Descripción**: Detalles completos de lo que se debe realizar
+- **Estado**: Pendiente, En Progreso, Completada, Cancelada
+- **Prioridad**: Baja, Media, Alta, Urgente
+- **Técnico asignado**: Profesional responsable de la ejecución
+- **Fechas**: Creación, inicio, vencimiento, finalización
+- **Historial de actividad**: Registro detallado de todos los movimientos
+- **Recursos utilizados**: Lista de recursos que participaron en la tarea
+
+**Estados del ciclo de vida:**
+- **Pendiente**: Esperando asignación de técnico
+- **En Progreso**: Siendo ejecutada por el técnico asignado
+- **Completada**: Finalizada exitosamente
+- **Cancelada**: Terminada sin completar por diversos motivos
+
+#### 📊 Historial de Auditoría
+El **historial de auditoría** registra todas las acciones realizadas en el sistema para mantener un registro completo de cambios y actividades.
+
+**Características principales:**
+- **Usuario**: Quién realizó la acción
+- **Acción**: Tipo de operación (crear, modificar, eliminar, consultar)
+- **Entidad**: Objeto afectado (tarea, recurso, usuario, etc.)
+- **Fecha/Hora**: Timestamp preciso de la acción
+- **Detalles**: Información específica de lo que cambió
+- **IP**: Dirección desde donde se realizó la acción
+
+#### 📈 Reportes y Análisis
+Los **reportes** son consultas estructuradas que permiten analizar el estado y rendimiento del sistema DTIC Bitácoras.
+
+**Tipos de reportes:**
+- **Tareas**: Estado, productividad, tiempos de resolución
+- **Recursos**: Utilización, disponibilidad, mantenimiento
+- **Usuarios**: Actividad, asignaciones, rendimiento
+- **Sistema**: Estadísticas generales, logs de auditoría
 
 ### Funcionalidades Clave
 
@@ -690,8 +763,51 @@ make dev-frontend
 2. Explicar el caso de uso
 3. Proponer implementación si es posible
 
+## 📚 Evolución del Proyecto
+
+### Antecedentes
+Este proyecto representa la evolución completa del sistema DTIC Bitácoras, desde un enfoque inicial basado en PHP/MySQL hasta la implementación actual con tecnologías modernas React/Node.js/PostgreSQL.
+
+### Fases de Desarrollo
+
+#### **Fase 1: Fundación PHP (2025-10)**
+- **Arquitectura**: HTML/JS/PHP/MySQL con Docker
+- **Alcance**: Desarrollo de interfaces básicas y configuración de contenedores
+- **Estado**: Completado - Etapas 1 y 2 del plan original
+- **Resultado**: Base sólida para la evolución tecnológica
+
+#### **Fase 2: Migración Tecnológica (2025-11)**
+- **Arquitectura**: React/Node.js/PostgreSQL con Docker
+- **Alcance**: Reimplementación completa con tecnologías modernas
+- **Estado**: Completado - Sistema 100% funcional
+- **Resultado**: Aplicación full-stack moderna y escalable
+
+### Metodología de Desarrollo
+El proyecto se desarrolló siguiendo una metodología estructurada:
+
+1. **Análisis y Planificación**: Definición de entidades y arquitectura
+2. **Implementación por Etapas**: Desarrollo incremental con hitos claros
+3. **Migración Tecnológica**: Transición de PHP a Node.js/React
+4. **Optimización Continua**: Mejoras en scripts, documentación y procesos
+
+### Tecnologías Evolutivas
+- **Inicial**: PHP 8.1, MySQL 8.0, HTML5/CSS3/JS, Bootstrap 5
+- **Actual**: React 18, Node.js 18, PostgreSQL 15, TypeScript, Docker
+
 ---
 
-**Desarrollado por el Departamento de Tecnología de la Información y Comunicación (DTIC)**
-**Versión**: 1.0.0
-**Última actualización**: Noviembre 2025
+## 👨‍💻 Autor y Desarrollo
+
+**Desarrollado por:** Lic. Ricardo MONLA
+**Institución:** Universidad Tecnológica Nacional - Facultad Regional La Rioja
+**Departamento:** Departamento de Servidores, Dirección de TIC
+**Proyecto:** Sistema DTIC Bitácoras v1.1.0
+**Fecha:** Noviembre 2025
+
+### Contacto
+Para soporte técnico o consultas sobre el desarrollo del sistema, contactar al departamento DTIC de la UTN FR La Rioja.
+
+---
+
+**Sistema desarrollado bajo la dirección del Departamento de Tecnología de la Información y Comunicación**
+**Universidad Tecnológica Nacional - Facultad Regional La Rioja**
