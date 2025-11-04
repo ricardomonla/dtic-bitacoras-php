@@ -491,7 +491,17 @@ entities:
             label: "Cancelada"
       - name: "due_date"
         label: "Fecha Límite"
-        type: "text"
+        type: "date"
+      - name: "assigned_resources"
+        label: "Recursos Asignados"
+        type: "multiselect"
+        dynamicOptions:
+          endpoint: "/api/recursos"
+          labelField: "name"
+          valueField: "id"
+          params:
+            status: "available"
+        options: []
     table:
       columns:
         - key: "status"

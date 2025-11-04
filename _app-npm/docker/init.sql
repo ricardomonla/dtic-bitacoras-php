@@ -88,6 +88,8 @@ BEGIN
         SELECT dtic_id FROM dtic.recursos WHERE dtic_id LIKE prefix || '-%'
         UNION ALL
         SELECT dtic_id FROM dtic.usuarios_asignados WHERE dtic_id LIKE prefix || '-%'
+        UNION ALL
+        SELECT dtic_id FROM dtic.tarea_recursos WHERE dtic_id LIKE prefix || '-%'
     ) AS all_ids;
 
     -- Generar nuevo ID
@@ -188,6 +190,41 @@ CREATE INDEX IF NOT EXISTS idx_recurso_asignaciones_user ON recurso_asignaciones
 CREATE INDEX IF NOT EXISTS idx_recurso_asignaciones_activo ON recurso_asignaciones (activo);
 CREATE INDEX IF NOT EXISTS idx_recurso_asignaciones_assigned_at ON recurso_asignaciones (assigned_at);
 
+-- Tabla de asignaciones tarea-recurso (relación muchos a muchos)
+CREATE TABLE IF NOT EXISTS tarea_recursos (
+    id SERIAL PRIMARY KEY,
+    tarea_id INTEGER NOT NULL REFERENCES tareas(id) ON DELETE CASCADE,
+    recurso_id INTEGER NOT NULL REFERENCES recursos(id) ON DELETE CASCADE,
+    assigned_by INTEGER REFERENCES tecnicos(id), -- técnico que realizó la asignación
+    assigned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    unassigned_by INTEGER REFERENCES tecnicos(id), -- técnico que realizó la desasignación
+    unassigned_at TIMESTAMP WITH TIME ZONE,
+    activo BOOLEAN DEFAULT true,
+
+    -- Campos adicionales específicos de la asignación
+    estimated_hours DECIMAL(5,2), -- horas estimadas para usar el recurso en esta tarea
+    actual_hours DECIMAL(5,2), -- horas reales utilizadas
+    notes TEXT, -- notas específicas sobre el uso del recurso en esta tarea
+
+    -- Constraint único para asignaciones activas de la misma tarea-recurso
+    UNIQUE (tarea_id, recurso_id, activo) DEFERRABLE INITIALLY DEFERRED,
+
+    -- Constraint para evitar asignaciones duplicadas activas
+    CHECK (NOT (tarea_id = ANY(SELECT t.tarea_id FROM tarea_recursos t WHERE t.recurso_id = recurso_id AND t.activo = true AND t.id != id)))
+);
+
+-- Tabla de historial de asignaciones tarea-recurso
+CREATE TABLE IF NOT EXISTS tarea_recurso_historial (
+    id SERIAL PRIMARY KEY,
+    tarea_recurso_id INTEGER NOT NULL REFERENCES tarea_recursos(id) ON DELETE CASCADE,
+    action VARCHAR(50) NOT NULL, -- 'assigned', 'unassigned', 'updated', 'completed'
+    tecnico_id INTEGER REFERENCES tecnicos(id), -- técnico que realizó la acción
+    old_values JSONB, -- valores anteriores
+    new_values JSONB, -- valores nuevos
+    details TEXT, -- descripción detallada de la acción
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Tabla de historial de recursos
 CREATE TABLE IF NOT EXISTS recurso_historial (
     id SERIAL PRIMARY KEY,
@@ -198,6 +235,18 @@ CREATE TABLE IF NOT EXISTS recurso_historial (
     details TEXT, -- descripción detallada de la acción
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Índices para asignaciones tarea-recurso
+CREATE INDEX IF NOT EXISTS idx_tarea_recursos_tarea ON tarea_recursos (tarea_id);
+CREATE INDEX IF NOT EXISTS idx_tarea_recursos_recurso ON tarea_recursos (recurso_id);
+CREATE INDEX IF NOT EXISTS idx_tarea_recursos_activo ON tarea_recursos (activo);
+CREATE INDEX IF NOT EXISTS idx_tarea_recursos_assigned_at ON tarea_recursos (assigned_at);
+
+-- Índices para historial de asignaciones tarea-recurso
+CREATE INDEX IF NOT EXISTS idx_tarea_recurso_historial_tarea_recurso ON tarea_recurso_historial (tarea_recurso_id);
+CREATE INDEX IF NOT EXISTS idx_tarea_recurso_historial_action ON tarea_recurso_historial (action);
+CREATE INDEX IF NOT EXISTS idx_tarea_recurso_historial_tecnico ON tarea_recurso_historial (tecnico_id);
+CREATE INDEX IF NOT EXISTS idx_tarea_recurso_historial_created ON tarea_recurso_historial (created_at);
 
 -- Índices para historial de recursos
 CREATE INDEX IF NOT EXISTS idx_recurso_historial_recurso ON recurso_historial (recurso_id);
@@ -213,6 +262,74 @@ CREATE TRIGGER update_recursos_updated_at
 CREATE TRIGGER update_usuarios_asignados_updated_at
     BEFORE UPDATE ON usuarios_asignados
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Función para validar asignaciones de recursos a tareas
+CREATE OR REPLACE FUNCTION validate_tarea_recurso_assignment()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Si es una nueva asignación activa
+    IF NEW.activo = true THEN
+        -- Verificar que el recurso esté disponible (no asignado a otras tareas activas)
+        IF EXISTS (
+            SELECT 1 FROM tarea_recursos tr
+            WHERE tr.recurso_id = NEW.recurso_id
+            AND tr.activo = true
+            AND tr.id != COALESCE(NEW.id, 0)
+        ) THEN
+            RAISE EXCEPTION 'El recurso ya está asignado a otra tarea activa';
+        END IF;
+
+        -- Verificar que el recurso esté en estado 'available'
+        IF NOT EXISTS (
+            SELECT 1 FROM recursos r
+            WHERE r.id = NEW.recurso_id
+            AND r.status = 'available'
+        ) THEN
+            RAISE EXCEPTION 'El recurso debe estar en estado disponible para ser asignado';
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger para validar asignaciones
+CREATE TRIGGER validate_tarea_recurso_assignment_trigger
+    BEFORE INSERT OR UPDATE ON tarea_recursos
+    FOR EACH ROW EXECUTE FUNCTION validate_tarea_recurso_assignment();
+
+-- Función para actualizar estado de recursos basado en asignaciones
+CREATE OR REPLACE FUNCTION update_recurso_status_from_assignments()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Si se asigna un recurso a una tarea
+    IF (TG_OP = 'INSERT' AND NEW.activo = true) OR (TG_OP = 'UPDATE' AND NEW.activo = true AND OLD.activo = false) THEN
+        -- Cambiar estado del recurso a 'assigned'
+        UPDATE recursos SET status = 'assigned', updated_at = CURRENT_TIMESTAMP
+        WHERE id = NEW.recurso_id AND status = 'available';
+
+    -- Si se desasigna un recurso de una tarea
+    ELSIF (TG_OP = 'UPDATE' AND NEW.activo = false AND OLD.activo = true) OR TG_OP = 'DELETE' THEN
+        -- Verificar si el recurso ya no está asignado a ninguna tarea activa
+        IF NOT EXISTS (
+            SELECT 1 FROM tarea_recursos tr
+            WHERE tr.recurso_id = COALESCE(NEW.recurso_id, OLD.recurso_id)
+            AND tr.activo = true
+        ) THEN
+            -- Cambiar estado del recurso a 'available'
+            UPDATE recursos SET status = 'available', updated_at = CURRENT_TIMESTAMP
+            WHERE id = COALESCE(NEW.recurso_id, OLD.recurso_id) AND status = 'assigned';
+        END IF;
+    END IF;
+
+    RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger para actualizar estado de recursos
+CREATE TRIGGER update_recurso_status_from_assignments_trigger
+    AFTER INSERT OR UPDATE OR DELETE ON tarea_recursos
+    FOR EACH ROW EXECUTE FUNCTION update_recurso_status_from_assignments();
 
 -- Insertar datos de ejemplo para recursos
 INSERT INTO recursos (dtic_id, name, description, category, status, location, technical_specs, serial_number, model) VALUES
@@ -249,6 +366,8 @@ CREATE INDEX IF NOT EXISTS idx_usuarios_asignados_name ON usuarios_asignados USI
 -- Comentarios en las tablas
 COMMENT ON TABLE tecnicos IS 'Tabla principal de técnicos del sistema DTIC Bitácoras';
 COMMENT ON TABLE tareas IS 'Tabla de tareas asignadas a técnicos';
+COMMENT ON TABLE tarea_recursos IS 'Tabla de relación many-to-many entre tareas y recursos asignados';
+COMMENT ON TABLE tarea_recurso_historial IS 'Historial de asignaciones y desasignaciones de recursos a tareas';
 COMMENT ON TABLE audit_log IS 'Registro de auditoría de todas las operaciones del sistema';
 
 -- Permisos básicos (ajustar según necesidades de seguridad)

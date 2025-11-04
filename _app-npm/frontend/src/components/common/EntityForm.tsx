@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 export interface FormField {
   name: string
   label: string
-  type: 'text' | 'email' | 'select' | 'textarea' | 'tel' | 'date'
+  type: 'text' | 'email' | 'select' | 'textarea' | 'tel' | 'date' | 'multiselect'
   required?: boolean
   options?: Array<{ value: string, label: string }>
   placeholder?: string
@@ -147,6 +147,40 @@ export const EntityForm = <T extends Record<string, any>>({
               </option>
             ))}
           </select>
+        )
+
+      case 'multiselect':
+        const multiselectOptions = dynamicOptions[field.name] || field.options || []
+        const isLoadingMulti = loadingOptions[field.name]
+        const selectedValues = Array.isArray(value) ? value : []
+        return (
+          <div className="multiselect-container">
+            <select
+              className="form-select"
+              multiple
+              id={field.name}
+              name={field.name}
+              value={selectedValues}
+              onChange={(e) => {
+                const selectedOptions = Array.from(e.target.selectedOptions, option => option.value)
+                setFormData(prev => ({ ...prev, [field.name]: selectedOptions }))
+              }}
+              style={{ minHeight: '120px' }}
+              disabled={isLoadingMulti}
+            >
+              {isLoadingMulti && <option disabled>Cargando...</option>}
+              {multiselectOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {selectedValues.length > 0 && (
+              <small className="text-muted mt-1">
+                {selectedValues.length} recurso{selectedValues.length !== 1 ? 's' : ''} seleccionado{selectedValues.length !== 1 ? 's' : ''}
+              </small>
+            )}
+          </div>
         )
 
       default:
