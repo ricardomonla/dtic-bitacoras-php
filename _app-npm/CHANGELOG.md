@@ -5,6 +5,33 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2025-11-04
+
+### Added
+- **Sistema de Asignación Directa de Recursos**: Nueva tabla `tarea_recursos` para asignar recursos específicos a tareas individuales
+- **Campos Adicionales en Asignaciones**: Horas estimadas, horas reales y notas específicas por asignación de recurso
+- **Auditoría de Asignaciones**: Registro de técnico asignador y timestamps para cada asignación de recurso
+
+### Changed
+- **Consultas de Recursos**: Modificación de queries SQL para usar asignaciones directas tarea-recurso en lugar de relaciones indirectas
+- **API de Tareas**: Actualización de endpoints para incluir información detallada de recursos asignados (horas, notas)
+
+### Fixed
+- **Relaciones de Recursos**: Corrección de lógica para mostrar recursos asignados específicamente a cada tarea
+- **Precisión de Asignaciones**: Eliminación de asignaciones genéricas basadas en técnicos, implementación de asignaciones específicas
+
+### Technical Details
+- **Database**: Nueva tabla `tarea_recursos` con constraints de unicidad y relaciones many-to-many
+- **Backend**: Modificación de consultas SQL en `routes/tareas.js` para JOINs directos
+- **Frontend**: Compatibilidad automática con nueva estructura de datos de recursos
+
+### Technical Details
+- **Frontend**: React 18 + TypeScript + Vite + Bootstrap 5
+- **Backend**: Node.js 18 + Express + PostgreSQL + JWT
+- **Database**: PostgreSQL 15 con pool de conexiones
+- **Deployment**: Docker Compose con servicios orquestados
+- **Security**: Helmet, CORS, Rate Limiting, Prepared Statements
+
 ## [1.1.1] - 2025-11-04
 
 ### Added

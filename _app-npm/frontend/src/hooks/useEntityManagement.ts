@@ -116,9 +116,37 @@ export const useEntityManagement = <T extends { id: number; name?: string; full_
     }
 
     try {
+      // Filtrar solo los campos que realmente cambiaron y son válidos para actualizar
+      const updateData: Partial<T> = {}
+
+      // Para tareas, solo enviar campos específicos que pueden actualizarse
+      if (entityName === 'tareas') {
+        const allowedFields = ['title', 'description', 'technician_id', 'status', 'priority', 'due_date']
+        allowedFields.forEach(key => {
+          const currentValue = editingEntity[key as keyof T]
+          const newValue = data[key as keyof T]
+          // Comparar valores y solo incluir si son diferentes
+          if (newValue !== undefined && newValue !== currentValue) {
+            updateData[key as keyof T] = newValue
+          }
+        })
+      } else {
+        // Para otras entidades, copiar todos los datos
+        Object.assign(updateData, data)
+      }
+
+      console.log('[DEBUG] Filtered update data:', updateData)
+
+      if (Object.keys(updateData).length === 0) {
+        console.log('[DEBUG] No changes detected, closing form')
+        setShowEditForm(false)
+        setEditingEntity(null)
+        return
+      }
+
       console.log('[DEBUG] Calling store.updateEntity with id:', editingEntity.id)
-      console.log('[DEBUG] Data to send:', data)
-      await store.updateEntity(editingEntity.id, data)
+      console.log('[DEBUG] Data to send:', updateData)
+      await store.updateEntity(editingEntity.id, updateData)
       console.log('[DEBUG] Update successful, showing success toast')
       toast.success(`${entityName} actualizado exitosamente`)
 

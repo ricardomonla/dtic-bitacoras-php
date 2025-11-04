@@ -12,6 +12,54 @@ import toast from 'react-hot-toast'
 // Import YAML parser
 import yaml from 'js-yaml'
 
+// Funciones de formateo especializadas para optimización de tablas
+const formatStatusPriority = (entity: any) => {
+  const statusBadge = tareaUtils.getBadge(entity.status)
+  const priorityBadge = tareaUtils.getBadge(entity.priority)
+  return (
+    <div className="d-flex flex-column gap-1">
+      <span className={`badge ${statusBadge.class} badge-sm`}>
+        {statusBadge.text}
+      </span>
+      <span className={`badge ${priorityBadge.class} badge-sm`}>
+        {priorityBadge.text}
+      </span>
+    </div>
+  )
+}
+
+const formatAssignedResources = (entity: any) => {
+  // Esta función se implementará cuando tengamos los datos de recursos asignados
+  // Por ahora retorna un placeholder
+  const assignedResources = entity.assigned_resources || []
+
+  if (assignedResources.length === 0) {
+    return (
+      <span className="text-muted small">
+        <i className="fas fa-box me-1"></i>
+        Sin recursos asignados
+      </span>
+    )
+  }
+
+  const firstResource = assignedResources[0]
+  const remainingCount = assignedResources.length - 1
+
+  return (
+    <div className="d-flex align-items-center">
+      <span className="badge bg-light text-dark me-2">
+        <i className="fas fa-box me-1"></i>
+        {firstResource.name || firstResource}
+      </span>
+      {remainingCount > 0 && (
+        <small className="text-muted">
+          y {remainingCount} recurso{remainingCount !== 1 ? 's' : ''} más
+        </small>
+      )}
+    </div>
+  )
+}
+
 // CSS para animaciones y estética mejorada
 const styles = `
   @keyframes slideInFromTop {
@@ -840,7 +888,7 @@ const EntityPage = () => {
                   <table className="table entity-table">
                     <thead>
                       <tr>
-                        {config.table.columns.map((column: any) => (
+                        {config.table.columns.filter((column: any) => !column.hidden).map((column: any) => (
                           <th key={column.key}>{column.label}</th>
                         ))}
                         <th>Acciones</th>
@@ -997,28 +1045,28 @@ const EntityRow = ({ entity, config, onAction, utils, entityKey }: any) => {
 
   return (
     <tr>
-      {config.table.columns.map((column: any) => {
+      {config.table.columns.filter((column: any) => !column.hidden).map((column: any) => {
         // console.log('EntityRow - Processing column:', column.key, 'Value:', entity[column.key])
         let cellValue: string | JSX.Element = '-'
 
-        try {
-          if (column.formatter && utils && utils[column.formatter]) {
-            const formattedValue = utils[column.formatter](entity[column.key])
-            // console.log('EntityRow - Formatted value:', formattedValue)
+        // Handle special formatters for optimized columns
+        if (column.key === 'status_priority' && entityKey === 'tareas') {
+          cellValue = formatStatusPriority(entity)
+        } else if (column.key === 'assigned_resources' && entityKey === 'tareas') {
+          cellValue = formatAssignedResources(entity)
+        } else if (column.formatter && utils && utils[column.formatter]) {
+          const formattedValue = utils[column.formatter](entity[column.key])
+          // console.log('EntityRow - Formatted value:', formattedValue)
 
-            // If formatter returns JSX (like badges), use it directly
-            if (React.isValidElement(formattedValue)) {
-              cellValue = formattedValue
-            } else {
-              cellValue = formattedValue || '-'
-            }
+          // If formatter returns JSX (like badges), use it directly
+          if (React.isValidElement(formattedValue)) {
+            cellValue = formattedValue
           } else {
-            cellValue = entity[column.key] || '-'
-            // console.log('EntityRow - Raw value:', cellValue)
+            cellValue = formattedValue || '-'
           }
-        } catch (error) {
-          console.error('EntityRow - Error formatting column', column.key, ':', error)
+        } else {
           cellValue = entity[column.key] || '-'
+          // console.log('EntityRow - Raw value:', cellValue)
         }
 
         // Apply color styling for specific columns based on entity type

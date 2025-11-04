@@ -42,9 +42,25 @@ router.get('/', [
         t.id, t.dtic_id, t.title, t.description, t.status, t.priority,
         t.created_at, t.updated_at, t.due_date, t.completed_at,
         tec.id as technician_id, tec.first_name, tec.last_name,
-        CONCAT(tec.first_name, ' ', tec.last_name) as technician_name
+        CONCAT(tec.first_name, ' ', tec.last_name) as technician_name,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', tr.recurso_id,
+              'name', r.name,
+              'category', r.category,
+              'dtic_id', r.dtic_id,
+              'estimated_hours', tr.estimated_hours,
+              'actual_hours', tr.actual_hours,
+              'notes', tr.notes
+            )
+          ) FILTER (WHERE tr.id IS NOT NULL AND tr.activo = true),
+          '[]'::json
+        ) as assigned_resources
       FROM dtic.tareas t
       LEFT JOIN dtic.tecnicos tec ON tec.id = t.technician_id
+      LEFT JOIN dtic.tarea_recursos tr ON tr.tarea_id = t.id AND tr.activo = true
+      LEFT JOIN dtic.recursos r ON r.id = tr.recurso_id
       WHERE 1=1
     `;
 
@@ -70,7 +86,7 @@ router.get('/', [
       query += " AND " + conditions.join(" AND ");
     }
 
-    query += " ORDER BY t.created_at DESC";
+    query += " GROUP BY t.id, tec.id, tec.first_name, tec.last_name ORDER BY t.created_at DESC";
 
     // Paginación
     const offset = (page - 1) * limit;
@@ -133,10 +149,27 @@ router.get('/:id', [
       SELECT
         t.*,
         tec.id as technician_id, tec.first_name, tec.last_name,
-        CONCAT(tec.first_name, ' ', tec.last_name) as technician_name
+        CONCAT(tec.first_name, ' ', tec.last_name) as technician_name,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', tr.recurso_id,
+              'name', r.name,
+              'category', r.category,
+              'dtic_id', r.dtic_id,
+              'estimated_hours', tr.estimated_hours,
+              'actual_hours', tr.actual_hours,
+              'notes', tr.notes
+            )
+          ) FILTER (WHERE tr.id IS NOT NULL AND tr.activo = true),
+          '[]'::json
+        ) as assigned_resources
       FROM dtic.tareas t
       LEFT JOIN dtic.tecnicos tec ON tec.id = t.technician_id
+      LEFT JOIN dtic.tarea_recursos tr ON tr.tarea_id = t.id AND tr.activo = true
+      LEFT JOIN dtic.recursos r ON r.id = tr.recurso_id
       WHERE t.id = $1
+      GROUP BY t.id, tec.id, tec.first_name, tec.last_name
     `;
 
     const result = await executeQuery(query, [id]);
