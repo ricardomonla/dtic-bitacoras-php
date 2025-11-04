@@ -178,6 +178,24 @@ const Navbar = () => {
           transition: all 0.3s ease;
         }
 
+        .version-badge {
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.75rem;
+          font-weight: 500;
+          padding: 4px 8px;
+          border-radius: 12px;
+          backdrop-filter: blur(10px);
+          transition: var(--transition);
+        }
+
+        .version-badge:hover {
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          transform: scale(1.05);
+        }
+
         .user-menu-modern {
           background: rgba(255, 255, 255, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.2);
@@ -392,6 +410,7 @@ const Navbar = () => {
           <Link className="navbar-brand navbar-brand-modern" to="/dashboard">
             <i className="fas fa-cogs me-2"></i>
             DTIC Bitácoras
+            <span className="version-badge ms-2">v1.1.0</span>
           </Link>
 
           {/* Hamburger Menu for Mobile */}

@@ -1,0 +1,33 @@
+✅ Prompt unificado para documentar el avance (3 fases)
+
+Fase 1 — Tareas Completadas
+Registra en español todas las tareas completadas desde el último registro.
+Crea un archivo en el directorio _tareasTerminadas siguiendo el formato:
+
+YYYYMMDD_HHMMSS_[descripcion].md
+
+El archivo debe incluir:
+
+Resumen claro de la tarea completada (antes llamado “Task Completed”), traducido y redactado en español.
+
+Análisis de acciones por módulo, redactado en español.
+
+Detalle de cambios, mejoras y soluciones aplicadas.
+
+Fase 2 — Versionado
+Revisa si los cambios realizados requieren:
+
+Actualización del número de versión del sistema.
+
+Actualización y registro correspondiente en CHANGELOG.md.
+
+Si corresponde, aplícalo antes de continuar.
+
+Fase 3 — Commit
+Guarda todos los archivos modificados y realiza un commit en español que incluya:
+
+Resumen breve del cambio.
+
+Referencia al archivo generado en _tareasTerminadas.
+
+Ejecuta todo preferentemente mediante un único comando o secuencia integrada.

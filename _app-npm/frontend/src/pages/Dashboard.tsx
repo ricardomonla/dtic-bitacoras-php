@@ -644,6 +644,25 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+              <hr />
+              <div className="row">
+                <div className="col-12">
+                  <div className="text-center">
+                    <div className="mb-2">
+                      <span className="badge bg-primary fs-6 px-3 py-2">
+                        <i className="fas fa-tag me-1"></i>
+                        Versión 1.1.0
+                      </span>
+                    </div>
+                    <small className="text-muted">
+                      <i className="fas fa-copyright me-1"></i>
+                      Aplicación creada y desarrollada por Lic. Ricardo MONLA,
+                      del Departamento de Servidores de la Dirección de TIC de la
+                      Universidad Tecnológica Nacional – Facultad Regional La Rioja
+                    </small>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

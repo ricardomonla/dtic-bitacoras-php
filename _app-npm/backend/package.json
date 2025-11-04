@@ -1,6 +1,6 @@
 {
   "name": "dtic-bitacoras-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "API backend para DTIC Bitácoras - Sistema de gestión de técnicos y tareas",
   "main": "src/server.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "migrate": "node scripts/migrate.js"
   },
   "keywords": ["dtic", "bitacoras", "api", "nodejs", "express"],
-  "author": "DTIC",
+  "author": "Lic. Ricardo MONLA - Departamento de Servidores, Dirección de TIC, Universidad Tecnológica Nacional - Facultad Regional La Rioja",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
