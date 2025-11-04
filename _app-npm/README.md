@@ -773,14 +773,16 @@ Este proyecto representa la evolución completa del sistema DTIC Bitácoras, des
 #### **Fase 1: Fundación PHP (2025-10)**
 - **Arquitectura**: HTML/JS/PHP/MySQL con Docker
 - **Alcance**: Desarrollo de interfaces básicas y configuración de contenedores
-- **Estado**: Completado - Etapas 1 y 2 del plan original
+- **Estado**: ✅ Completado - Etapas 1 y 2 del plan original
 - **Resultado**: Base sólida para la evolución tecnológica
+- **Tareas Clave**: Configuración Docker, maquetación interfaz, auto-hide navbar
 
 #### **Fase 2: Migración Tecnológica (2025-11)**
 - **Arquitectura**: React/Node.js/PostgreSQL con Docker
 - **Alcance**: Reimplementación completa con tecnologías modernas
-- **Estado**: Completado - Sistema 100% funcional
+- **Estado**: ✅ Completado - Sistema 100% funcional (v1.1.0)
 - **Resultado**: Aplicación full-stack moderna y escalable
+- **Tareas Clave**: APIs RESTful, autenticación JWT, gestión entidades CRUD
 
 ### Metodología de Desarrollo
 El proyecto se desarrolló siguiendo una metodología estructurada:
@@ -793,6 +795,33 @@ El proyecto se desarrolló siguiendo una metodología estructurada:
 ### Tecnologías Evolutivas
 - **Inicial**: PHP 8.1, MySQL 8.0, HTML5/CSS3/JS, Bootstrap 5
 - **Actual**: React 18, Node.js 18, PostgreSQL 15, TypeScript, Docker
+
+### 📋 Resumen de Tareas Completadas
+
+#### **Estimación de Versión (2025-11-04)**
+- ✅ Análisis completo de evolución del proyecto
+- ✅ Determinación de versión 1.1.0 según Semantic Versioning
+- ✅ Justificación técnica por componentes MAJOR/MINOR/PATCH
+- ✅ Planificación de versiones futuras (1.2.0, 1.3.0, 2.0.0)
+
+#### **Optimización de Scripts (2025-11-04)**
+- ✅ Script app-run.sh completamente optimizado
+- ✅ Modo dual: interactivo + parámetros start/stop/restart/status
+- ✅ Verificación robusta de dependencias (Docker, docker-compose)
+- ✅ Validación completa de conectividad PostgreSQL
+- ✅ Cleanup automático de recursos Docker
+
+#### **Reorganización de Documentación (2025-11-04)**
+- ✅ CHANGELOG.md movido a _app-npm/ para centralización
+- ✅ README.md histórico archivado en _basurero/ como referencia
+- ✅ Estructura de documentación consolidada
+- ✅ Navegabilidad mejorada para desarrolladores
+
+#### **Enriquecimiento con Información Histórica (2025-11-04)**
+- ✅ Sección "Entidades del Sistema" enriquecida con detalles técnicos
+- ✅ Nueva sección "Evolución del Proyecto" documentada
+- ✅ Información institucional completa del autor agregada
+- ✅ Contexto académico de UTN FR La Rioja incorporado
 
 ---
 
@@ -807,7 +836,30 @@ El proyecto se desarrolló siguiendo una metodología estructurada:
 ### Contacto
 Para soporte técnico o consultas sobre el desarrollo del sistema, contactar al departamento DTIC de la UTN FR La Rioja.
 
+## 🔄 Cambios Recientes y Mantenimiento
+
+### Últimas Actualizaciones (2025-11-04)
+- ✅ **Versión 1.1.0** establecida según Semantic Versioning
+- ✅ **Script app-run.sh** completamente optimizado con modos duales
+- ✅ **Documentación reorganizada** y centralizada en _app-npm/
+- ✅ **Información histórica** incorporada y enriquecida
+- ✅ **Identidad institucional** completa documentada
+
+### Próximas Versiones Planificadas
+- **v1.2.0**: Calendario interactivo completo + sistema de reportes
+- **v1.3.0**: Notificaciones en tiempo real + filtros avanzados
+- **v2.0.0**: Multi-tenancy + APIs públicas
+
+### Mantenimiento y Soporte
+- **Repositorio**: Gestión completa con Git y Conventional Commits
+- **Documentación**: README.md + CHANGELOG.md actualizados
+- **Scripts**: Automatización completa con app-run.sh optimizado
+- **Soporte**: Departamento DTIC - UTN FR La Rioja
+
 ---
 
-**Sistema desarrollado bajo la dirección del Departamento de Tecnología de la Información y Comunicación**
-**Universidad Tecnológica Nacional - Facultad Regional La Rioja**
+**Desarrollado por:** Lic. Ricardo MONLA
+**Institución:** Universidad Tecnológica Nacional - Facultad Regional La Rioja
+**Departamento:** Departamento de Servidores, Dirección de TIC
+**Proyecto:** Sistema DTIC Bitácoras v1.1.0
+**Última actualización:** Noviembre 2025
