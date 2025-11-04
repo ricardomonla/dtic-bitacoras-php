@@ -101,6 +101,47 @@ const styles = `
     font-weight: 500;
   }
 
+  /* Estilos específicos para prioridades y estados de tareas */
+  .badge-priority-low {
+    background-color: #28a745 !important;
+    color: white;
+  }
+
+  .badge-priority-medium {
+    background-color: #ffc107 !important;
+    color: black;
+  }
+
+  .badge-priority-high {
+    background-color: #fd7e14 !important;
+    color: white;
+  }
+
+  .badge-priority-urgent {
+    background-color: #dc3545 !important;
+    color: white;
+  }
+
+  .badge-status-pending {
+    background-color: #ffc107 !important;
+    color: black;
+  }
+
+  .badge-status-in_progress {
+    background-color: #17a2b8 !important;
+    color: white;
+  }
+
+  .badge-status-completed {
+    background-color: #28a745 !important;
+    color: white;
+  }
+
+  .badge-status-cancelled {
+    background-color: #6c757d !important;
+    color: white;
+  }
+
   /* Botones de acción mejorados */
   .entity-actions .btn {
     border-radius: 6px;
@@ -829,6 +870,7 @@ const EntityPage = () => {
                             }
                           }}
                           utils={entityUtils}
+                          entityKey={entityKey}
                         />
                       ))}
                     </tbody>
@@ -947,10 +989,11 @@ const EntityPage = () => {
 
 
 // Generic Entity Row Component
-const EntityRow = ({ entity, config, onAction, utils }: any) => {
+const EntityRow = ({ entity, config, onAction, utils, entityKey }: any) => {
   // console.log('EntityRow - Rendering entity:', entity)
   // console.log('EntityRow - Config:', config)
   // console.log('EntityRow - Utils:', utils)
+  // console.log('EntityRow - entityKey:', entityKey)
 
   return (
     <tr>
@@ -978,9 +1021,94 @@ const EntityRow = ({ entity, config, onAction, utils }: any) => {
           cellValue = entity[column.key] || '-'
         }
 
+        // Apply color styling for specific columns based on entity type
+        const getCellStyle = () => {
+          // Tareas - Estado
+          if (entityKey === 'tareas' && column.key === 'status') {
+            switch (entity[column.key]) {
+              case 'pending': return { backgroundColor: '#fff3cd', color: '#856404', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'in_progress': return { backgroundColor: '#d1ecf1', color: '#0c5460', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'completed': return { backgroundColor: '#d4edda', color: '#155724', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'cancelled': return { backgroundColor: '#f8d7da', color: '#721c24', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              default: return {}
+            }
+          }
+          // Tareas - Prioridad
+          if (entityKey === 'tareas' && column.key === 'priority') {
+            switch (entity[column.key]) {
+              case 'low': return { backgroundColor: '#d4edda', color: '#155724', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'medium': return { backgroundColor: '#fff3cd', color: '#856404', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'high': return { backgroundColor: '#ffeaa7', color: '#d63031', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'urgent': return { backgroundColor: '#fab1a0', color: '#e17055', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              default: return {}
+            }
+          }
+          // Tecnicos - Estado
+          if (entityKey === 'tecnicos' && column.key === 'is_active') {
+            const isActive = entity[column.key]
+            return isActive
+              ? { backgroundColor: '#d4edda', color: '#155724', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              : { backgroundColor: '#f8d7da', color: '#721c24', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+          }
+          // Tecnicos - Rol
+          if (entityKey === 'tecnicos' && column.key === 'role') {
+            switch (entity[column.key]) {
+              case 'admin': return { backgroundColor: '#dc3545', color: 'white', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'technician': return { backgroundColor: '#17a2b8', color: 'white', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'viewer': return { backgroundColor: '#6c757d', color: 'white', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              default: return {}
+            }
+          }
+          // Recursos - Estado
+          if (entityKey === 'recursos' && column.key === 'status') {
+            switch (entity[column.key]) {
+              case 'available': return { backgroundColor: '#d4edda', color: '#155724', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'assigned': return { backgroundColor: '#d1ecf1', color: '#0c5460', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'maintenance': return { backgroundColor: '#fff3cd', color: '#856404', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'retired': return { backgroundColor: '#f8d7da', color: '#721c24', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              default: return {}
+            }
+          }
+          // Recursos - Categoría
+          if (entityKey === 'recursos' && column.key === 'category') {
+            switch (entity[column.key]) {
+              case 'hardware': return { backgroundColor: '#e3f2fd', color: '#1565c0', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'software': return { backgroundColor: '#f3e5f5', color: '#7b1fa2', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'network': return { backgroundColor: '#e8f5e8', color: '#2e7d32', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'security': return { backgroundColor: '#fff3e0', color: '#ef6c00', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'tools': return { backgroundColor: '#fce4ec', color: '#c2185b', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'facilities': return { backgroundColor: '#f1f8e9', color: '#558b2f', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              default: return {}
+            }
+          }
+          // Usuarios - Estado
+          if (entityKey === 'usuarios' && column.key === 'status') {
+            const status = entity[column.key]
+            return status === 'active'
+              ? { backgroundColor: '#d4edda', color: '#155724', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              : { backgroundColor: '#f8d7da', color: '#721c24', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+          }
+          // Usuarios - Departamento
+          if (entityKey === 'usuarios' && column.key === 'department') {
+            switch (entity[column.key]) {
+              case 'dtic': return { backgroundColor: '#e3f2fd', color: '#1565c0', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'sistemas': return { backgroundColor: '#f3e5f5', color: '#7b1fa2', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'redes': return { backgroundColor: '#e8f5e8', color: '#2e7d32', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              case 'seguridad': return { backgroundColor: '#fff3e0', color: '#ef6c00', fontWeight: '600', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85em', display: 'inline-block', margin: '2px 0' }
+              default: return {}
+            }
+          }
+          return {}
+        }
+
+        const cellStyle = getCellStyle()
         return (
-          <td key={column.key}>
-            {cellValue}
+          <td key={column.key} style={cellStyle.display === 'inline-block' ? { verticalAlign: 'middle', textAlign: 'center' } : {}}>
+            {cellStyle.display === 'inline-block' ? (
+              <span style={cellStyle}>{cellValue}</span>
+            ) : (
+              cellValue
+            )}
           </td>
         )
       })}

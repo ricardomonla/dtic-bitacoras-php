@@ -458,6 +458,8 @@ entities:
           endpoint: "/api/tecnicos"
           labelField: "full_name"
           valueField: "id"
+          params:
+            status: "active"
         options:
           - value: ""
             label: "Sin asignar"
@@ -496,7 +498,7 @@ entities:
           label: "Estado"
           formatter: "formatStatus"
         - key: "title"
-          label: "Título"
+          label: "Tarea"
         - key: "dtic_id"
           label: "ID DTIC"
         - key: "technician_name"
@@ -515,6 +517,8 @@ entities:
           endpoint: "/api/tecnicos"
           labelField: "full_name"
           valueField: "id"
+          params:
+            status: "active"
         options:
           - value: ""
             label: "Todos"

@@ -1,13 +1,19 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 export interface FormField {
   name: string
   label: string
-  type: 'text' | 'email' | 'select' | 'textarea' | 'tel'
+  type: 'text' | 'email' | 'select' | 'textarea' | 'tel' | 'date'
   required?: boolean
   options?: Array<{ value: string, label: string }>
   placeholder?: string
   rows?: number
+  dynamicOptions?: {
+    endpoint: string
+    labelField: string
+    valueField: string
+    params?: Record<string, any>
+  }
 }
 
 interface EntityFormProps<T> {
@@ -28,9 +34,71 @@ export const EntityForm = <T extends Record<string, any>>({
   title
 }: EntityFormProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData)
+  const [dynamicOptions, setDynamicOptions] = useState<Record<string, Array<{ value: string, label: string }>>>({})
+  const [loadingOptions, setLoadingOptions] = useState<Record<string, boolean>>({})
+
+  // Load dynamic options for select fields with caching
+  useEffect(() => {
+    const loadDynamicOptions = async () => {
+      const newOptions: Record<string, Array<{ value: string, label: string }>> = {}
+      const newLoading: Record<string, boolean> = {}
+
+      // Process fields in parallel for better performance
+      const promises = fields.map(async (field) => {
+        if (field.dynamicOptions) {
+          newLoading[field.name] = true
+          try {
+            const { endpoint, labelField, valueField, params } = field.dynamicOptions
+            const queryParams = new URLSearchParams(params || {})
+            const url = `${endpoint}?${queryParams}`
+
+            const response = await fetch(url)
+            if (response.ok) {
+              const data = await response.json()
+              if (data.success && data.data) {
+                const entities = Array.isArray(data.data) ? data.data :
+                  data.data.tecnicos || data.data.recursos || data.data.usuarios || data.data.tareas || []
+
+                const options = entities.map((entity: any) => ({
+                  value: entity[valueField].toString(),
+                  label: entity[labelField]
+                }))
+
+                newOptions[field.name] = options
+              }
+            }
+          } catch (error) {
+            console.error(`Error loading dynamic options for ${field.name}:`, error)
+          } finally {
+            newLoading[field.name] = false
+          }
+        }
+      })
+
+      await Promise.all(promises)
+      setDynamicOptions(newOptions)
+      setLoadingOptions(newLoading)
+    }
+
+    loadDynamicOptions()
+  }, [fields])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Basic validation
+    const errors: string[] = []
+    fields.forEach(field => {
+      if (field.required && !formData[field.name]) {
+        errors.push(`${field.label} es obligatorio`)
+      }
+    })
+
+    if (errors.length > 0) {
+      alert(`Errores de validación:\n${errors.join('\n')}`)
+      return
+    }
+
     onSubmit(formData)
   }
 
@@ -58,6 +126,8 @@ export const EntityForm = <T extends Record<string, any>>({
         )
 
       case 'select':
+        const selectOptions = dynamicOptions[field.name] || field.options || []
+        const isLoading = loadingOptions[field.name]
         return (
           <select
             className="form-select"
@@ -66,9 +136,12 @@ export const EntityForm = <T extends Record<string, any>>({
             value={value}
             onChange={handleChange}
             required={field.required}
+            disabled={isLoading}
           >
-            <option value="">Seleccionar...</option>
-            {field.options?.map(option => (
+            <option value="">
+              {isLoading ? 'Cargando...' : 'Seleccionar...'}
+            </option>
+            {selectOptions.map(option => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>

@@ -75,6 +75,7 @@ export const useGenericEntityStore = create<GenericEntityStore>()(
         try {
           const queryParams = new URLSearchParams({
             page: page.toString(),
+            limit: '20', // Optimized default limit
             ...filters
           })
 

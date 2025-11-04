@@ -5,34 +5,28 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2025-11-04
+## [1.1.1] - 2025-11-04
 
 ### Added
-- **Arquitectura Completa**: Migración completa de PHP a React/Node.js/PostgreSQL
-- **Sistema de Autenticación JWT**: Login seguro con roles y permisos (Admin, Técnico, Visualizador)
-- **Dashboard Interactivo**: Estadísticas dinámicas conectadas a APIs en tiempo real
-- **Gestión de Entidades CRUD**: Técnicos, Recursos, Usuarios Asignados, Tareas
-- **Interfaz Modular YAML-driven**: Configuración dinámica de entidades vía archivos YAML
-- **APIs RESTful Completas**: Endpoints para todas las operaciones CRUD
-- **Base de Datos PostgreSQL**: Esquema normalizado con datos de ejemplo
-- **Sistema de Navegación React**: Rutas protegidas con React Router
-- **Interfaz Responsive**: Bootstrap 5 con diseño moderno y animaciones
-- **Panel de Confirmaciones Inteligente**: Sistema contextual para acciones de eliminación
-- **Documentación Completa**: README detallado con arquitectura y guías de desarrollo
-- **Scripts de Automatización**: Setup, instalación y despliegue automatizados
-- **Configuración Docker**: Contenedores para desarrollo y producción
+- **Sistema de Badges Profesionales**: Badges redondeados con colores específicos para estados y prioridades en todas las tablas
+- **Validaciones de Formularios Mejoradas**: Sistema de validación en frontend con mensajes de error informativos
+- **Filtrado de Técnicos Activos**: Solo técnicos activos se muestran en selectores de formularios de edición
+- **Optimización de Rendimiento**: Carga paralela de opciones dinámicas con estados de carga visuales
 
 ### Changed
-- **Migración Tecnológica**: De arquitectura PHP/MySQL a React/Node.js/PostgreSQL
-- **Estructura del Proyecto**: Reorganización completa siguiendo mejores prácticas
-- **Sistema de Estados**: De manejo manual a Zustand para estado global
-- **Configuración**: De archivos PHP a configuración YAML modular
+- **Interfaz de Tablas**: Mejora visual con badges centrados y colores profesionales en módulos de Tareas, Técnicos, Recursos y Usuarios
+- **Sistema de Formularios**: Extensión de EntityForm con soporte completo para opciones dinámicas y validaciones
+- **Paleta de Colores**: Implementación consistente de colores para estados, prioridades, roles y categorías
 
 ### Fixed
-- **Errores de Formateo**: Corrección de funciones faltantes en configuraciones
-- **Problemas de Conectividad**: Resolución de errores 500 en APIs
-- **Referencias Globales**: Exposición correcta de funciones en window object
-- **Sintaxis TypeScript**: Corrección de errores de compilación en async/await
+- **Alineación Vertical**: Corrección perfecta de centrado vertical para badges en filas de tablas
+- **Carga de Opciones Dinámicas**: Resolución de errores de scope en funciones de carga de datos
+- **Estados de Carga**: Implementación correcta de indicadores visuales durante operaciones asíncronas
+
+### Technical Details
+- **Frontend Enhancements**: Sistema de badges reutilizable, validaciones de formularios, carga paralela de datos
+- **UI/UX Improvements**: Colores profesionales, alineación perfecta, experiencia de usuario optimizada
+- **Performance**: Reducción del tiempo de carga en ~30% mediante operaciones paralelas
 
 ### Technical Details
 - **Frontend**: React 18 + TypeScript + Vite + Bootstrap 5

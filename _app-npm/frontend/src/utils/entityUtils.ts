@@ -195,14 +195,14 @@ export const tareaConfig: EntityConfig = {
   },
 
   badges: {
-    'pending': { text: 'Pendiente', class: 'bg-warning' },
-    'in_progress': { text: 'En Progreso', class: 'bg-info' },
-    'completed': { text: 'Completada', class: 'bg-success' },
-    'cancelled': { text: 'Cancelada', class: 'bg-secondary' },
-    'low': { text: 'Baja', class: 'bg-success' },
-    'medium': { text: 'Media', class: 'bg-warning' },
-    'high': { text: 'Alta', class: 'bg-danger' },
-    'urgent': { text: 'Urgente', class: 'bg-dark' }
+    'pending': { text: 'Pendiente', class: 'badge-status-pending' },
+    'in_progress': { text: 'En Progreso', class: 'badge-status-in_progress' },
+    'completed': { text: 'Completada', class: 'badge-status-completed' },
+    'cancelled': { text: 'Cancelada', class: 'badge-status-cancelled' },
+    'low': { text: 'Baja', class: 'badge-priority-low' },
+    'medium': { text: 'Media', class: 'badge-priority-medium' },
+    'high': { text: 'Alta', class: 'badge-priority-high' },
+    'urgent': { text: 'Urgente', class: 'badge-priority-urgent' }
   }
 }
 
