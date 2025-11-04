@@ -37,6 +37,7 @@ export interface GenericEntityActions {
   createEntity: (data: any) => Promise<void>
   updateEntity: (id: number, data: any) => Promise<void>
   deleteEntity: (id: number) => Promise<void>
+  toggleEntityStatus: (id: number, isActive: boolean) => Promise<void>
   setFilters: (filters: Record<string, any>) => void
   clearFilters: () => void
   setEntities: (entities: any[]) => void
@@ -191,15 +192,32 @@ export const useGenericEntityStore = create<GenericEntityStore>()(
           })
 
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`)
+            // Handle specific error cases with user-friendly messages
+            if (response.status === 409) {
+              const errorData = await response.json().catch(() => ({}))
+              const message = errorData.message || 'No se puede eliminar la entidad'
+
+              // Show specific messages based on the error
+              if (message.includes('tareas activas')) {
+                throw new Error('No se puede eliminar porque tiene tareas activas asignadas')
+              } else if (message.includes('desactivar')) {
+                throw new Error('El técnico será desactivado (no eliminado permanentemente) porque tiene tareas activas')
+              } else {
+                throw new Error(message)
+              }
+            } else {
+              throw new Error(`HTTP error! status: ${response.status}`)
+            }
           }
 
-          // Refresh entities after deletion
-          get().fetchEntities()
+          // Refresh entities after successful deletion/deactivation
+          await get().fetchEntities()
         } catch (error) {
           set({
             error: error instanceof Error ? error.message : 'Error deleting entity'
           })
+          // Still refresh the list even on error to show current state
+          await get().fetchEntities()
           throw error
         }
       },
@@ -222,6 +240,20 @@ export const useGenericEntityStore = create<GenericEntityStore>()(
 
       setError: (error: string | null) => {
         set({ error })
+      },
+
+      toggleEntityStatus: async (id: number, isActive: boolean) => {
+        const { config } = get()
+        if (!config) return
+
+        try {
+          await get().updateEntity(id, { is_active: isActive })
+        } catch (error) {
+          set({
+            error: error instanceof Error ? error.message : 'Error toggling entity status'
+          })
+          throw error
+        }
       },
 
       reset: () => {

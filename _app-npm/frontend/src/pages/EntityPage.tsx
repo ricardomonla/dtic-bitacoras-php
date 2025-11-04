@@ -216,6 +216,92 @@ const styles = `
     margin: 0;
     font-weight: 600;
   }
+
+  /* Panel lateral deslizante para confirmaciones */
+  .slide-panel {
+    position: fixed;
+    top: 50%;
+    right: -450px;
+    width: 420px;
+    height: auto;
+    max-height: 80vh;
+    background: white;
+    box-shadow: -4px 4px 20px rgba(0,0,0,0.15);
+    z-index: 1050;
+    transition: right 0.3s ease-in-out;
+    overflow-y: auto;
+    border-radius: 12px 0 0 12px;
+    transform: translateY(-50%);
+  }
+
+  .slide-panel.show {
+    right: 20px;
+  }
+
+  .slide-panel-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.3);
+    z-index: 1049;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .slide-panel-backdrop.show {
+    opacity: 1;
+  }
+
+  .slide-panel .panel-header {
+    background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    border: none;
+    border-radius: 12px 0 0 0;
+  }
+
+  .slide-panel .panel-body {
+    padding: 1.5rem;
+  }
+
+  .slide-panel .btn-close-panel {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.25rem;
+    opacity: 0.8;
+    padding: 0.25rem;
+    border-radius: 4px;
+  }
+
+  .slide-panel .btn-close-panel:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* Notificación deslizante superior */
+  .top-notification {
+    position: fixed;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    z-index: 1060;
+    transition: top 0.3s ease-in-out;
+  }
+
+  .top-notification.show {
+    top: 20px;
+  }
+
+  .top-notification .alert {
+    margin: 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
 `
 
 // Inyectar estilos
@@ -263,6 +349,12 @@ const EntityPage = () => {
   const [showAssignModal, setShowAssignModal] = useState(false)
   const [selectedEntity, setSelectedEntity] = useState<any>(null)
   const [selectedUsuario, setSelectedUsuario] = useState<number | null>(null)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [confirmationMessage, setConfirmationMessage] = useState('')
+  const [confirmationAction, setConfirmationAction] = useState<(() => void) | null>(null)
+  const [showNotification, setShowNotification] = useState(false)
+  const [notificationMessage, setNotificationMessage] = useState('')
+  const [notificationType, setNotificationType] = useState<'success' | 'error' | 'warning' | 'info'>('info')
 
   // Load configuration from YAML
   useEffect(() => {
@@ -448,9 +540,35 @@ const EntityPage = () => {
     }
   }
 
+  const showCustomConfirmation = (message: string, action: () => void) => {
+    setConfirmationMessage(message)
+    setConfirmationAction(() => action)
+    setShowConfirmation(true)
+  }
+
+  const showCustomNotification = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    setNotificationMessage(message)
+    setNotificationType(type)
+    setShowNotification(true)
+    // Auto-hide after 5 seconds
+    setTimeout(() => setShowNotification(false), 5000)
+  }
+
+  // Make functions available globally for EntityRow component
+  React.useEffect(() => {
+    ;(window as any).showCustomConfirmation = showCustomConfirmation
+    ;(window as any).showCustomNotification = showCustomNotification
+    ;(window as any).entityStore = store
+    return () => {
+      delete (window as any).showCustomConfirmation
+      delete (window as any).showCustomNotification
+      delete (window as any).entityStore
+    }
+  }, [])
+
   const handleAssignEntity = async (entityId: number, usuarioId: number) => {
     if (!usuarioId) {
-      toast.error('Debe seleccionar un usuario')
+      showCustomNotification('Debe seleccionar un usuario', 'error')
       return
     }
 
@@ -459,8 +577,9 @@ const EntityPage = () => {
       setShowAssignModal(false)
       setSelectedEntity(null)
       setSelectedUsuario(null)
+      showCustomNotification('Recurso asignado exitosamente', 'success')
     } catch (error) {
-      // Error handled by store
+      showCustomNotification('Error al asignar recurso', 'error')
     }
   }
 
@@ -739,6 +858,78 @@ const EntityPage = () => {
         </div>
       </div>
 
+      {/* Slide Panel Backdrop */}
+      {showConfirmation && (
+        <div
+          className={`slide-panel-backdrop ${showConfirmation ? 'show' : ''}`}
+          onClick={() => setShowConfirmation(false)}
+        ></div>
+      )}
+
+      {/* Slide Panel for Confirmations */}
+      <div className={`slide-panel ${showConfirmation ? 'show' : ''}`}>
+        <div className="panel-header">
+          <div className="d-flex justify-content-between align-items-center">
+            <h5 className="mb-0">
+              <i className="fas fa-exclamation-triangle me-2"></i>
+              Confirmar Acción
+            </h5>
+            <button
+              className="btn-close-panel"
+              onClick={() => setShowConfirmation(false)}
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div className="panel-body">
+          <p className="mb-4">{confirmationMessage}</p>
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-outline-secondary flex-fill"
+              onClick={() => setShowConfirmation(false)}
+            >
+              <i className="fas fa-times me-1"></i>
+              Cancelar
+            </button>
+            <button
+              className="btn btn-warning flex-fill"
+              onClick={() => {
+                if (confirmationAction) {
+                  confirmationAction()
+                }
+                setShowConfirmation(false)
+              }}
+            >
+              <i className="fas fa-check me-1"></i>
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Top Sliding Notification */}
+      <div className={`top-notification ${showNotification ? 'show' : ''}`}>
+        <div className={`alert alert-${notificationType === 'error' ? 'danger' : notificationType} alert-dismissible fade show d-flex align-items-center mb-0`}
+             style={{ borderRadius: '8px', border: 'none' }}>
+          <i className={`fas fa-${notificationType === 'success' ? 'check-circle' : notificationType === 'error' ? 'exclamation-triangle' : notificationType === 'warning' ? 'exclamation-circle' : 'info-circle'} fa-lg me-3`}></i>
+          <div className="flex-grow-1">
+            <strong>
+              {notificationType === 'success' ? 'Éxito' :
+               notificationType === 'error' ? 'Error' :
+               notificationType === 'warning' ? 'Advertencia' : 'Información'}
+            </strong>
+            <div className="mt-1">{notificationMessage}</div>
+          </div>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setShowNotification(false)}
+            aria-label="Cerrar"
+          ></button>
+        </div>
+      </div>
+
       {/* Modals */}
       {showProfileModal && profileEntity && config?.modals && (
         <ProfileModal
@@ -800,7 +991,279 @@ const EntityRow = ({ entity, config, onAction, utils }: any) => {
               key={action.key}
               className={`btn btn-outline-${getActionColor(action.key, entity[action.condition])} btn-sm`}
               title={getActionLabel(action.key, config.name.slice(0, -1))}
-              onClick={() => onAction(action.key)}
+              onClick={() => {
+                if (action.key === 'delete') {
+                  // Sistema inteligente de eliminación/desactivación
+                  const entityName = entity.first_name || entity.name || 'este elemento'
+
+                  if (entity.is_active === false) {
+                    // Si ya está inactivo, confirmar eliminación permanente
+                    const confirmMessage = `¿Estás seguro de que deseas eliminar permanentemente a ${entityName}? Esta acción no se puede deshacer.`
+
+                    const deleteAction = async () => {
+                      try {
+                        await (window as any).entityStore.deleteEntity(entity.id)
+                        ;(window as any).showCustomNotification('Elemento eliminado permanentemente', 'success')
+                      } catch (error) {
+                        ;(window as any).showCustomNotification(error instanceof Error ? error.message : 'Error al eliminar', 'error')
+                      }
+                    }
+
+                    ;(window as any).showCustomConfirmation(confirmMessage, deleteAction)
+                  } else {
+                    // Si está activo, mostrar opciones inteligentes
+                    const hasActiveTasks = entity.active_tasks_count > 0 // Asumiendo que el backend proporciona esto
+                    const isAdmin = entity.role === 'admin'
+
+                    let confirmMessage = ''
+                    let primaryAction = null
+                    let secondaryAction = null
+
+                    if (isAdmin) {
+                      confirmMessage = `El administrador ${entity.first_name} ${entity.last_name} tiene acceso completo al sistema. ¿Qué deseas hacer?`
+                      primaryAction = {
+                        label: 'Desactivar Administrador',
+                        action: async () => {
+                          try {
+                            await (window as any).entityStore.toggleEntityStatus(entity.id, false)
+                            ;(window as any).showCustomNotification('Administrador desactivado exitosamente', 'success')
+                          } catch (error) {
+                            ;(window as any).showCustomNotification(error instanceof Error ? error.message : 'Error al desactivar', 'error')
+                          }
+                        }
+                      }
+                      secondaryAction = {
+                        label: 'Eliminar Permanentemente',
+                        action: async () => {
+                          try {
+                            await (window as any).entityStore.deleteEntity(entity.id)
+                            ;(window as any).showCustomNotification('Administrador eliminado permanentemente', 'success')
+                          } catch (error) {
+                            ;(window as any).showCustomNotification(error instanceof Error ? error.message : 'Error al eliminar', 'error')
+                          }
+                        }
+                      }
+                    } else {
+                      // Mostrar opciones simples sin verificación de tareas (por simplicidad)
+                      const showSmartConfirmation = (message: string, primary: any, secondary: any) => {
+                        // Crear un panel personalizado con dos opciones
+                        const customPanel = document.createElement('div')
+                        customPanel.className = 'slide-panel show'
+                        customPanel.style.cssText = `
+                          position: fixed;
+                          top: 50%;
+                          right: 20px;
+                          width: 450px;
+                          height: auto;
+                          max-height: 80vh;
+                          background: white;
+                          box-shadow: -4px 4px 20px rgba(0,0,0,0.15);
+                          z-index: 1050;
+                          border-radius: 12px 0 0 12px;
+                          transform: translateY(-50%);
+                        `
+
+                        customPanel.innerHTML = `
+                          <div style="background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%); color: white; padding: 1.25rem 1.5rem; border-radius: 12px 0 0 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                              <h5 style="margin: 0;"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Acción</h5>
+                              <button class="btn-close-panel" style="background: none; border: none; color: white; font-size: 1.25rem; opacity: 0.8; padding: 0.25rem; border-radius: 4px;">
+                                <i class="fas fa-times"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <div style="padding: 1.5rem;">
+                            <p style="margin-bottom: 1.5rem;">${message}</p>
+                            <div style="display: flex; gap: 0.5rem;">
+                              <button class="btn btn-outline-secondary flex-fill" style="padding: 0.5rem 1rem;">
+                                <i class="fas fa-times me-1"></i>
+                                Cancelar
+                              </button>
+                              <button class="btn btn-warning flex-fill" style="padding: 0.5rem 1rem;">
+                                <i class="fas fa-ban me-1"></i>
+                                ${primary.label}
+                              </button>
+                              <button class="btn btn-danger flex-fill" style="padding: 0.5rem 1rem;">
+                                <i class="fas fa-trash me-1"></i>
+                                ${secondary.label}
+                              </button>
+                            </div>
+                          </div>
+                        `
+
+                        // Backdrop
+                        const backdrop = document.createElement('div')
+                        backdrop.className = 'slide-panel-backdrop show'
+                        backdrop.style.cssText = `
+                          position: fixed;
+                          top: 0;
+                          left: 0;
+                          width: 100vw;
+                          height: 100vh;
+                          background: rgba(0,0,0,0.3);
+                          z-index: 1049;
+                          opacity: 1;
+                        `
+
+                        // Event listeners
+                        const closePanel = () => {
+                          customPanel.remove()
+                          backdrop.remove()
+                        }
+
+                        backdrop.onclick = closePanel
+                        customPanel.querySelector('.btn-close-panel').onclick = closePanel
+                        customPanel.querySelector('.btn-outline-secondary').onclick = closePanel
+
+                        const primaryBtn = customPanel.querySelector('.btn-warning')
+                        primaryBtn.onclick = async () => {
+                          closePanel()
+                          await primary.action()
+                        }
+
+                        const secondaryBtn = customPanel.querySelector('.btn-danger')
+                        secondaryBtn.onclick = async () => {
+                          closePanel()
+                          await secondary.action()
+                        }
+
+                        document.body.appendChild(backdrop)
+                        document.body.appendChild(customPanel)
+                      }
+
+                      showSmartConfirmation(`¿Qué deseas hacer con ${entityName}?`, {
+                        label: 'Desactivar',
+                        action: async () => {
+                          try {
+                            await (window as any).entityStore.toggleEntityStatus(entity.id, false)
+                            ;(window as any).showCustomNotification('Elemento desactivado exitosamente', 'success')
+                          } catch (error) {
+                            ;(window as any).showCustomNotification(error instanceof Error ? error.message : 'Error al desactivar', 'error')
+                          }
+                        }
+                      }, {
+                        label: 'Eliminar Permanentemente',
+                        action: async () => {
+                          try {
+                            await (window as any).entityStore.deleteEntity(entity.id)
+                            ;(window as any).showCustomNotification('Elemento eliminado permanentemente', 'success')
+                          } catch (error) {
+                            ;(window as any).showCustomNotification(error instanceof Error ? error.message : 'Error al eliminar', 'error')
+                          }
+                        }
+                      })
+                    }
+
+                    // Mostrar panel con opciones
+                    const showSmartConfirmation = (message: string, primary: any, secondary: any) => {
+                      // Crear un panel personalizado con dos opciones
+                      const customPanel = document.createElement('div')
+                      customPanel.className = 'slide-panel show'
+                      customPanel.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        right: 20px;
+                        width: 450px;
+                        height: auto;
+                        max-height: 80vh;
+                        background: white;
+                        box-shadow: -4px 4px 20px rgba(0,0,0,0.15);
+                        z-index: 1050;
+                        border-radius: 12px 0 0 12px;
+                        transform: translateY(-50%);
+                      `
+
+                      customPanel.innerHTML = `
+                        <div style="background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%); color: white; padding: 1.25rem 1.5rem; border-radius: 12px 0 0 0;">
+                          <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h5 style="margin: 0;"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Acción</h5>
+                            <button class="btn-close-panel" style="background: none; border: none; color: white; font-size: 1.25rem; opacity: 0.8; padding: 0.25rem; border-radius: 4px;">
+                              <i class="fas fa-times"></i>
+                            </button>
+                          </div>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                          <p style="margin-bottom: 1.5rem;">${message}</p>
+                          <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-outline-secondary flex-fill" style="padding: 0.5rem 1rem;">
+                              <i class="fas fa-times me-1"></i>
+                              Cancelar
+                            </button>
+                            <button class="btn ${primary.label.includes('Recomendado') ? 'btn-success' : 'btn-warning'} flex-fill" style="padding: 0.5rem 1rem;">
+                              <i class="fas fa-${primary.label.includes('Desactivar') ? 'ban' : 'trash'} me-1"></i>
+                              ${primary.label}
+                            </button>
+                            ${secondary ? `<button class="btn btn-danger flex-fill" style="padding: 0.5rem 1rem;">
+                              <i class="fas fa-${secondary.label.includes('Eliminar') ? 'trash' : 'exclamation-triangle'} me-1"></i>
+                              ${secondary.label}
+                            </button>` : ''}
+                          </div>
+                        </div>
+                      `
+
+                      // Backdrop
+                      const backdrop = document.createElement('div')
+                      backdrop.className = 'slide-panel-backdrop show'
+                      backdrop.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100vw;
+                        height: 100vh;
+                        background: rgba(0,0,0,0.3);
+                        z-index: 1049;
+                        opacity: 1;
+                      `
+
+                      // Event listeners
+                      const closePanel = () => {
+                        customPanel.remove()
+                        backdrop.remove()
+                      }
+
+                      backdrop.onclick = closePanel
+                      customPanel.querySelector('.btn-close-panel').onclick = closePanel
+                      customPanel.querySelector('.btn-outline-secondary').onclick = closePanel
+
+                      const primaryBtn = customPanel.querySelector(`.btn-${primary.label.includes('Recomendado') ? 'success' : 'warning'}`)
+                      primaryBtn.onclick = async () => {
+                        closePanel()
+                        await primary.action()
+                      }
+
+                      if (secondary) {
+                        const secondaryBtn = customPanel.querySelector('.btn-danger')
+                        secondaryBtn.onclick = async () => {
+                          closePanel()
+                          await secondary.action()
+                        }
+                      }
+
+                      document.body.appendChild(backdrop)
+                      document.body.appendChild(customPanel)
+                    }
+
+                    showSmartConfirmation(confirmMessage, primaryAction, secondaryAction)
+                  }
+                } else if (action.key === 'toggleStatus') {
+                  // Usar confirmación para activar/desactivar
+                  const actionText = entity.is_active ? 'desactivar' : 'reactivar'
+                  const confirmMessage = `¿Estás seguro de que deseas ${actionText} a ${entity.first_name || entity.name || 'este elemento'}?`
+
+                  const toggleAction = async () => {
+                    try {
+                      await (window as any).entityStore.toggleEntityStatus(entity.id, !entity.is_active)
+                      ;(window as any).showCustomNotification(`Elemento ${actionText}do exitosamente`, 'success')
+                    } catch (error) {
+                      ;(window as any).showCustomNotification(error instanceof Error ? error.message : 'Error al cambiar estado', 'error')
+                    }
+                  }
+
+                  showCustomConfirmation(confirmMessage, toggleAction)
+                } else {
+                  onAction(action.key)
+                }
+              }}
             >
               <i className={`fas ${getActionIcon(action.key, entity[action.condition])}`}></i>
             </button>

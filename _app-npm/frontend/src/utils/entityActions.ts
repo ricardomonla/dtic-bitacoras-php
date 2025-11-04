@@ -25,14 +25,8 @@ export const createActionHandlers = (entityKey: string): ActionHandlers => {
     },
 
     delete: async (entity: any) => {
-      if (window.confirm(`¿Está seguro de eliminar este ${entityKey.slice(0, -1)}?`)) {
-        try {
-          await store.deleteEntity(entity.id)
-          toast.success(`${entityKey.slice(0, -1)} eliminado exitosamente`)
-        } catch (error) {
-          // Error handled by store
-        }
-      }
+      // This is now handled by the EntityPage component with custom confirmation
+      // The actual deletion logic is in EntityPage.tsx
     },
 
     changePassword: (entity: any) => {
