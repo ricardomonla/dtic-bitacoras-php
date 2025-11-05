@@ -5,6 +5,22 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2025-11-05
+
+### Fixed
+- **Corrección de rutas en server.js**: Implementación de `path.resolve()` para rutas dinámicas de archivos YAML
+- **Mejora de verificación de dependencias Docker**: Verificación de versión mínima de Docker Engine (20.10+)
+- **Implementación de método alternativo PostgreSQL**: Fallback usando `psql` cuando `pg_isready` no está disponible
+- **Corrección de rutas en app-run.sh**: Uso de rutas relativas consistentes en comandos Docker Compose
+- **Mejora de logging centralizado**: Sistema de logging con niveles (DEBUG, INFO, WARN, ERROR) y timestamps
+- **Validación de configuración YAML**: Verificación de existencia de archivos antes del parseo
+
+### Technical Details
+- **Backend**: Corrección de rutas hardcodeadas y mejora de manejo de errores en configuración
+- **Script de despliegue**: Verificaciones más robustas de dependencias y mejor manejo de errores
+- **Logging**: Implementación de logger centralizado con colores y niveles de severidad
+- **Database**: Método alternativo de verificación de conectividad PostgreSQL
+
 ## [1.1.2] - 2025-11-04
 
 ### Added

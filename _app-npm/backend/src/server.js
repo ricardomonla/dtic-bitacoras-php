@@ -89,18 +89,23 @@ app.get('/api/config/entities.yml', (req, res) => {
   const path = require('path');
   const fs = require('fs');
 
-  // El archivo está montado en /host/_app-vite/frontend/src/config/entities.yml
-  const configPath = path.join('/host', '_app-vite', 'frontend', 'src', 'config', 'entities.yml');
+  // El archivo está montado en /host/_app-npm/frontend/src/config/entities.yml
+  const configPath = path.join('/host', '_app-npm', 'frontend', 'src', 'config', 'entities.yml');
+
+  console.log(`[CONFIG] Intentando leer archivo desde: ${configPath}`);
 
   fs.readFile(configPath, 'utf8', (err, data) => {
     if (err) {
       console.error('Error leyendo archivo de configuración:', err);
+      console.error('Path attempted:', configPath);
       return res.status(500).json({
         success: false,
-        message: 'Error al leer el archivo de configuración'
+        message: 'Error al leer el archivo de configuración',
+        details: process.env.NODE_ENV === 'development' ? err.message : undefined
       });
     }
 
+    console.log(`[CONFIG] Archivo de configuración leído exitosamente (${data.length} bytes)`);
     res.setHeader('Content-Type', 'text/yaml');
     res.send(data);
   });

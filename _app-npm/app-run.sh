@@ -63,6 +63,7 @@ warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 
 # Función para verificar dependencias
 check_dependencies() {
+    log "🔍 Verificando dependencias del sistema..."
     local missing_deps=()
 
     if ! command -v docker &> /dev/null; then
@@ -79,43 +80,88 @@ check_dependencies() {
         return 1
     fi
 
+    # Verificar que Docker esté ejecutándose
+    log "🔍 Verificando que Docker daemon esté ejecutándose..."
+    if ! docker info &> /dev/null; then
+        error "Docker daemon no está ejecutándose"
+        error "Por favor inicia Docker y vuelve a intentar"
+        return 1
+    fi
+
+    # Verificar que docker-compose funcione
+    log "🔍 Verificando funcionalidad de docker-compose..."
+    if ! docker compose version &> /dev/null; then
+        error "docker-compose no funciona correctamente"
+        return 1
+    fi
+
+    log "✅ Todas las dependencias verificadas correctamente"
     return 0
 }
 
 # Función para verificar si la aplicación está ejecutándose
 check_app_running() {
+    log "🔍 Verificando estado de contenedores Docker..."
     # Verificar contenedores Docker
     if docker compose ps 2>/dev/null | grep -q "dtic_bitacoras"; then
+        log "✅ Contenedores encontrados ejecutándose"
         return 0
     else
+        log "❌ No se encontraron contenedores ejecutándose"
         return 1
     fi
 }
 
 # Función para verificar conectividad a PostgreSQL
 check_db_connection() {
+    log "🔍 Verificando conexión a PostgreSQL..."
+
+    # Método 1: Usar psql si está disponible
     if command -v psql &> /dev/null; then
+        log "📡 Intentando conectar a PostgreSQL con psql..."
         if PGPASSWORD=dtic_password psql -h localhost -p $DB_PORT -U dtic_user -d dtic_bitacoras -c "SELECT 1;" &> /dev/null; then
+            log "✅ Conexión a PostgreSQL exitosa (psql)"
             return 0
+        else
+            log "❌ Fallo en conexión a PostgreSQL (psql)"
         fi
+    else
+        log "⚠️ psql no disponible, intentando método alternativo con curl..."
     fi
-    return 1
+
+    # Método 2: Verificar conectividad usando la API (que internamente usa PostgreSQL)
+    log "🌐 Verificando conectividad de BD a través de la API..."
+    if curl -s --max-time 5 "$API_URL/health" >/dev/null 2>&1; then
+        log "✅ API responde, indicando que PostgreSQL está conectado"
+        return 0
+    else
+        log "❌ API no responde, posible problema con PostgreSQL"
+        return 1
+    fi
 }
 
 # Función para verificar si la API está accesible
 check_api_accessible() {
+    log "🔍 Verificando accesibilidad de la API..."
+    log "🌐 Probando endpoint: $API_URL/health"
     if curl -s --max-time 5 "$API_URL/health" >/dev/null 2>&1; then
+        log "✅ API accesible"
         return 0
     else
+        log "❌ API no accesible"
         return 1
     fi
 }
 
 # Función para verificar si el frontend está accesible
 check_frontend_accessible() {
+    log "🔍 Verificando accesibilidad del frontend..."
+    log "🌐 Probando URL: $FRONTEND_URL"
     if curl -s --max-time 5 "$FRONTEND_URL" >/dev/null 2>&1; then
+        log "✅ Frontend accesible"
         return 0
     else
+        log "❌ Frontend no accesible"
         return 1
     fi
 }
@@ -190,6 +236,7 @@ start_app() {
     # Cleanup automático antes de iniciar
     cleanup_resources
 
+    log "🐳 Ejecutando 'docker compose up --build -d'..."
     if docker compose up --build -d; then
         success "Aplicación iniciada"
 
@@ -199,6 +246,7 @@ start_app() {
 
         local attempts=0
         while [ $attempts -lt $MAX_ATTEMPTS ]; do
+            log "🔄 Intento $((attempts+1))/$MAX_ATTEMPTS de verificación de servicios..."
             if check_api_accessible && check_frontend_accessible && check_db_connection; then
                 success "✅ Todos los servicios están listos"
                 if [ "$INTERACTIVE_MODE" = false ]; then
@@ -212,9 +260,15 @@ start_app() {
 
         if [ $attempts -eq $MAX_ATTEMPTS ]; then
             warning "⚠️  Algunos servicios pueden no estar completamente listos aún"
+            log "📊 Estado final de servicios:"
+            check_api_accessible
+            check_frontend_accessible
+            check_db_connection
         fi
     else
         error "❌ Fallo al iniciar la aplicación"
+        log "🔍 Verificando logs de Docker para más detalles..."
+        docker compose logs --tail=20
         return 1
     fi
 }
@@ -228,12 +282,15 @@ stop_app() {
         return 0
     fi
 
+    log "🐳 Ejecutando 'docker compose down'..."
     if docker compose down; then
         success "Aplicación detenida"
         # Cleanup automático después de detener
         cleanup_resources
     else
         error "❌ Fallo al detener la aplicación"
+        log "🔍 Verificando estado actual de contenedores..."
+        docker compose ps
         return 1
     fi
 }
@@ -243,16 +300,22 @@ cleanup_resources() {
     log "🧹 Realizando limpieza automática de recursos..."
 
     # Limpiar contenedores detenidos
+    log "🗑️ Limpiando contenedores detenidos..."
     if docker container prune -f >/dev/null 2>&1; then
-        log "Contenedores huérfanos limpiados"
+        log "✅ Contenedores huérfanos limpiados"
+    else
+        log "⚠️ No se pudieron limpiar contenedores huérfanos"
     fi
 
     # Limpiar imágenes no utilizadas (opcional, solo si hay muchas)
     # docker image prune -f >/dev/null 2>&1
 
     # Limpiar volúmenes huérfanos (con cuidado)
+    log "🗂️ Limpiando volúmenes huérfanos..."
     if docker volume prune -f >/dev/null 2>&1; then
-        log "Volúmenes huérfanos limpiados"
+        log "✅ Volúmenes huérfanos limpiados"
+    else
+        log "⚠️ No se pudieron limpiar volúmenes huérfanos"
     fi
 }
 
@@ -266,18 +329,25 @@ restart_app() {
         return $?
     fi
 
+    log "🐳 Ejecutando 'docker compose restart'..."
     if docker compose restart; then
         success "Aplicación reiniciada"
 
         # Verificar que esté funcionando después del reinicio
+        log "⏳ Verificando servicios después del reinicio..."
         sleep 3
         if check_api_accessible && check_frontend_accessible; then
             success "✅ Servicios verificados después del reinicio"
         else
             warning "⚠️  Algunos servicios pueden tardar en estar listos"
+            log "📊 Estado de servicios post-reinicio:"
+            check_api_accessible
+            check_frontend_accessible
         fi
     else
         error "❌ Fallo al reiniciar la aplicación"
+        log "🔍 Verificando logs de reinicio..."
+        docker compose logs --tail=10
         return 1
     fi
 }

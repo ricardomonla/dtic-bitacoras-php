@@ -33,7 +33,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-      - ../:/host
+      - ../../:/host  # Montar el directorio padre del proyecto para acceder a _app-npm
     networks:
       - dtic_network
 
