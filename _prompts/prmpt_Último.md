@@ -1,0 +1,3 @@
+Para garantizar que el sistema pueda iniciarse correctamente en otra computadora, el script app-run debe verificar las dependencias necesarias antes de ejecutarse. Es decir, debe comprobar si las aplicaciones requeridas (por ejemplo, curl) están instaladas en el host.
+Si alguna dependencia no está presente, el script debe preguntar al usuario si desea instalarla y, en caso afirmativo, ejecutar automáticamente los comandos correspondientes.
+Este proceso solo debe realizarse la primera vez que se ejecuta el script.
