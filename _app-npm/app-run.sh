@@ -21,13 +21,15 @@
 #   ./app-run.sh stop         # Detener aplicación (no interactivo)
 #   ./app-run.sh restart      # Reiniciar aplicación (no interactivo)
 #   ./app-run.sh status       # Mostrar estado detallado (no interactivo)
+#   ./app-run.sh bd-backup    # Crear backup de base de datos (no interactivo)
 #
 # Variables de entorno:
 #   APP_TIMEOUT_CHECK=30      # Timeout para verificar servicios (segundos)
 #   APP_MAX_ATTEMPTS=20       # Máximo número de intentos de verificación
+#   APP_BACKUP_DIR="backups"  # Directorio para backups
 #
-# Versión: 2.0 - Optimizado
-# Fecha: 2025-11-04
+# Versión: 2.1 - Con funcionalidad de backup
+# Fecha: 2025-11-06
 # =============================================================================
 
 set -e
@@ -69,6 +71,10 @@ declare -A INSTALL_COMMANDS_MACOS=(
 # Configuración de timeouts (configurables vía entorno)
 TIMEOUT_CHECK=${APP_TIMEOUT_CHECK:-30}
 MAX_ATTEMPTS=${APP_MAX_ATTEMPTS:-20}
+
+# Configuración de backup
+BACKUP_DIR=${APP_BACKUP_DIR:-"backups"}
+BACKUP_FORMAT="dtic_bitacoras_backup_%Y%m%d_%H%M%S.sql"
 
 # Modo de operación
 INTERACTIVE_MODE=true
@@ -399,8 +405,12 @@ show_menu() {
         ((option_num++))
         echo -e "${GREEN}${option_num})${NC} 🔄 Reiniciar aplicación"
         ((option_num++))
+        echo -e "${YELLOW}${option_num})${NC} 💾 Crear backup de BD"
+        ((option_num++))
     else
         echo -e "${GREEN}${option_num})${NC} ▶️  Iniciar aplicación"
+        ((option_num++))
+        echo -e "${YELLOW}${option_num})${NC} 💾 Crear backup de BD"
         ((option_num++))
     fi
 
@@ -502,6 +512,132 @@ cleanup_resources() {
         log "✅ Volúmenes huérfanos limpiados"
     else
         log "⚠️ No se pudieron limpiar volúmenes huérfanos"
+    fi
+}
+
+# Función para crear backup de la base de datos
+backup_database() {
+    log "💾 Iniciando proceso de backup de base de datos..."
+
+    # Verificar que la aplicación esté ejecutándose
+    if ! check_app_running; then
+        error "❌ La aplicación no está ejecutándose. Inicia la aplicación antes de hacer backup."
+        return 1
+    fi
+
+    # Crear directorio de backups si no existe
+    log "📁 Verificando directorio de backups: $BACKUP_DIR"
+    mkdir -p "$BACKUP_DIR"
+
+    if [ ! -d "$BACKUP_DIR" ]; then
+        error "❌ No se pudo crear el directorio de backups: $BACKUP_DIR"
+        return 1
+    fi
+
+    # Generar nombre del archivo de backup con timestamp
+    local backup_filename
+    backup_filename=$(date +"$BACKUP_FORMAT")
+    local backup_path="$BACKUP_DIR/$backup_filename"
+
+    log "📄 Archivo de backup: $backup_path"
+
+    # Verificar conexión a PostgreSQL
+    if ! check_db_connection; then
+        error "❌ No se puede conectar a la base de datos. Verifica que PostgreSQL esté funcionando."
+        return 1
+    fi
+
+    # Obtener credenciales de la base de datos desde docker-compose
+    local db_host="localhost"
+    local db_port=$DB_PORT
+    local db_name="dtic_bitacoras"
+    local db_user="dtic_user"
+    local db_password="dtic_password"
+
+    # Verificar si hay variables de entorno en el archivo .env
+    if [ -f "backend/.env" ]; then
+        source backend/.env 2>/dev/null || true
+    fi
+
+    log "🔐 Conectando a PostgreSQL para crear backup..."
+    log "📡 Host: $db_host:$db_port"
+    log "🗄️  Base de datos: $db_name"
+    log "👤 Usuario: $db_user"
+
+    # Verificar si psql está disponible localmente
+    local use_docker_psql=false
+    if ! command -v psql &> /dev/null; then
+        log "⚠️ psql no está disponible localmente, usando Docker container..."
+        use_docker_psql=true
+    fi
+
+    # Crear el backup usando pg_dump
+    log "⏳ Ejecutando pg_dump..."
+
+    local backup_success=false
+
+    if [ "$use_docker_psql" = true ]; then
+        # Usar psql desde el contenedor de PostgreSQL
+        log "🐳 Usando PostgreSQL client desde Docker container..."
+        
+        # Crear el backup dentro del contenedor y copiarlo al host
+        local temp_backup_name="temp_backup_$(date +%s).sql"
+        if docker exec -e PGPASSWORD="$db_password" dtic_bitacoras_postgres pg_dump -h localhost -p 5432 -U "$db_user" -d "$db_name" -f "/tmp/$temp_backup_name"; then
+            log "📁 Copiando backup desde contenedor al host..."
+            if docker cp dtic_bitacoras_postgres:/tmp/"$temp_backup_name" "$backup_path"; then
+                # Limpiar el archivo temporal del contenedor
+                docker exec dtic_bitacoras_postgres rm -f "/tmp/$temp_backup_name"
+                backup_success=true
+            else
+                error "❌ Error al copiar el backup desde el contenedor"
+            fi
+        else
+            error "❌ Error al crear el backup dentro del contenedor"
+        fi
+    else
+        # Usar psql local
+        log "💻 Usando PostgreSQL client local..."
+        if PGPASSWORD="$db_password" pg_dump -h "$db_host" -p "$db_port" -U "$db_user" -d "$db_name" -f "$backup_path"; then
+            backup_success=true
+        fi
+    fi
+
+    if [ "$backup_success" = true ]; then
+        success "✅ Backup creado exitosamente: $backup_path"
+
+        # Verificar que el archivo se creó y tiene contenido
+        if [ -f "$backup_path" ] && [ -s "$backup_path" ]; then
+            local file_size
+            file_size=$(du -h "$backup_path" | cut -f1)
+            log "📊 Tamaño del backup: $file_size"
+
+            # Mostrar información adicional del backup
+            log "🔍 Verificando integridad del backup..."
+            local line_count
+            line_count=$(wc -l < "$backup_path")
+            log "📋 Líneas en el backup: $line_count"
+
+            if [ $line_count -gt 10 ]; then
+                success "✅ Backup verificado correctamente"
+            else
+                warning "⚠️ El backup parece tener pocas líneas, pero se creó exitosamente"
+            fi
+
+            return 0
+        else
+            error "❌ El archivo de backup se creó pero está vacío o no existe"
+            return 1
+        fi
+    else
+        error "❌ Error al crear el backup. Verifica la conectividad y credenciales de la base de datos."
+        
+        # Limpiar archivo de backup parcial si existe
+        if [ -f "$backup_path" ]; then
+            rm -f "$backup_path"
+            log "🗑️ Archivo de backup parcial eliminado"
+        fi
+        
+        return 1
     fi
 }
 
@@ -622,6 +758,10 @@ parse_command() {
             INTERACTIVE_MODE=false
             COMMAND="status"
             ;;
+        bd-backup)
+            INTERACTIVE_MODE=false
+            COMMAND="backup"
+            ;;
         *)
             INTERACTIVE_MODE=true
             ;;
@@ -658,6 +798,10 @@ main() {
                 show_status
                 show_access_urls
                 ;;
+            backup)
+                check_dependencies || exit 1
+                backup_database
+                ;;
         esac
     else
         # Modo interactivo (comportamiento original)
@@ -676,11 +820,11 @@ main() {
             # Determinar rango de opciones válido
             local max_option
             if check_app_running; then
-                max_option=4  # 1:detener, 2:reiniciar, 3:estado, 4:salir
-                read -p "Seleccione una opción (1-4): " choice
+                max_option=5  # 1:detener, 2:reiniciar, 3:backup, 4:estado, 5:salir
+                read -p "Seleccione una opción (1-5): " choice
             else
-                max_option=3  # 1:iniciar, 2:estado, 3:salir
-                read -p "Seleccione una opción (1-3): " choice
+                max_option=4  # 1:iniciar, 2:backup, 3:estado, 4:salir
+                read -p "Seleccione una opción (1-4): " choice
             fi
 
             case $choice in
@@ -697,12 +841,21 @@ main() {
                     if check_app_running; then
                         restart_app
                     else
-                        show_detailed_status
+                        backup_database
                     fi
                     echo ""
                     read -p "Presione Enter para continuar..."
                     ;;
                 3)
+                    if check_app_running; then
+                        backup_database
+                    else
+                        show_detailed_status
+                    fi
+                    echo ""
+                    read -p "Presione Enter para continuar..."
+                    ;;
+                4)
                     if check_app_running; then
                         show_detailed_status
                     else
@@ -713,7 +866,7 @@ main() {
                     echo ""
                     read -p "Presione Enter para continuar..."
                     ;;
-                4)
+                5)
                     if check_app_running; then
                         echo ""
                         log "¡Hasta luego!"

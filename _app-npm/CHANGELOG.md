@@ -5,6 +5,28 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-11-06
+
+### Added
+- **Funcionalidad Completa de Backup de Base de Datos**: Implementación completa de backup automático de PostgreSQL con `./app-run.sh bd-backup`
+- **Comando de Línea de Comandos**: Soporte para comando directo `bd-backup` en modo no interactivo
+- **Verificación de Integridad de Backup**: Sistema de validación post-backup con verificación de tamaño y contenido
+- **Soporte Dual de Backup**: Compatibilidad con `psql` local y Docker container para máxima flexibilidad
+- **Timestamps Automáticos**: Nombres de archivo con formato `dtic_bitacoras_backup_YYYYMMDD_HHMMSS.sql`
+- **Directorio Configurable**: Variable de entorno `APP_BACKUP_DIR` para personalizar ubicación de backups
+
+### Improved
+- **Integración con Menú Interactivo**: Opciones de backup disponibles tanto con aplicación ejecutándose como detenida
+- **Manejo de Errores**: Sistema robusto de cleanup automático y manejo de archivos parciales
+- **Configuración de Credenciales**: Detección automática de credenciales desde archivo `.env`
+- **Reportes Detallados**: Logging completo del proceso de backup con información de tamaño y línea count
+
+### Technical Details
+- **Script Enhancement**: app-run.sh actualizado a versión 2.1 con funcionalidad de backup
+- **Database Protection**: Validación de aplicación ejecutándose antes de permitir backup
+- **Cross-Platform Support**: Funciona en Linux y macOS con Docker o instalación local de psql
+- **Error Recovery**: Limpieza automática de archivos corruptos o incompletos
+
 ## [1.2.0] - 2025-11-06
 
 ### Added
