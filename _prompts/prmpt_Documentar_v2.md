@@ -1,6 +1,6 @@
 ✅ Prompt unificado para documentar el avance (3 fases)
 
-**Fase 1*  — Tareas Completadas*
+**Fase 1**  — *Tareas Completadas*
 Registra en español todas las tareas completadas desde el último registro.
 Crea un archivo en el directorio _tareasTerminadas siguiendo el formato:
 
@@ -14,7 +14,7 @@ Análisis de acciones por módulo, redactado en español.
 
 Detalle de cambios, mejoras y soluciones aplicadas.
 
-**Fase 2** — Versionado
+**Fase 2** — *Versionado*
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 Revisa si los cambios realizados requieren:
@@ -31,18 +31,7 @@ IMPORTANTE: Buscar todas las referencias de versión en el código antes de actu
 
 Si corresponde, aplícalo antes de continuar.
 
-**Fase 3** — Commit
-Guarda todos los archivos modificados y realiza un commit en español que incluya:
-
-Resumen breve del cambio.
-
-Referencia al archivo generado en _tareasTerminadas.
-
-IMPORTANTE: Si se actualizó la versión, incluir mención explícita en el commit.
-
-Ejecuta todo preferentemente mediante un único comando o secuencia integrada.
-
-**Fase 4** — Verificación
+**Fase 3** — *Verificación*
 Después del commit, verificar que:
 - La aplicación funciona correctamente
 - Las versiones se muestran actualizadas en la interfaz
@@ -58,3 +47,14 @@ El archivo se debe guardar en el directorio _estados/ y debe incluir:
 - Resultados de todas las verificaciones realizadas
 - Estado final del sistema
 - Conclusiones y próximos pasos recomendados
+
+**Fase 4** — *Commit*
+Guarda todos los archivos modificados y realiza un commit en español que incluya:
+
+Resumen breve del cambio.
+
+Referencia al archivo generado en _tareasTerminadas.
+
+IMPORTANTE: Si se actualizó la versión, incluir mención explícita en el commit.
+
+Ejecuta todo preferentemente mediante un único comando o secuencia integrada.
