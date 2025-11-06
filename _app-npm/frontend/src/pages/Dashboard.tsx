@@ -651,7 +651,7 @@ const Dashboard = () => {
                     <div className="mb-2">
                       <span className="badge bg-primary fs-6 px-3 py-2">
                         <i className="fas fa-tag me-1"></i>
-                        Versión 1.1.3
+                        Versión 1.2.0
                       </span>
                     </div>
                     <small className="text-muted">

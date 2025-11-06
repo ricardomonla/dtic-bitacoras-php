@@ -780,7 +780,7 @@ Este proyecto representa la evolución completa del sistema DTIC Bitácoras, des
 #### **Fase 2: Migración Tecnológica (2025-11)**
 - **Arquitectura**: React/Node.js/PostgreSQL con Docker
 - **Alcance**: Reimplementación completa con tecnologías modernas
-- **Estado**: ✅ Completado - Sistema 100% funcional (v1.1.0)
+- **Estado**: ✅ Completado - Sistema 100% funcional (v1.2.0)
 - **Resultado**: Aplicación full-stack moderna y escalable
 - **Tareas Clave**: APIs RESTful, autenticación JWT, gestión entidades CRUD
 
@@ -830,7 +830,7 @@ El proyecto se desarrolló siguiendo una metodología estructurada:
 **Desarrollado por:** Lic. Ricardo MONLA
 **Institución:** Universidad Tecnológica Nacional - Facultad Regional La Rioja
 **Departamento:** Departamento de Servidores, Dirección de TIC
-**Proyecto:** Sistema DTIC Bitácoras v1.1.0
+**Proyecto:** Sistema DTIC Bitácoras v1.2.0
 **Fecha:** Noviembre 2025
 
 ### Contacto
@@ -861,5 +861,5 @@ Para soporte técnico o consultas sobre el desarrollo del sistema, contactar al 
 **Desarrollado por:** Lic. Ricardo MONLA
 **Institución:** Universidad Tecnológica Nacional - Facultad Regional La Rioja
 **Departamento:** Departamento de Servidores, Dirección de TIC
-**Proyecto:** Sistema DTIC Bitácoras v1.1.0
+**Proyecto:** Sistema DTIC Bitácoras v1.2.0
 **Última actualización:** Noviembre 2025

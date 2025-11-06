@@ -47,6 +47,25 @@ API_URL="http://localhost:$API_PORT"
 FRONTEND_URL="http://localhost:$FRONTEND_PORT"
 DB_URL="localhost:$DB_PORT"
 
+# Archivo para recordar si ya se ejecutó la configuración inicial
+SETUP_MARKER=".dtic_setup_done"
+
+# Dependencias del host con sus comandos de instalación por sistema operativo
+declare -A HOST_DEPENDENCIES=(
+    [curl]="Utilizado para verificar conectividad de servicios"
+    [jq]="Utilizado para formatear respuestas JSON (opcional)"
+)
+
+declare -A INSTALL_COMMANDS_LINUX=(
+    [curl]="apt-get install -y curl"
+    [jq]="apt-get install -y jq"
+)
+
+declare -A INSTALL_COMMANDS_MACOS=(
+    [curl]="brew install curl"
+    [jq]="brew install jq"
+)
+
 # Configuración de timeouts (configurables vía entorno)
 TIMEOUT_CHECK=${APP_TIMEOUT_CHECK:-30}
 MAX_ATTEMPTS=${APP_MAX_ATTEMPTS:-20}
@@ -60,6 +79,173 @@ log() { echo -e "${BLUE}[INFO]${NC} $1"; }
 success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; }
 warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+
+# Función para verificar si es la primera ejecución
+is_first_run() {
+    [ ! -f "$SETUP_MARKER" ]
+}
+
+# Función para marcar que la configuración inicial se completó
+mark_setup_complete() {
+    touch "$SETUP_MARKER"
+    log "📝 Configuración inicial completada"
+}
+
+# Función para obtener el gestor de paquetes del sistema
+get_package_manager() {
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        if command -v apt-get &> /dev/null; then
+            echo "apt-get"
+        elif command -v yum &> /dev/null; then
+            echo "yum"
+        elif command -v dnf &> /dev/null; then
+            echo "dnf"
+        else
+            echo "none"
+        fi
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        if command -v brew &> /dev/null; then
+            echo "brew"
+        else
+            echo "none"
+        fi
+    else
+        echo "unsupported"
+    fi
+}
+
+# Función para verificar dependencias del host
+check_host_dependencies() {
+    log "🔍 Verificando dependencias del sistema host..."
+    local missing_deps=()
+    
+    for dep in "${!HOST_DEPENDENCIES[@]}"; do
+        if ! command -v "$dep" &> /dev/null; then
+            missing_deps+=("$dep")
+        fi
+    done
+
+    if [ ${#missing_deps[@]} -eq 0 ]; then
+        log "✅ Dependencias del host verificadas correctamente"
+        return 0
+    else
+        log "⚠️ Dependencias faltantes detectadas: ${missing_deps[*]}"
+        return 1
+    fi
+}
+
+# Función para instalar dependencias automáticamente
+install_host_dependencies() {
+    log "🛠️ Instalando dependencias del sistema host..."
+    local package_manager=$(get_package_manager)
+    
+    case "$package_manager" in
+        "apt-get"|"yum"|"dnf")
+            sudo "$package_manager" update
+            ;;
+        "brew")
+            # brew no necesita update para install
+            ;;
+        "none")
+            error "❌ No se encontró un gestor de paquetes compatible"
+            return 1
+            ;;
+        "unsupported")
+            error "❌ Sistema operativo no soportado para instalación automática"
+            return 1
+            ;;
+    esac
+
+    for dep in "${!HOST_DEPENDENCIES[@]}"; do
+        if ! command -v "$dep" &> /dev/null; then
+            log "📦 Instalando $dep..."
+            
+            case "$package_manager" in
+                "apt-get")
+                    sudo apt-get install -y "$dep"
+                    ;;
+                "yum")
+                    sudo yum install -y "$dep"
+                    ;;
+                "dnf")
+                    sudo dnf install -y "$dep"
+                    ;;
+                "brew")
+                    brew install "$dep"
+                    ;;
+                *)
+                    error "❌ No se puede instalar $dep: $package_manager no soportado"
+                    continue
+                    ;;
+            esac
+            
+            if command -v "$dep" &> /dev/null; then
+                success "✅ $dep instalado correctamente"
+            else
+                error "❌ Error al instalar $dep"
+            fi
+        fi
+    done
+
+    return 0
+}
+
+# Función para ejecutar configuración inicial
+run_initial_setup() {
+    echo ""
+    echo "🚀 Configuración Inicial de DTIC Bitácoras"
+    echo "========================================="
+    echo ""
+    log "🔧 Esta es la primera vez que ejecutas el script en este sistema"
+    log "🛠️ Se verificarán e instalarán las dependencias necesarias"
+    echo ""
+
+    # Verificar dependencias del host
+    if ! check_host_dependencies; then
+        echo ""
+        warning "⚠️ Se detectaron dependencias faltantes en el sistema host:"
+        echo ""
+        echo "Dependencias que se pueden instalar automáticamente:"
+        for dep in "${!HOST_DEPENDENCIES[@]}"; do
+            echo "  • $dep - ${HOST_DEPENDENCIES[$dep]}"
+        done
+        echo ""
+        echo "Sistemas soportados:"
+        echo "  • Linux (Ubuntu/Debian, CentOS/RHEL, Fedora)"
+        echo "  • macOS (con Homebrew)"
+        echo ""
+
+        if [ "$INTERACTIVE_MODE" = true ]; then
+            read -p "¿Deseas instalar automáticamente las dependencias faltantes? (y/n): " -n 1 -r
+            echo ""
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                if install_host_dependencies; then
+                    success "✅ Dependencias instaladas correctamente"
+                else
+                    error "❌ Error al instalar algunas dependencias"
+                    echo ""
+                    echo "Puedes instalar manualmente en:"
+                    echo "  • curl: https://curl.se/download.html"
+                    echo "  • jq: https://stedolan.github.io/jq/download/"
+                fi
+            else
+                warning "⚠️ Instalación cancelada. Algunas funciones pueden no estar disponibles."
+            fi
+        else
+            log "Ejecutando en modo no interactivo, instalando dependencias automáticamente..."
+            install_host_dependencies || warning "⚠️ Algunas dependencias no se pudieron instalar"
+        fi
+    else
+        log "✅ Todas las dependencias ya están instaladas"
+    fi
+
+    # Marcar configuración como completada
+    mark_setup_complete
+    echo ""
+    success "🎉 Configuración inicial completada"
+    echo ""
+    sleep 2
+}
 
 # Función para verificar dependencias
 check_dependencies() {
@@ -444,6 +630,11 @@ parse_command() {
 
 # Función principal
 main() {
+    # Ejecutar configuración inicial solo en la primera ejecución
+    if is_first_run; then
+        run_initial_setup
+    fi
+
     # Procesar parámetros de línea de comandos
     parse_command "$1"
 
