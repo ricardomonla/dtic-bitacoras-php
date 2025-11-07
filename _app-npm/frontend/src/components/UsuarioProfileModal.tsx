@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { UsuarioAsignado } from '../stores/usuariosAsignadosStore'
+import { ResourceAssignmentControl } from './common/ResourceAssignmentControl'
+import { useResourceAssignment } from '../hooks/useResourceAssignment'
 
 interface UsuarioProfileModalProps {
   usuario: UsuarioAsignado | null
@@ -18,6 +20,16 @@ interface UsuarioStats {
 const UsuarioProfileModal = ({ usuario, isOpen, onClose, onEdit }: UsuarioProfileModalProps) => {
   const [stats, setStats] = useState<UsuarioStats | null>(null)
   const [loading, setLoading] = useState(false)
+  
+  // Initialize resource assignment hook for this usuario
+  const resourceAssignment = useResourceAssignment('usuario', usuario.id)
+  
+  // Load assigned resources when modal opens
+  useEffect(() => {
+    if (isOpen && usuario) {
+      resourceAssignment.refreshAssignments()
+    }
+  }, [isOpen, usuario?.id])
 
   useEffect(() => {
     if (usuario && isOpen) {
@@ -234,6 +246,24 @@ const UsuarioProfileModal = ({ usuario, isOpen, onClose, onEdit }: UsuarioProfil
                     <p>No hay historial de asignaciones</p>
                   </div>
                 )}
+
+                {/* Resource Assignment Control */}
+                <hr className="my-4" />
+                <h6 className="fw-bold text-info mb-3">
+                  <i className="fas fa-boxes me-2"></i>Gestión de Recursos Asignados
+                </h6>
+                <ResourceAssignmentControl
+                  entityId={usuario.id}
+                  entityType="usuario"
+                  assignedResources={resourceAssignment.assignedResources}
+                  availableResources={resourceAssignment.availableResources}
+                  onAssignResource={resourceAssignment.assignResource}
+                  onUnassignResource={resourceAssignment.unassignResource}
+                  loading={resourceAssignment.loading}
+                  className="border-0 p-0"
+                  showAddIcon={true}
+                  maxHeight="250px"
+                />
               </div>
             </div>
           </div>

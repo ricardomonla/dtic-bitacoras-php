@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Tecnico } from '../stores/tecnicosStore'
+import { ResourceAssignmentControl } from './common/ResourceAssignmentControl'
+import { useResourceAssignment } from '../hooks/useResourceAssignment'
 
 interface TecnicoProfileModalProps {
   tecnico: Tecnico | null
@@ -18,6 +20,16 @@ interface TecnicoStats {
 const TecnicoProfileModal = ({ tecnico, isOpen, onClose, onEdit }: TecnicoProfileModalProps) => {
   const [stats, setStats] = useState<TecnicoStats | null>(null)
   const [loading, setLoading] = useState(false)
+  
+  // Initialize resource assignment hook for this tecnico
+  const resourceAssignment = useResourceAssignment('tecnico', tecnico.id)
+  
+  // Load assigned resources when modal opens
+  useEffect(() => {
+    if (isOpen && tecnico) {
+      resourceAssignment.refreshAssignments()
+    }
+  }, [isOpen, tecnico?.id])
 
   useEffect(() => {
     if (tecnico && isOpen) {
@@ -226,6 +238,24 @@ const TecnicoProfileModal = ({ tecnico, isOpen, onClose, onEdit }: TecnicoProfil
                     <p>No hay tareas recientes</p>
                   </div>
                 )}
+
+                {/* Resource Assignment Control */}
+                <hr className="my-4" />
+                <h6 className="fw-bold text-info mb-3">
+                  <i className="fas fa-boxes me-2"></i>Gestión de Recursos Asignados
+                </h6>
+                <ResourceAssignmentControl
+                  entityId={tecnico.id}
+                  entityType="tecnico"
+                  assignedResources={resourceAssignment.assignedResources}
+                  availableResources={resourceAssignment.availableResources}
+                  onAssignResource={resourceAssignment.assignResource}
+                  onUnassignResource={resourceAssignment.unassignResource}
+                  loading={resourceAssignment.loading}
+                  className="border-0 p-0"
+                  showAddIcon={true}
+                  maxHeight="250px"
+                />
               </div>
             </div>
           </div>

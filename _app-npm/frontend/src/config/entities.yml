@@ -52,6 +52,14 @@ entities:
       - name: "phone"
         label: "Teléfono"
         type: "tel"
+      - name: "assigned_resources"
+        label: "Recursos Asignados"
+        type: "resource_assignment"
+        resourceAssignmentConfig:
+          entityType: "tecnico"
+          entityId: "{{id}}"
+        required: false
+        description: "Gestión de recursos asignados a este técnico con funcionalidad de agregar/quitar"
     table:
       columns:
         - key: "role"
@@ -359,6 +367,14 @@ entities:
       - name: "position"
         label: "Cargo"
         type: "text"
+      - name: "assigned_resources"
+        label: "Recursos Asignados"
+        type: "resource_assignment"
+        resourceAssignmentConfig:
+          entityType: "usuario"
+          entityId: "{{id}}"
+        required: false
+        description: "Gestión de recursos asignados a este usuario con funcionalidad de agregar/quitar"
     table:
       columns:
         - key: "department"

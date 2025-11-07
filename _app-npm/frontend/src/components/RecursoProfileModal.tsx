@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Recurso } from '../stores/recursosStore'
 import { recursoUtils } from '../utils/entityUtils'
+import { ResourceAssignmentControl } from './common/ResourceAssignmentControl'
+import { useResourceAssignment } from '../hooks/useResourceAssignment'
 
 interface RecursoProfileModalProps {
   recurso: Recurso | null
@@ -19,6 +21,16 @@ interface RecursoStats {
 const RecursoProfileModal = ({ recurso, isOpen, onClose, onEdit }: RecursoProfileModalProps) => {
   const [stats, setStats] = useState<RecursoStats | null>(null)
   const [loading, setLoading] = useState(false)
+  
+  // Initialize resource assignment hook for this recurso
+  const resourceAssignment = useResourceAssignment('recurso', recurso.id)
+  
+  // Load assigned resources when modal opens
+  useEffect(() => {
+    if (isOpen && recurso) {
+      resourceAssignment.refreshAssignments()
+    }
+  }, [isOpen, recurso?.id])
 
   useEffect(() => {
     if (recurso && isOpen) {
@@ -238,6 +250,23 @@ const RecursoProfileModal = ({ recurso, isOpen, onClose, onEdit }: RecursoProfil
                     <p>No hay historial disponible</p>
                   </div>
                 )}
+
+                {/* Resource Assignment Control - Reverse Assignment View */}
+                <hr className="my-4" />
+                <h6 className="fw-bold text-info mb-3">
+                  <i className="fas fa-link me-2"></i>Entidades que Usan Este Recurso
+                </h6>
+                <div className="bg-light p-3 rounded">
+                  <p className="text-muted mb-0">
+                    <i className="fas fa-info-circle me-2"></i>
+                    Este recurso actualmente está asignado a {stats?.active_assignments || 0} entidad{stats?.active_assignments !== 1 ? 'es' : ''}.
+                  </p>
+                  {stats && stats.active_assignments > 0 && (
+                    <small className="text-muted">
+                      Las asignaciones se pueden gestionar desde los perfiles de tareas y usuarios.
+                    </small>
+                  )}
+                </div>
               </div>
             </div>
           </div>
