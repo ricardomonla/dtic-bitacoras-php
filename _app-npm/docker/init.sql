@@ -207,10 +207,7 @@ CREATE TABLE IF NOT EXISTS tarea_recursos (
     notes TEXT, -- notas específicas sobre el uso del recurso en esta tarea
 
     -- Constraint único para asignaciones activas de la misma tarea-recurso
-    UNIQUE (tarea_id, recurso_id, activo) DEFERRABLE INITIALLY DEFERRED,
-
-    -- Constraint para evitar asignaciones duplicadas activas
-    CHECK (NOT (tarea_id = ANY(SELECT t.tarea_id FROM tarea_recursos t WHERE t.recurso_id = recurso_id AND t.activo = true AND t.id != id)))
+    UNIQUE (tarea_id, recurso_id, activo)
 );
 
 -- Tabla de historial de asignaciones tarea-recurso
