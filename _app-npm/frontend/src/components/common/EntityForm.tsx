@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { ResourceAssignmentControl } from './ResourceAssignmentControl'
+import { useResourceAssignment } from '../../hooks/useResourceAssignment'
 
 export interface FormField {
   name: string
   label: string
-  type: 'text' | 'email' | 'select' | 'textarea' | 'tel' | 'date' | 'multiselect'
+  type: 'text' | 'email' | 'select' | 'textarea' | 'tel' | 'date' | 'multiselect' | 'resource_assignment'
   required?: boolean
   options?: Array<{ value: string, label: string }>
   placeholder?: string
@@ -13,6 +15,10 @@ export interface FormField {
     labelField: string
     valueField: string
     params?: Record<string, any>
+  }
+  resourceAssignmentConfig?: {
+    entityType: 'tarea' | 'usuario' | 'tecnico' | 'recurso'
+    entityId: number
   }
 }
 
@@ -181,6 +187,34 @@ export const EntityForm = <T extends Record<string, any>>({
               </small>
             )}
           </div>
+        )
+
+      case 'resource_assignment':
+        if (!field.resourceAssignmentConfig) {
+          return (
+            <div className="alert alert-warning">
+              <i className="fas fa-exclamation-triangle me-2"></i>
+              Configuración de asignación de recursos no encontrada
+            </div>
+          )
+        }
+
+        const { entityType, entityId } = field.resourceAssignmentConfig
+        const resourceAssignment = useResourceAssignment(entityType, entityId)
+        
+        return (
+          <ResourceAssignmentControl
+            entityId={entityId}
+            entityType={entityType}
+            assignedResources={resourceAssignment.assignedResources}
+            availableResources={resourceAssignment.availableResources}
+            onAssignResource={resourceAssignment.assignResource}
+            onUnassignResource={resourceAssignment.unassignResource}
+            loading={resourceAssignment.loading}
+            className="border rounded p-3"
+            showAddIcon={true}
+            maxHeight="400px"
+          />
         )
 
       default:

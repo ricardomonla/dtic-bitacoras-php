@@ -1,25 +1,39 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Tarea } from '../stores/tareasStore'
 import { tareaUtils } from '../utils/entityUtils'
+import { ResourceAssignmentControl } from './common/ResourceAssignmentControl'
+import { useResourceAssignment } from '../hooks/useResourceAssignment'
 
 interface TareaProfileModalProps {
   tarea: Tarea | null
   isOpen: boolean
   onClose: () => void
   onEdit: (id: number) => void
+  onRefresh?: () => void
 }
 
 const TareaProfileModal: React.FC<TareaProfileModalProps> = ({
   tarea,
   isOpen,
   onClose,
-  onEdit
+  onEdit,
+  onRefresh
 }) => {
   if (!isOpen || !tarea) return null
 
+  // Initialize resource assignment hook for this tarea
+  const resourceAssignment = useResourceAssignment('tarea', tarea.id)
+  
+  // Load assigned resources when modal opens
+  useEffect(() => {
+    if (isOpen && tarea) {
+      resourceAssignment.refreshAssignments()
+    }
+  }, [isOpen, tarea?.id])
+
   return (
     <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-      <div className="modal-dialog modal-lg">
+      <div className="modal-dialog modal-xl">
         <div className="modal-content">
           <div className="modal-header bg-primary text-white">
             <h5 className="modal-title">
@@ -48,7 +62,7 @@ const TareaProfileModal: React.FC<TareaProfileModalProps> = ({
             </div>
 
             <div className="row g-3">
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <div className="card h-100">
                   <div className="card-body">
                     <h6 className="card-title">
@@ -76,7 +90,7 @@ const TareaProfileModal: React.FC<TareaProfileModalProps> = ({
                 </div>
               </div>
 
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <div className="card h-100">
                   <div className="card-body">
                     <h6 className="card-title">
@@ -103,6 +117,30 @@ const TareaProfileModal: React.FC<TareaProfileModalProps> = ({
                         <p className="text-muted mb-0">Sin técnico asignado</p>
                       </div>
                     )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-md-4">
+                <div className="card h-100">
+                  <div className="card-body">
+                    <h6 className="card-title">
+                      <i className="fas fa-boxes me-2 text-info"></i>
+                      Recursos Asignados
+                    </h6>
+                    <hr />
+                    <ResourceAssignmentControl
+                      entityId={tarea.id}
+                      entityType="tarea"
+                      assignedResources={resourceAssignment.assignedResources}
+                      availableResources={resourceAssignment.availableResources}
+                      onAssignResource={resourceAssignment.assignResource}
+                      onUnassignResource={resourceAssignment.unassignResource}
+                      loading={resourceAssignment.loading}
+                      className="border-0 p-0"
+                      showAddIcon={true}
+                      maxHeight="300px"
+                    />
                   </div>
                 </div>
               </div>

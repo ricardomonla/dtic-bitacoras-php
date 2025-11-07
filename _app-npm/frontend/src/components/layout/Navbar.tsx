@@ -410,7 +410,7 @@ const Navbar = () => {
           <Link className="navbar-brand navbar-brand-modern" to="/dashboard">
             <i className="fas fa-cogs me-2"></i>
             DTIC Bitácoras
-            <span className="version-badge ms-2">v1.3.0</span>
+            <span className="version-badge ms-2">v1.3.1</span>
           </Link>
 
           {/* Hamburger Menu for Mobile */}
