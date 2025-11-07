@@ -1958,20 +1958,12 @@ y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2
 
 Si corresponde, aplícalo antes de continuar.
 
-### **Fase 3** — Commit
-Guarda todos los archivos modificados y realiza un commit en español que incluya:
-- Resumen breve del cambio
-- Referencia al archivo generado en _tareasTerminadas
-- IMPORTANTE: Si se actualizó la versión, incluir mención explícita en el commit
-
-Ejecuta todo preferentemente mediante un único comando o secuencia integrada.
-
-### **Fase 4** — Verificación
-Después del commit, verificar que:
+### **Fase 3** — Verificación
+Antes del commit, verificar que:
 - La aplicación funciona correctamente
 - Las versiones se muestran actualizadas en la interfaz
 - No hay errores de compilación o runtime
-- Los cambios se reflejan en el repositorio
+- Todos los cambios están completos y documentados
 
 **Crea un archivo de verificación usando el formato:**
 `YYYYMMDD_HHMMSS.md`
@@ -1982,6 +1974,15 @@ Después del commit, verificar que:
 - Resultados de todas las verificaciones realizadas
 - Estado final del sistema
 - Conclusiones y próximos pasos recomendados
+
+### **Fase 4** — Commit
+Después de completar la verificación, guarda todos los archivos modificados (incluyendo el archivo de verificación) y realiza un commit en español que incluya:
+- Resumen breve del cambio
+- Referencia al archivo generado en _tareasTerminadas
+- Mención de la verificación completada
+- IMPORTANTE: Si se actualizó la versión, incluir mención explícita en el commit
+
+Ejecuta todo preferentemente mediante un único comando o secuencia integrada.
 
 ## Estructura de Archivos de Documentación
 
