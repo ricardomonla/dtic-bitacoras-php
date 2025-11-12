@@ -53,7 +53,7 @@ export const ResourceAssignmentControl: React.FC<ResourceAssignmentControlProps>
       case 'available':
         return { icon: 'fa-check', color: 'success', text: 'Disponible' }
       case 'assigned':
-        return { icon: 'fa-user', color: 'info', text: 'Asignado' }
+        return { icon: 'fa-user', color: 'info', text: 'Relacionado' }
       case 'maintenance':
         return { icon: 'fa-spinner', color: 'warning', text: 'Mantenimiento' }
       case 'retired':
@@ -119,7 +119,7 @@ export const ResourceAssignmentControl: React.FC<ResourceAssignmentControlProps>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="mb-0">
           <i className="fas fa-boxes me-2"></i>
-          Recursos Asignados
+          Recursos Relacionados
         </h6>
         {showAddIcon && !loading && (
           <button
@@ -129,7 +129,7 @@ export const ResourceAssignmentControl: React.FC<ResourceAssignmentControlProps>
             disabled={isAssigning !== null}
           >
             <i className="fas fa-plus me-1"></i>
-            Asignar Recurso
+            Relacionar Recurso
           </button>
         )}
       </div>
@@ -173,12 +173,12 @@ export const ResourceAssignmentControl: React.FC<ResourceAssignmentControlProps>
                     {isAssigning !== null ? (
                       <>
                         <i className="fas fa-spinner fa-spin me-1"></i>
-                        Asignando...
+                        Relacionando...
                       </>
                     ) : (
                       <>
                         <i className="fas fa-check me-1"></i>
-                        Asignar
+                        Relacionar
                       </>
                     )}
                   </button>
@@ -241,7 +241,7 @@ export const ResourceAssignmentControl: React.FC<ResourceAssignmentControlProps>
                             className="btn btn-sm btn-outline-danger"
                             onClick={() => handleUnassignResource(resource.id)}
                             disabled={isUnassigning === resource.id}
-                            title="Quitar asignación"
+                            title="Quitar relación"
                           >
                             {isUnassigning === resource.id ? (
                               <i className="fas fa-spinner fa-spin"></i>
@@ -260,7 +260,7 @@ export const ResourceAssignmentControl: React.FC<ResourceAssignmentControlProps>
         ) : (
           <div className="text-center py-4">
             <i className="fas fa-box fa-3x text-muted mb-3"></i>
-            <p className="text-muted mb-0">No hay recursos asignados</p>
+            <p className="text-muted mb-0">No hay recursos relacionados</p>
             <small className="text-muted">
               {showAddResource ? 'Selecciona un recurso para asignar' : 'Haz clic en "Asignar Recurso" para comenzar'}
             </small>
@@ -273,7 +273,7 @@ export const ResourceAssignmentControl: React.FC<ResourceAssignmentControlProps>
         <div className="mt-3 pt-2 border-top">
           <small className="text-muted">
             <i className="fas fa-info-circle me-1"></i>
-            Total: {assignedResources.length} recurso{assignedResources.length !== 1 ? 's' : ''} asignado{assignedResources.length !== 1 ? 's' : ''}
+            Total: {assignedResources.length} recurso{assignedResources.length !== 1 ? 's' : ''} relacionado{assignedResources.length !== 1 ? 's' : ''}
           </small>
         </div>
       )}

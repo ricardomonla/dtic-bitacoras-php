@@ -3083,6 +3083,22 @@ Proporciona documentación completa y detallada de operaciones exitosas de resta
 **Date:** 2025-11-12
 
 **Status:** Fully Resolved
+
+### 2025-11-12: System Terminology Change - "asignados" to "relacionados"
+
+**Issue:** Inconsistent terminology in user relationship management
+
+**Change Details:** Renamed system terminology from "asignados" to "relacionados" to better reflect the semantic meaning of user relationships and resource assignments throughout the application.
+
+**Files Changed:**
+- Backend route: `usuarios_asignados.js` → `usuarios_relacionados.js`
+- Database schema references
+- Frontend components and API calls
+- Documentation and configuration files
+
+**Date:** 2025-11-12
+
+**Status:** Completed
 ```
 
 ### 20. System Documentation and Versioning Tasks

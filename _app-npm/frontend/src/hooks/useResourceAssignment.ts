@@ -76,7 +76,7 @@ export const useResourceAssignment = (
           endpoint = `${API_BASE}/tarea-recursos/tareas/${entityId}/recursos`
           break
         case 'usuario':
-          endpoint = `${API_BASE}/usuario-recursos/usuarios/${entityId}/recursos`
+          endpoint = `${API_BASE}/usuarios_relacionados/usuarios/${entityId}/recursos`
           break
         case 'tecnico':
           endpoint = `${API_BASE}/tecnico-recursos/tecnicos/${entityId}/recursos`
@@ -189,7 +189,7 @@ export const useResourceAssignment = (
           requestBody = { recurso_id: resourceId }
           break
         case 'usuario':
-          endpoint = `${API_BASE}/usuario-recursos/usuarios/${entityId}/recursos`
+          endpoint = `${API_BASE}/usuarios_relacionados/usuarios/${entityId}/recursos`
           requestBody = { resource_id: resourceId }
           break
         case 'tecnico':
@@ -225,7 +225,7 @@ export const useResourceAssignment = (
       const data = await response.json()
       
       if (data.success) {
-        toast.success('Recurso asignado exitosamente')
+        toast.success('Recurso relacionado exitosamente')
         await refreshAssignments()
         return true
       } else {
@@ -258,7 +258,7 @@ export const useResourceAssignment = (
           requestBody = {}
           break
         case 'usuario':
-          endpoint = `${API_BASE}/usuario-recursos/usuarios/${entityId}/recursos/${resourceId}`
+          endpoint = `${API_BASE}/usuarios_relacionados/usuarios/${entityId}/recursos/${resourceId}`
           requestBody = {}
           break
         case 'tecnico':
@@ -318,7 +318,7 @@ export const useResourceAssignment = (
       case 'tarea':
         return '/api/tarea-recursos'
       case 'usuario':
-        return '/api/usuario-recursos'
+        return '/api/usuarios_relacionados'
       case 'tecnico':
         return '/api/tecnico-recursos'
       case 'recurso':

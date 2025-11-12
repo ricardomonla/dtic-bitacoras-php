@@ -2,7 +2,7 @@ entities:
   tecnicos:
     name: "Técnicos"
     title: "Gestión de Técnicos"
-    subtitle: "Administra los técnicos asignados a recursos del sistema DTIC Bitácoras"
+    subtitle: "Administra los técnicos relacionados a recursos del sistema DTIC Bitácoras"
     icon: "fa-users"
     api:
       endpoint: "/api/tecnicos"
@@ -53,13 +53,13 @@ entities:
         label: "Teléfono"
         type: "tel"
       - name: "assigned_resources"
-        label: "Recursos Asignados"
+        label: "Recursos Relacionados"
         type: "resource_assignment"
         resourceAssignmentConfig:
           entityType: "tecnico"
           entityId: "{{id}}"
         required: false
-        description: "Gestión de recursos asignados a este técnico con funcionalidad de agregar/quitar"
+        description: "Gestión de recursos relacionados a este técnico con funcionalidad de agregar/quitar"
     table:
       columns:
         - key: "role"
@@ -212,7 +212,7 @@ entities:
           - value: "available"
             label: "Disponible"
           - value: "assigned"
-            label: "Asignado"
+            label: "Relacionado"
           - value: "maintenance"
             label: "Mantenimiento"
           - value: "retired"
@@ -270,7 +270,7 @@ entities:
           - value: "available"
             label: "Disponible"
           - value: "assigned"
-            label: "Asignado"
+            label: "Relacionado"
           - value: "maintenance"
             label: "Mantenimiento"
           - value: "retired"
@@ -290,7 +290,7 @@ entities:
         icon: "fa-edit"
         color: "warning"
       - key: "assign"
-        label: "Asignar Usuario"
+        label: "Relacionar Usuario"
         icon: "fa-user-plus"
         color: "success"
         modal: "assign"
@@ -307,7 +307,7 @@ entities:
         value: "entities.filter((r) => r.status === 'available').length"
         subtitle: "Listos para asignar"
         color: "success"
-      - title: "Asignados"
+      - title: "Relacionados"
         value: "entities.filter((r) => r.status === 'assigned').length"
         subtitle: "En uso actualmente"
         color: "info"
@@ -322,12 +322,12 @@ entities:
         component: "AssignUserModal"
 
   usuarios:
-    name: "Usuarios Asignados"
-    title: "Gestión de Usuarios Asignados"
-    subtitle: "Administra usuarios que pueden tener recursos asignados del sistema DTIC Bitácoras"
+    name: "Usuarios Relacionados"
+    title: "Gestión de Usuarios Relacionados"
+    subtitle: "Administra usuarios que pueden tener recursos relacionados del sistema DTIC Bitácoras"
     icon: "fa-user-cog"
     api:
-      endpoint: "/api/usuarios_asignados"
+      endpoint: "/api/usuarios_relacionados"
       methods:
         fetch: "GET"
         create: "POST"
@@ -368,13 +368,13 @@ entities:
         label: "Cargo"
         type: "text"
       - name: "assigned_resources"
-        label: "Recursos Asignados"
+        label: "Recursos Relacionados"
         type: "resource_assignment"
         resourceAssignmentConfig:
           entityType: "usuario"
           entityId: "{{id}}"
         required: false
-        description: "Gestión de recursos asignados a este usuario con funcionalidad de agregar/quitar"
+        description: "Gestión de recursos relacionados a este usuario con funcionalidad de agregar/quitar"
     table:
       columns:
         - key: "department"
@@ -386,7 +386,7 @@ entities:
         - key: "position"
           label: "Cargo"
         - key: "assigned_resources_count"
-          label: "Recursos Asignados"
+          label: "Recursos Relacionados"
         - key: "status"
           label: "Estado"
           formatter: "formatStatus"
@@ -426,7 +426,7 @@ entities:
         color: "primary"
       - title: "Con Recursos"
         value: "entities.filter((u) => (u.assigned_resources_count || 0) > 0).length"
-        subtitle: "Tienen recursos asignados"
+        subtitle: "Tienen recursos relacionados"
         color: "success"
       - title: "Sin Recursos"
         value: "entities.filter((u) => (u.assigned_resources_count || 0) === 0).length"
@@ -434,7 +434,7 @@ entities:
         color: "warning"
       - title: "Recursos Totales"
         value: "entities.reduce((total, u) => total + (u.assigned_resources_count || 0), 0)"
-        subtitle: "Asignados actualmente"
+        subtitle: "Relacionados actualmente"
         color: "info"
     modals:
       - key: "profile"
@@ -443,7 +443,7 @@ entities:
   tareas:
     name: "Tareas"
     title: "Gestión de Tareas"
-    subtitle: "Administra las tareas asignadas a los técnicos del sistema DTIC Bitácoras"
+    subtitle: "Administra las tareas relacionadas a los técnicos del sistema DTIC Bitácoras"
     icon: "fa-tasks"
     api:
       endpoint: "/api/tareas"
@@ -462,7 +462,7 @@ entities:
         type: "textarea"
         rows: 3
       - name: "technician_id"
-        label: "Técnico Asignado"
+        label: "Técnico Relacionado"
         type: "select"
         dynamicOptions:
           endpoint: "/api/tecnicos"
@@ -472,7 +472,7 @@ entities:
             status: "active"
         options:
           - value: ""
-            label: "Sin asignar"
+            label: "Sin relacionar"
       - name: "priority"
         label: "Prioridad"
         type: "select"
@@ -503,13 +503,13 @@ entities:
         label: "Fecha Límite"
         type: "date"
       - name: "assigned_resources"
-        label: "Recursos Asignados"
+        label: "Recursos Relacionados"
         type: "resource_assignment"
         resourceAssignmentConfig:
           entityType: "tarea"
           entityId: "{{id}}"
         required: false
-        description: "Gestión de recursos asignados a esta tarea con funcionalidad de agregar/quitar"
+        description: "Gestión de recursos relacionados a esta tarea con funcionalidad de agregar/quitar"
     table:
       columns:
         - key: "status_priority"
@@ -587,7 +587,7 @@ entities:
         color: "primary"
       - title: "Pendientes"
         value: "entities.filter((t) => t.status === 'pending').length"
-        subtitle: "Esperando asignación"
+        subtitle: "Esperando relación"
         color: "warning"
       - title: "En Progreso"
         value: "entities.filter((t) => t.status === 'in_progress').length"

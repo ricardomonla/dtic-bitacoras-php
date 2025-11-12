@@ -100,7 +100,7 @@ const TareaProfileModal: React.FC<TareaProfileModalProps> = ({
                     <hr />
                     {tarea.technician_name ? (
                       <>
-                        <p className="mb-2"><strong>Técnico asignado:</strong></p>
+                        <p className="mb-2"><strong>Técnico relacionado:</strong></p>
                         <div className="d-flex align-items-center">
                           <div className="avatar-circle bg-primary text-white me-3" style={{ width: '40px', height: '40px' }}>
                             <i className="fas fa-user"></i>
@@ -114,7 +114,7 @@ const TareaProfileModal: React.FC<TareaProfileModalProps> = ({
                     ) : (
                       <div className="text-center py-3">
                         <i className="fas fa-user-slash fa-2x text-muted mb-2"></i>
-                        <p className="text-muted mb-0">Sin técnico asignado</p>
+                        <p className="text-muted mb-0">Sin técnico relacionado</p>
                       </div>
                     )}
                   </div>
@@ -126,7 +126,7 @@ const TareaProfileModal: React.FC<TareaProfileModalProps> = ({
                   <div className="card-body">
                     <h6 className="card-title">
                       <i className="fas fa-boxes me-2 text-info"></i>
-                      Recursos Asignados
+                      Recursos Relacionados
                     </h6>
                     <hr />
                     <ResourceAssignmentControl

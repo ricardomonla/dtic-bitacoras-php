@@ -79,7 +79,7 @@ const Dashboard = () => {
         fetch('/api/tecnicos'),
         fetch('/api/tareas'),
         fetch('/api/recursos'),
-        fetch('/api/usuarios_asignados')
+        fetch('/api/usuarios_relacionados')
       ])
 
       const tecnicos = tecnicosRes.ok ? await tecnicosRes.json() : []
@@ -181,8 +181,8 @@ const Dashboard = () => {
         {
           id: '2',
           timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          title: 'Recurso asignado',
-          description: 'Laptop Dell Latitude 5420 asignada a Juan García',
+          title: 'Recurso relacionado',
+          description: 'Laptop Dell Latitude 5420 relacionada con Juan García',
           type: 'resource'
         },
         {

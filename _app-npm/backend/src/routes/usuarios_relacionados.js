@@ -25,7 +25,7 @@ const executeQuery = async (query, params = []) => {
   }
 };
 
-// Función helper para generar DTIC ID para usuarios asignados
+// Función helper para generar DTIC ID para usuarios relacionados
 const generateDTICId = async (prefix = 'USR') => {
   const query = `
     SELECT generate_dtic_id($1) as new_id
@@ -34,7 +34,7 @@ const generateDTICId = async (prefix = 'USR') => {
   return result.rows[0].new_id;
 };
 
-// GET /api/usuarios_asignados - Obtener lista de usuarios asignados
+// GET /api/usuarios_relacionados - Obtener lista de usuarios relacionados
 router.get('/', [
   query('page').optional().isInt({ min: 1 }).toInt(),
   query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
@@ -65,7 +65,7 @@ router.get('/', [
         u.email, u.phone, u.department, u.position,
         u.created_at, u.updated_at,
         COUNT(DISTINCT ra.recurso_id) as assigned_resources_count
-      FROM dtic.usuarios_asignados u
+      FROM dtic.usuarios_relacionados u
       LEFT JOIN dtic.recurso_asignaciones ra ON ra.user_id = u.id AND ra.activo = true
       WHERE 1=1
     `;
@@ -98,7 +98,7 @@ router.get('/', [
     const result = await executeQuery(query, params);
 
     // Obtener total para paginación
-    let countQuery = "SELECT COUNT(*) as total FROM dtic.usuarios_asignados u WHERE 1=1";
+    let countQuery = "SELECT COUNT(*) as total FROM dtic.usuarios_relacionados u WHERE 1=1";
     const countParams = [];
 
     if (conditions.length > 0) {
@@ -111,7 +111,7 @@ router.get('/', [
 
     res.json({
       success: true,
-      message: 'Usuarios asignados obtenidos exitosamente',
+      message: 'Usuarios relacionados obtenidos exitosamente',
       data: {
         usuarios: result.rows,
         pagination: {
@@ -124,7 +124,7 @@ router.get('/', [
     });
 
   } catch (error) {
-    console.error('Error obteniendo usuarios asignados:', error);
+    console.error('Error obteniendo usuarios relacionados:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'
@@ -132,7 +132,7 @@ router.get('/', [
   }
 });
 
-// GET /api/usuarios_asignados/:id - Obtener usuario asignado específico
+// GET /api/usuarios_relacionados/:id - Obtener usuario asignado específico
 router.get('/:id', [
   param('id').isInt({ min: 1 }).toInt()
 ], async (req, res) => {
@@ -153,7 +153,7 @@ router.get('/:id', [
       SELECT
         u.*,
         COUNT(DISTINCT ra.recurso_id) as total_assigned_resources
-      FROM dtic.usuarios_asignados u
+      FROM dtic.usuarios_relacionados u
       LEFT JOIN dtic.recurso_asignaciones ra ON ra.user_id = u.id AND ra.activo = true
       WHERE u.id = $1
       GROUP BY u.id
@@ -170,7 +170,7 @@ router.get('/:id', [
 
     const usuario = result.rows[0];
 
-    // Obtener recursos asignados si se solicita
+    // Obtener recursos relacionados si se solicita
     if (include_resources === 'true') {
       const resourcesQuery = `
         SELECT
@@ -200,7 +200,7 @@ router.get('/:id', [
   }
 });
 
-// POST /api/usuarios_asignados - Crear nuevo usuario asignado
+// POST /api/usuarios_relacionados - Crear nuevo usuario asignado
 router.post('/', [
   body('first_name').trim().isLength({ min: 2, max: 50 }),
   body('last_name').trim().isLength({ min: 2, max: 50 }),
@@ -223,7 +223,7 @@ router.post('/', [
 
     // Verificar email único si se proporciona
     if (email) {
-      const emailCheck = await executeQuery('SELECT id FROM dtic.usuarios_asignados WHERE email = $1', [email]);
+      const emailCheck = await executeQuery('SELECT id FROM dtic.usuarios_relacionados WHERE email = $1', [email]);
       if (emailCheck.rows.length > 0) {
         return res.status(409).json({
           success: false,
@@ -237,7 +237,7 @@ router.post('/', [
 
     // Insertar usuario asignado
     const query = `
-      INSERT INTO dtic.usuarios_asignados
+      INSERT INTO dtic.usuarios_relacionados
       (dtic_id, first_name, last_name, email, phone, department, position)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id
@@ -265,7 +265,7 @@ router.post('/', [
   }
 });
 
-// PUT /api/usuarios_asignados/:id - Actualizar usuario asignado
+// PUT /api/usuarios_relacionados/:id - Actualizar usuario asignado
 router.put('/:id', [
   param('id').isInt({ min: 1 }).toInt(),
   body('first_name').optional().trim().isLength({ min: 2, max: 50 }),
@@ -289,7 +289,7 @@ router.put('/:id', [
     const { first_name, last_name, email, phone, department, position } = req.body;
 
     // Verificar que el usuario existe
-    const existingQuery = 'SELECT * FROM dtic.usuarios_asignados WHERE id = $1';
+    const existingQuery = 'SELECT * FROM dtic.usuarios_relacionados WHERE id = $1';
     const existingResult = await executeQuery(existingQuery, [id]);
 
     if (existingResult.rows.length === 0) {
@@ -301,7 +301,7 @@ router.put('/:id', [
 
     // Verificar email único si se está cambiando
     if (email && email !== existingResult.rows[0].email) {
-      const emailCheck = await executeQuery('SELECT id FROM dtic.usuarios_asignados WHERE email = $1 AND id != $2', [email, id]);
+      const emailCheck = await executeQuery('SELECT id FROM dtic.usuarios_relacionados WHERE email = $1 AND id != $2', [email, id]);
       if (emailCheck.rows.length > 0) {
         return res.status(409).json({
           success: false,
@@ -331,7 +331,7 @@ router.put('/:id', [
 
     params.push(id);
     const query = `
-      UPDATE dtic.usuarios_asignados
+      UPDATE dtic.usuarios_relacionados
       SET ${updateFields.join(', ')}
       WHERE id = $${params.length}
     `;
@@ -352,7 +352,7 @@ router.put('/:id', [
   }
 });
 
-// DELETE /api/usuarios_asignados/:id - Eliminar usuario asignado
+// DELETE /api/usuarios_relacionados/:id - Eliminar usuario asignado
 router.delete('/:id', [
   param('id').isInt({ min: 1 }).toInt()
 ], async (req, res) => {
@@ -369,7 +369,7 @@ router.delete('/:id', [
     const { id } = req.params;
 
     // Verificar que el usuario existe
-    const existingQuery = 'SELECT * FROM dtic.usuarios_asignados WHERE id = $1';
+    const existingQuery = 'SELECT * FROM dtic.usuarios_relacionados WHERE id = $1';
     const existingResult = await executeQuery(existingQuery, [id]);
 
     if (existingResult.rows.length === 0) {
@@ -379,7 +379,7 @@ router.delete('/:id', [
       });
     }
 
-    // Verificar que no tenga recursos asignados activos
+    // Verificar que no tenga recursos relacionados activos
     const resourcesQuery = `
       SELECT COUNT(*) as count
       FROM dtic.recurso_asignaciones
@@ -390,12 +390,12 @@ router.delete('/:id', [
     if (parseInt(resourcesResult.rows[0].count) > 0) {
       return res.status(409).json({
         success: false,
-        message: 'No se puede eliminar el usuario porque tiene recursos asignados'
+        message: 'No se puede eliminar el usuario porque tiene recursos relacionados'
       });
     }
 
     // Eliminar usuario asignado
-    await executeQuery('DELETE FROM dtic.usuarios_asignados WHERE id = $1', [id]);
+    await executeQuery('DELETE FROM dtic.usuarios_relacionados WHERE id = $1', [id]);
 
     res.json({
       success: true,

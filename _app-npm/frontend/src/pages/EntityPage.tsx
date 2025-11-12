@@ -37,7 +37,7 @@ const formatAssignedResources = (entity: any) => {
     return (
       <span className="text-muted small">
         <i className="fas fa-box me-1"></i>
-        Sin recursos asignados
+        Sin recursos relacionados
       </span>
     )
   }

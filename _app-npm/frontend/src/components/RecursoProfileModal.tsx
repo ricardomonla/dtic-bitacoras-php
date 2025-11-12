@@ -166,7 +166,7 @@ const RecursoProfileModal = ({ recurso, isOpen, onClose, onEdit }: RecursoProfil
 
                 {/* Estadísticas de asignaciones */}
                 <h6 className="fw-bold text-primary mb-3">
-                  <i className="fas fa-chart-bar me-2"></i>Estadísticas de Asignaciones
+                  <i className="fas fa-chart-bar me-2"></i>Estadísticas de Relaciones
                 </h6>
 
                 {loading ? (
@@ -180,13 +180,13 @@ const RecursoProfileModal = ({ recurso, isOpen, onClose, onEdit }: RecursoProfil
                     <div className="col-sm-6">
                       <div className="p-3 bg-light rounded">
                         <div className="h4 text-primary mb-1">{stats.total_assignments}</div>
-                        <small className="text-muted fw-bold">Total Asignaciones</small>
+                        <small className="text-muted fw-bold">Total Relaciones</small>
                       </div>
                     </div>
                     <div className="col-sm-6">
                       <div className="p-3 bg-info rounded text-white">
                         <div className="h4 mb-1">{stats.active_assignments}</div>
-                        <small className="fw-bold">Asignaciones Activas</small>
+                        <small className="fw-bold">Relaciones Activas</small>
                       </div>
                     </div>
                   </div>
@@ -196,7 +196,7 @@ const RecursoProfileModal = ({ recurso, isOpen, onClose, onEdit }: RecursoProfil
                 {stats && stats.assignment_history && stats.assignment_history.length > 0 && (
                   <>
                     <h6 className="fw-bold text-primary mb-3">
-                      <i className="fas fa-history me-2"></i>Historial de Asignaciones
+                      <i className="fas fa-history me-2"></i>Historial de Relaciones
                     </h6>
                     <div className="list-group mb-4">
                       {stats.assignment_history.slice(0, 5).map((assignment: any, index: number) => (
@@ -204,12 +204,12 @@ const RecursoProfileModal = ({ recurso, isOpen, onClose, onEdit }: RecursoProfil
                           <div className="d-flex w-100 justify-content-between">
                             <h6 className="mb-1">{assignment.usuario_name || 'Usuario desconocido'}</h6>
                             <small className={`badge ${assignment.action === 'assigned' ? 'bg-success' : 'bg-warning'}`}>
-                              {assignment.action === 'assigned' ? 'Asignado' : 'Desasignado'}
+                              {assignment.action === 'assigned' ? 'Relacionado' : 'Desrelacionado'}
                             </small>
                           </div>
                           <p className="mb-1">ID DTIC: {assignment.usuario_dtic_id}</p>
                           <small className="text-muted">
-                            {assignment.action === 'assigned' ? 'Asignado' : 'Desasignado'}: {formatDate(assignment.created_at)}
+                            {assignment.action === 'assigned' ? 'Relacionado' : 'Desrelacionado'}: {formatDate(assignment.created_at)}
                             {assignment.tecnico_name && ` • Por: ${assignment.tecnico_name}`}
                           </small>
                         </div>
@@ -259,7 +259,7 @@ const RecursoProfileModal = ({ recurso, isOpen, onClose, onEdit }: RecursoProfil
                 <div className="bg-light p-3 rounded">
                   <p className="text-muted mb-0">
                     <i className="fas fa-info-circle me-2"></i>
-                    Este recurso actualmente está asignado a {stats?.active_assignments || 0} entidad{stats?.active_assignments !== 1 ? 'es' : ''}.
+                    Este recurso actualmente está relacionado con {stats?.active_assignments || 0} entidad{stats?.active_assignments !== 1 ? 'es' : ''}.
                   </p>
                   {stats && stats.active_assignments > 0 && (
                     <small className="text-muted">

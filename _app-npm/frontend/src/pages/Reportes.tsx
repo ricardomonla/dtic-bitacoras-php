@@ -82,7 +82,7 @@ const Reportes = () => {
         fetch('/api/tecnicos'),
         fetch('/api/tareas'),
         fetch('/api/recursos'),
-        fetch('/api/usuarios_asignados')
+        fetch('/api/usuarios_relacionados')
       ])
 
       const tecnicos = tecnicosRes.ok ? await tecnicosRes.json() : []
@@ -201,7 +201,7 @@ const Reportes = () => {
                 backgroundColor: '#28a745',
                 borderWidth: 1
               }, {
-                label: 'Asignados',
+                label: 'Relacionados',
                 data: [8, 5, 4, 3],
                 backgroundColor: '#17a2b8',
                 borderWidth: 1
@@ -519,7 +519,7 @@ const Reportes = () => {
                     <tr>
                       <th>Categoría</th>
                       <th>Total</th>
-                      <th>Asignados</th>
+                      <th>Relacionados</th>
                       <th>Disponibles</th>
                     </tr>
                   </thead>
@@ -577,8 +577,8 @@ const Reportes = () => {
                 <div className="timeline-item">
                   <div className="timeline-marker bg-info"></div>
                   <div className="timeline-content">
-                    <h6 className="text-info mb-1">Recurso asignado</h6>
-                    <p className="mb-1">Laptop Dell Latitude 5420 asignada a Juan García</p>
+                    <h6 className="text-info mb-1">Recurso relacionado</h6>
+                    <p className="mb-1">Laptop Dell Latitude 5420 relacionada con Juan García</p>
                     <small className="text-muted">Hace 4 horas</small>
                   </div>
                 </div>

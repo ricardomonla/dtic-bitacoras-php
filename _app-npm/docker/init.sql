@@ -87,7 +87,7 @@ BEGIN
         UNION ALL
         SELECT dtic_id FROM dtic.recursos WHERE dtic_id LIKE prefix || '-%'
         UNION ALL
-        SELECT dtic_id FROM dtic.usuarios_asignados WHERE dtic_id LIKE prefix || '-%'
+        SELECT dtic_id FROM dtic.usuarios_relacionados WHERE dtic_id LIKE prefix || '-%'
         UNION ALL
         SELECT dtic_id FROM dtic.tarea_recursos WHERE dtic_id LIKE prefix || '-%'
     ) AS all_ids;
@@ -150,8 +150,8 @@ CREATE INDEX IF NOT EXISTS idx_recursos_category ON recursos (category);
 CREATE INDEX IF NOT EXISTS idx_recursos_status ON recursos (status);
 CREATE INDEX IF NOT EXISTS idx_recursos_location ON recursos (location);
 
--- Tabla de usuarios asignados (diferentes de técnicos del sistema)
-CREATE TABLE IF NOT EXISTS usuarios_asignados (
+-- Tabla de usuarios relacionados (diferentes de técnicos del sistema)
+CREATE TABLE IF NOT EXISTS usuarios_relacionados (
     id SERIAL PRIMARY KEY,
     dtic_id VARCHAR(20) UNIQUE NOT NULL,
     first_name VARCHAR(50) NOT NULL,
@@ -164,16 +164,16 @@ CREATE TABLE IF NOT EXISTS usuarios_asignados (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Índices para usuarios asignados
-CREATE INDEX IF NOT EXISTS idx_usuarios_asignados_dtic_id ON usuarios_asignados (dtic_id);
-CREATE INDEX IF NOT EXISTS idx_usuarios_asignados_email ON usuarios_asignados (email);
-CREATE INDEX IF NOT EXISTS idx_usuarios_asignados_department ON usuarios_asignados (department);
+-- Índices para usuarios relacionados
+CREATE INDEX IF NOT EXISTS idx_usuarios_relacionados_dtic_id ON usuarios_relacionados (dtic_id);
+CREATE INDEX IF NOT EXISTS idx_usuarios_relacionados_email ON usuarios_relacionados (email);
+CREATE INDEX IF NOT EXISTS idx_usuarios_relacionados_department ON usuarios_relacionados (department);
 
 -- Tabla de asignaciones recurso-usuario (relación muchos a muchos)
 CREATE TABLE IF NOT EXISTS recurso_asignaciones (
     id SERIAL PRIMARY KEY,
     recurso_id INTEGER NOT NULL REFERENCES recursos(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES usuarios_asignados(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES usuarios_relacionados(id) ON DELETE CASCADE,
     assigned_by INTEGER REFERENCES tecnicos(id), -- técnico que realizó la asignación
     assigned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     unassigned_by INTEGER REFERENCES tecnicos(id), -- técnico que realizó la desasignación
@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS recurso_historial (
     id SERIAL PRIMARY KEY,
     recurso_id INTEGER NOT NULL REFERENCES recursos(id) ON DELETE CASCADE,
     action VARCHAR(50) NOT NULL, -- 'assigned', 'unassigned', 'maintenance', 'created', 'updated'
-    usuario_id INTEGER REFERENCES usuarios_asignados(id), -- usuario asignado (si aplica)
+    usuario_id INTEGER REFERENCES usuarios_relacionados(id), -- usuario asignado (si aplica)
     tecnico_id INTEGER REFERENCES tecnicos(id), -- técnico que realizó la acción
     details TEXT, -- descripción detallada de la acción
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -256,8 +256,8 @@ CREATE TRIGGER update_recursos_updated_at
     BEFORE UPDATE ON recursos
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_usuarios_asignados_updated_at
-    BEFORE UPDATE ON usuarios_asignados
+CREATE TRIGGER update_usuarios_relacionados_updated_at
+    BEFORE UPDATE ON usuarios_relacionados
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Función para validar asignaciones de recursos a tareas
@@ -338,8 +338,8 @@ INSERT INTO recursos (dtic_id, name, description, category, status, location, te
 ('REC-0006', 'Licencia Windows Server 2022', 'Licencia para servidor principal', 'software', 'assigned', 'Sala de Servidores', '{"edition": "Standard", "cores": 16}', 'WS2022-STD-006', 'Windows Server 2022')
 ON CONFLICT (dtic_id) DO NOTHING;
 
--- Insertar datos de ejemplo para usuarios asignados
-INSERT INTO usuarios_asignados (dtic_id, first_name, last_name, email, phone, department, position) VALUES
+-- Insertar datos de ejemplo para usuarios relacionados
+INSERT INTO usuarios_relacionados (dtic_id, first_name, last_name, email, phone, department, position) VALUES
 ('USR-0001', 'Juan', 'Pérez', 'juan.perez@empresa.com', '+54 11 1234-5678', 'Administración', 'Gerente'),
 ('USR-0002', 'María', 'González', 'maria.gonzalez@empresa.com', '+54 11 2345-6789', 'Recursos Humanos', 'Coordinadora'),
 ('USR-0003', 'Carlos', 'Rodríguez', 'carlos.rodriguez@empresa.com', '+54 11 3456-7890', 'IT', 'Analista'),
@@ -358,7 +358,7 @@ CREATE INDEX IF NOT EXISTS idx_tecnicos_full_name ON tecnicos USING gin (to_tsve
 CREATE INDEX IF NOT EXISTS idx_tecnicos_search ON tecnicos USING gin (to_tsvector('spanish', first_name || ' ' || last_name || ' ' || email || ' ' || dtic_id));
 
 CREATE INDEX IF NOT EXISTS idx_recursos_name ON recursos USING gin (to_tsvector('spanish', name || ' ' || description || ' ' || dtic_id));
-CREATE INDEX IF NOT EXISTS idx_usuarios_asignados_name ON usuarios_asignados USING gin (to_tsvector('spanish', first_name || ' ' || last_name || ' ' || email || ' ' || dtic_id));
+CREATE INDEX IF NOT EXISTS idx_usuarios_relacionados_name ON usuarios_relacionados USING gin (to_tsvector('spanish', first_name || ' ' || last_name || ' ' || email || ' ' || dtic_id));
 
 -- Comentarios en las tablas
 COMMENT ON TABLE tecnicos IS 'Tabla principal de técnicos del sistema DTIC Bitácoras';

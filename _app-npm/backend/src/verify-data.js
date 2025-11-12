@@ -13,8 +13,8 @@ async function verifyDataIntegrity() {
         });
 
         // Verificar usuarios
-        const usuarios = await executeQuery('SELECT COUNT(*) as total FROM dtic.usuarios_asignados');
-        console.log(`👥 Total de usuarios asignados: ${usuarios.rows[0].total}`);
+        const usuarios = await executeQuery('SELECT COUNT(*) as total FROM dtic.usuarios_relacionados');
+        console.log(`👥 Total de usuarios relacionados: ${usuarios.rows[0].total}`);
 
         // Verificar tareas
         const tareas = await executeQuery('SELECT COUNT(*) as total, status, priority FROM dtic.tareas GROUP BY status, priority ORDER BY status, priority');
@@ -38,7 +38,7 @@ async function verifyDataIntegrity() {
         console.log('Recursos:');
         sampleRecursos.rows.forEach(r => console.log(`   ${r.dtic_id}: ${r.name} (${r.category})`));
 
-        const sampleUsuarios = await executeQuery('SELECT dtic_id, first_name, last_name, department FROM dtic.usuarios_asignados LIMIT 5');
+        const sampleUsuarios = await executeQuery('SELECT dtic_id, first_name, last_name, department FROM dtic.usuarios_relacionados LIMIT 5');
         console.log('Usuarios:');
         sampleUsuarios.rows.forEach(u => console.log(`   ${u.dtic_id}: ${u.first_name} ${u.last_name} (${u.department})`));
 

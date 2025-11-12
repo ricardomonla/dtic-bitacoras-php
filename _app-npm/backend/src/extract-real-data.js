@@ -184,7 +184,7 @@ async function clearExistingData() {
         await executeQuery('DELETE FROM dtic.recurso_asignaciones');
         await executeQuery('DELETE FROM dtic.tareas');
         await executeQuery('DELETE FROM dtic.recursos');
-        await executeQuery('DELETE FROM dtic.usuarios_asignados');
+        await executeQuery('DELETE FROM dtic.usuarios_relacionados');
 
         console.log('✅ Datos existentes eliminados');
     } catch (error) {
@@ -213,7 +213,7 @@ async function insertRealData(data) {
             const dticId = `USR-${String(i + 1).padStart(4, '0')}`;
 
             await executeQuery(`
-                INSERT INTO dtic.usuarios_asignados (dtic_id, first_name, last_name, email, department, position)
+                INSERT INTO dtic.usuarios_relacionados (dtic_id, first_name, last_name, email, department, position)
                 VALUES ($1, $2, $3, $4, $5, $6)
             `, [dticId, usuario.first_name, usuario.last_name, usuario.email, usuario.department, usuario.position]);
         }

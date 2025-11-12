@@ -19,7 +19,7 @@ const authRoutes = require('./routes/auth');
 const tecnicosRoutes = require('./routes/tecnicos');
 const tareasRoutes = require('./routes/tareas');
 const recursosRoutes = require('./routes/recursos');
-const usuariosAsignadosRoutes = require('./routes/usuarios_asignados');
+const usuariosRelacionadosRoutes = require('./routes/usuarios_relacionados');
 const tareaRecursosRoutes = require('./routes/tarea-recursos');
 
 // Configuración de la aplicación
@@ -110,7 +110,7 @@ app.get('/api/config/entities.yml', (req, res) => {
     res.send(data);
   });
 });
-app.use('/api/usuarios_asignados', usuariosAsignadosRoutes);
+app.use('/api/usuarios_relacionados', usuariosRelacionadosRoutes);
 
 // Manejo de errores 404
 app.use('/api/*', (req, res) => {

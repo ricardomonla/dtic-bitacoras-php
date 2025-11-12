@@ -5,26 +5,19 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0] - 2025-11-12
+## [1.4.1] - 2025-11-12
 
-### Added
-- **Resource Assignment in Task Editing**: Complete implementation of resource assignment functionality in task edit forms
-- **Template Replacement System**: Dynamic replacement of `{{id}}` templates with actual entity IDs in forms
-- **Auto-loading Resource Data**: Automatic loading of assigned resources when edit forms open
-- **Enhanced Resource Management**: Full CRUD operations for task-resource assignments with real-time updates
-
-### Fixed
-- **Resource Visibility in Edit Forms**: Resources now properly display in task editing interface
-- **Template Processing**: Fixed `{{id}}` template replacement in EntityForm resource assignment configuration
-- **API Connectivity**: Resolved CORS issues by using Vite proxy with relative paths
-- **Backend API Errors**: Fixed historial table insertion errors in tarea-recursos routes
-- **Hook Initialization**: Added automatic data loading to useResourceAssignment hook
+### Changed
+- **Terminology Update**: Changed terminology from "asignados" to "relacionados" for user entities throughout the system
+- **Database Schema**: Renamed table from `usuarios_asignados` to `usuarios_relacionados`
+- **API Endpoints**: Updated API routes from `/api/usuarios_asignados` to `/api/usuarios_relacionados`
+- **UI Text**: Updated user interface text from "asignados" to "relacionados" in all user-related components and pages
 
 ### Technical Details
-- **Frontend**: Enhanced EntityForm with template replacement, updated useResourceAssignment hook with auto-loading
-- **Backend**: Fixed tarea-recursos API by commenting out missing historial table operations
-- **Configuration**: Updated version references across all components (frontend, backend, navbar, docs)
-- **Version Update**: System version incremented to 1.4.0 (minor version for new functionality)
+- **Database**: Migrated table name and updated all foreign key references and indexes
+- **Backend**: Renamed route file from `usuarios_asignados.js` to `usuarios_relacionados.js` and updated all internal references
+- **Frontend**: Updated entity configuration, hooks, and components to use new terminology and API endpoints
+- **Version Update**: System version incremented to 1.4.1 (patch version for terminology improvement)
 
 ## [1.3.0] - 2025-11-07
 

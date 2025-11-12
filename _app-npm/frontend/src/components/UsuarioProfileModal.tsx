@@ -1,10 +1,24 @@
 import { useEffect, useState } from 'react'
-import { UsuarioAsignado } from '../stores/usuariosAsignadosStore'
 import { ResourceAssignmentControl } from './common/ResourceAssignmentControl'
 import { useResourceAssignment } from '../hooks/useResourceAssignment'
 
+interface UsuarioRelacionado {
+  id: number
+  dtic_id: string
+  first_name: string
+  last_name: string
+  full_name?: string
+  email?: string
+  phone?: string
+  department?: string
+  position?: string
+  created_at: string
+  updated_at?: string
+  assigned_resources_count?: number
+}
+
 interface UsuarioProfileModalProps {
-  usuario: UsuarioAsignado | null
+  usuario: UsuarioRelacionado | null
   isOpen: boolean
   onClose: () => void
   onEdit: (id: number) => void
@@ -42,7 +56,7 @@ const UsuarioProfileModal = ({ usuario, isOpen, onClose, onEdit }: UsuarioProfil
 
     setLoading(true)
     try {
-      const response = await fetch(`/api/usuarios_asignados/${usuario.id}?include_history=true`)
+      const response = await fetch(`/api/usuarios_relacionados/${usuario.id}?include_history=true`)
       const data = await response.json()
 
       if (data.success) {
@@ -125,7 +139,7 @@ const UsuarioProfileModal = ({ usuario, isOpen, onClose, onEdit }: UsuarioProfil
                 )}
                 <div>
                   <span className="badge fs-6 bg-secondary">
-                    Usuario Asignado
+                    Usuario Relacionado
                   </span>
                 </div>
               </div>
@@ -167,7 +181,7 @@ const UsuarioProfileModal = ({ usuario, isOpen, onClose, onEdit }: UsuarioProfil
 
                 {/* Estadísticas de recursos asignados */}
                 <h6 className="fw-bold text-primary mb-3">
-                  <i className="fas fa-chart-bar me-2"></i>Estadísticas de Recursos Asignados
+                  <i className="fas fa-chart-bar me-2"></i>Estadísticas de Recursos Relacionados
                 </h6>
 
                 {loading ? (
@@ -181,13 +195,13 @@ const UsuarioProfileModal = ({ usuario, isOpen, onClose, onEdit }: UsuarioProfil
                     <div className="col-sm-6">
                       <div className="p-3 bg-light rounded">
                         <div className="h4 text-primary mb-1">{stats.total_assignments}</div>
-                        <small className="text-muted fw-bold">Total Asignaciones</small>
+                        <small className="text-muted fw-bold">Total Relaciones</small>
                       </div>
                     </div>
                     <div className="col-sm-6">
                       <div className="p-3 bg-success rounded text-white">
                         <div className="h4 mb-1">{stats.active_assignments}</div>
-                        <small className="fw-bold">Asignaciones Activas</small>
+                        <small className="fw-bold">Relaciones Activas</small>
                       </div>
                     </div>
                   </div>
@@ -197,7 +211,7 @@ const UsuarioProfileModal = ({ usuario, isOpen, onClose, onEdit }: UsuarioProfil
                 {stats && stats.resource_categories && Object.keys(stats.resource_categories).length > 0 && (
                   <>
                     <h6 className="fw-bold text-info mb-3">
-                      <i className="fas fa-tags me-2"></i>Categorías de Recursos Asignados
+                      <i className="fas fa-tags me-2"></i>Categorías de Recursos Relacionados
                     </h6>
                     <div className="row mb-4">
                       {Object.entries(stats.resource_categories).map(([category, count]) => (
@@ -216,7 +230,7 @@ const UsuarioProfileModal = ({ usuario, isOpen, onClose, onEdit }: UsuarioProfil
                 {stats && stats.assignment_history && stats.assignment_history.length > 0 && (
                   <>
                     <h6 className="fw-bold text-primary mb-3">
-                      <i className="fas fa-history me-2"></i>Historial de Asignaciones
+                      <i className="fas fa-history me-2"></i>Historial de Relaciones
                     </h6>
                     <div className="list-group">
                       {stats.assignment_history.slice(0, 5).map((assignment: any, index: number) => (
@@ -224,14 +238,14 @@ const UsuarioProfileModal = ({ usuario, isOpen, onClose, onEdit }: UsuarioProfil
                           <div className="d-flex w-100 justify-content-between">
                             <h6 className="mb-1">{assignment.recurso_name || 'Recurso desconocido'}</h6>
                             <small className={`badge ${assignment.action === 'assigned' ? 'bg-success' : 'bg-warning'}`}>
-                              {assignment.action === 'assigned' ? 'Asignado' : 'Desasignado'}
+                              {assignment.action === 'assigned' ? 'Relacionado' : 'Desrelacionado'}
                             </small>
                           </div>
                           <p className="mb-1">
                             ID DTIC: {assignment.recurso_dtic_id} • Categoría: {formatCategory(assignment.recurso_category)}
                           </p>
                           <small className="text-muted">
-                            {assignment.action === 'assigned' ? 'Asignado' : 'Desasignado'}: {formatDate(assignment.created_at)}
+                            {assignment.action === 'assigned' ? 'Relacionado' : 'Desrelacionado'}: {formatDate(assignment.created_at)}
                             {assignment.tecnico_name && ` • Por: ${assignment.tecnico_name}`}
                           </small>
                         </div>
@@ -243,14 +257,14 @@ const UsuarioProfileModal = ({ usuario, isOpen, onClose, onEdit }: UsuarioProfil
                 {stats && (!stats.assignment_history || stats.assignment_history.length === 0) && (
                   <div className="text-center py-4 text-muted">
                     <i className="fas fa-inbox fa-2x mb-2"></i>
-                    <p>No hay historial de asignaciones</p>
+                    <p>No hay historial de relaciones</p>
                   </div>
                 )}
 
                 {/* Resource Assignment Control */}
                 <hr className="my-4" />
                 <h6 className="fw-bold text-info mb-3">
-                  <i className="fas fa-boxes me-2"></i>Gestión de Recursos Asignados
+                  <i className="fas fa-boxes me-2"></i>Gestión de Recursos Relacionados
                 </h6>
                 <ResourceAssignmentControl
                   entityId={usuario.id}

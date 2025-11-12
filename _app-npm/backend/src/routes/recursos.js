@@ -193,7 +193,7 @@ router.get('/:id', [
         CONCAT(u.first_name, ' ', u.last_name) as full_name,
         ra.assigned_at, ra.assigned_by
       FROM dtic.recurso_asignaciones ra
-      JOIN dtic.usuarios_asignados u ON u.id = ra.user_id
+      JOIN dtic.usuarios_relacionados u ON u.id = ra.user_id
       WHERE ra.recurso_id = $1 AND ra.activo = true
       ORDER BY ra.assigned_at DESC
     `;
@@ -211,7 +211,7 @@ router.get('/:id', [
           CONCAT(u.first_name, ' ', u.last_name) as usuario_name
         FROM dtic.recurso_historial h
         LEFT JOIN dtic.tecnicos t ON t.id = h.tecnico_id
-        LEFT JOIN dtic.usuarios_asignados u ON u.id = h.usuario_id
+        LEFT JOIN dtic.usuarios_relacionados u ON u.id = h.usuario_id
         WHERE h.recurso_id = $1
         ORDER BY h.created_at DESC
         LIMIT 20
@@ -474,7 +474,7 @@ router.post('/:id/asignar', [
     }
 
     // Verificar que el usuario existe
-    const usuarioQuery = 'SELECT * FROM dtic.usuarios_asignados WHERE id = $1';
+    const usuarioQuery = 'SELECT * FROM dtic.usuarios_relacionados WHERE id = $1';
     const usuarioResult = await executeQuery(usuarioQuery, [usuario_id]);
 
     if (usuarioResult.rows.length === 0) {
@@ -561,7 +561,7 @@ router.post('/:id/desasignar', [
     const assignmentQuery = `
       SELECT ra.*, u.first_name, u.last_name
       FROM dtic.recurso_asignaciones ra
-      JOIN dtic.usuarios_asignados u ON u.id = ra.user_id
+      JOIN dtic.usuarios_relacionados u ON u.id = ra.user_id
       WHERE ra.recurso_id = $1 AND ra.user_id = $2 AND ra.activo = true
     `;
     const assignmentResult = await executeQuery(assignmentQuery, [id, usuario_id]);

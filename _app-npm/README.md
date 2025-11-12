@@ -171,8 +171,8 @@ Los **recursos** son los elementos físicos o digitales que utiliza el DTIC para
 - Certificados, firewalls (Seguridad)
 - Kits de herramientas, testers (Herramientas)
 
-#### 👤 Usuarios Asignados
-Los **usuarios** son las personas que trabajan con los recursos del DTIC en sus actividades diarias. A diferencia de los técnicos, no resuelven tareas del sistema sino que utilizan los recursos asignados para realizar su trabajo operativo.
+#### 👤 Usuarios Relacionados
+Los **usuarios** son las personas que trabajan con los recursos del DTIC en sus actividades diarias. A diferencia de los técnicos, no resuelven tareas del sistema sino que utilizan los recursos relacionados para realizar su trabajo operativo.
 
 **Características principales:**
 - **ID único**: Identificador único del usuario
@@ -180,7 +180,7 @@ Los **usuarios** son las personas que trabajan con los recursos del DTIC en sus 
 - **Rol operativo**: Operador, Supervisor, Analista, Invitado
 - **Departamento**: Área específica donde opera
 - **Estado**: Activo, Inactivo
-- **Recursos asignados**: Lista de recursos bajo su responsabilidad
+- **Recursos relacionados**: Lista de recursos bajo su responsabilidad
 - **Historial de uso**: Registro de recursos utilizados
 
 **Roles operativos:**
@@ -266,7 +266,7 @@ _app-npm/
 │   │   │   ├── tecnicos.js         # Gestión de técnicos
 │   │   │   ├── recursos.js         # Gestión de recursos
 │   │   │   ├── tareas.js           # Gestión de tareas
-│   │   │   └── usuarios_asignados.js # Gestión de usuarios
+│   │   │   └── usuarios_relacionados.js # Gestión de usuarios
 │   │   ├── middleware/             # Middleware de seguridad
 │   │   │   └── auth.js            # Verificación JWT
 │   │   └── server.js              # Servidor principal
@@ -543,7 +543,7 @@ make dev-db
 La base de datos incluye datos de ejemplo:
 - **7 Técnicos**: Admin, técnicos y visualizadores
 - **6 Recursos**: Hardware, software y herramientas
-- **5 Usuarios Asignados**: Personal administrativo
+- **5 Usuarios Relacionados**: Personal administrativo
 - **Asignaciones**: Recursos vinculados a usuarios
 
 #### Reset de Datos
@@ -659,12 +659,12 @@ PUT    /api/tareas/:id              # Actualizar tarea
 DELETE /api/tareas/:id              # Eliminar tarea
 ```
 
-#### Usuarios Asignados
+#### Usuarios Relacionados
 ```
-GET    /api/usuarios_asignados      # Listar usuarios
-POST   /api/usuarios_asignados      # Crear usuario
-PUT    /api/usuarios_asignados/:id  # Actualizar usuario
-DELETE /api/usuarios_asignados/:id  # Eliminar usuario
+GET    /api/usuarios_relacionados      # Listar usuarios
+POST   /api/usuarios_relacionados      # Crear usuario
+PUT    /api/usuarios_relacionados/:id  # Actualizar usuario
+DELETE /api/usuarios_relacionados/:id  # Eliminar usuario
 ```
 
 ### Configuración Dinámica
