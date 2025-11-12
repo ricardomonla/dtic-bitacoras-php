@@ -155,7 +155,7 @@ plantillas:
     categoria: "configuracion"
     subcategoria: "deployment"
     prioridad: 2
-    palabras_clave: ["docker", "configuración", "yaml", "env", "variables", "deployment", "setup", "instalación"]
+    palabras_clave: ["docker", "configuración", "yaml", "env", "variables", "deployment", "setup", "instalación", "desplegar", "respaldo", "backup", "app-run.sh"]
     patrones_matching:
       - "docker"
       - "configuración"
@@ -204,18 +204,83 @@ plantillas:
     uso_recomendado: "Desarrollo de dashboards y sistemas de reportes"
     descripcion: "Plantilla para creación de dashboards y reportes estadísticos"
 
+  mantenimiento_sistema:
+    id: "DTIC-MAINT-001"
+    nombre: "Mantenimiento y Limpieza del Sistema"
+    categoria: "mantenimiento"
+    subcategoria: "cleanup"
+    prioridad: 2
+    palabras_clave: ["mantenimiento", "limpieza", "archivos", "basurero", "organizar", "cleanup", "mover", "archivar", "sistema", "dtic", "bitacoras"]
+    patrones_matching:
+      - "mover a basurero"
+      - "limpiar archivos"
+      - "organizar documentacion"
+      - "archivar archivos innecesarios"
+      - "mantenimiento sistema"
+    uso_recomendado: "Realizar mantenimiento y limpieza de archivos innecesarios en el sistema DTIC Bitácoras"
+    descripcion: "Plantilla para tareas de mantenimiento, limpieza y organización de archivos del sistema"
+
+  documentacion_sistema:
+    id: "DTIC-DOCS-SYS-001"
+    nombre: "Documentación del Sistema DTIC Bitácoras"
+    categoria: "documentacion"
+    subcategoria: "sistema"
+    prioridad: 1
+    palabras_clave: ["documentar", "sistema", "documentacion", "arquitectura", "componentes", "modulos", "api", "base de datos", "frontend", "backend", "dtic", "bitacoras"]
+    patrones_matching:
+      - "documentar sistema"
+      - "documentacion completa"
+      - "arquitectura del sistema"
+      - "componentes del sistema"
+      - "documentar dtic bitacoras"
+    uso_recomendado: "Crear documentación completa del sistema DTIC Bitácoras utilizando información existente en _docs"
+    descripcion: "Plantilla para documentar la arquitectura, componentes y funcionalidades del sistema DTIC Bitácoras"
+
+  documentacion_actualizacion:
+   id: "DTIC-DOCS-UPD-001"
+   nombre: "Actualización de Documentación"
+   categoria: "documentacion"
+   subcategoria: "actualizacion"
+   prioridad: 2
+   palabras_clave: ["actualizar", "documentacion", "flujos", "workflows", "integrar", "incorporar", "mejorar", "sistema", "dtic", "bitacoras"]
+   patrones_matching:
+     - "actualizar documentacion"
+     - "incorporar flujos"
+     - "mejorar docs"
+     - "integrar workflows"
+     - "actualizar sistema docs"
+   uso_recomendado: "Actualizar la documentación del sistema con nueva información de flujos de trabajo"
+   descripcion: "Plantilla para actualizar y mejorar la documentación del sistema DTIC Bitácoras"
+
+  documentacion_entidades:
+   id: "DTIC-DOCS-ENT-001"
+   nombre: "Documentación de Entidades del Sistema"
+   categoria: "documentacion"
+   subcategoria: "entidades"
+   prioridad: 2
+   palabras_clave: ["entidades", "configuracion", "yaml", "campos", "relaciones", "funcionalidades", "estados", "sistema", "dtic", "bitacoras"]
+   patrones_matching:
+     - "documentar entidades"
+     - "configuracion entidades"
+     - "entidades yaml"
+     - "documentar configuracion entidades"
+   uso_recomendado: "Documentar las entidades del sistema DTIC Bitácoras desde configuración YAML"
+   descripcion: "Plantilla para documentar entidades y configuraciones del sistema"
+
 # CLASIFICACIÓN AUTOMÁTICA
 clasificacion:
   categorias:
-    desarrollo: ["frontend", "backend", "crud"]
-    seguridad: ["autenticacion"]
-    datos: ["base_datos"]
-    reportes: ["dashboard"]
-    configuracion: ["deployment"]
-    optimizacion: ["performance"]
-    debugging: ["error_solving"]
-    documentacion: ["workflow"]
-    general: ["general"]
+   desarrollo: ["frontend", "backend", "crud"]
+   seguridad: ["autenticacion"]
+   datos: ["base_datos"]
+   reportes: ["dashboard"]
+   configuracion: ["deployment"]
+   optimizacion: ["performance"]
+   debugging: ["error_solving"]
+   documentacion: ["workflow", "sistema", "actualizacion", "entidades"]
+   general: ["general"]
+
+    mantenimiento: ["cleanup"]
 
   priority_rules:
     - categoria: "debugging"
@@ -308,7 +373,12 @@ const ejemplosClasificacion = {
     "Implementar CRUD para nuevas entidades": "DTIC-CRUD-001",
     "Documentar el progreso de desarrollo": "DTIC-DOC-001",
     "Crear changelog y actualizar versión": "DTIC-DOC-001",
-    "Generar bitácora de tareas completadas": "DTIC-DOC-001"
+    "Generar bitácora de tareas completadas": "DTIC-DOC-001",
+    "Documentar el sistema DTIC Bitácoras": "DTIC-DOCS-SYS-001",
+    "Actualizar documentación con flujos de _flujos": "DTIC-DOCS-UPD-001",
+    "Documentar entidades desde _entidades": "DTIC-DOCS-ENT-001",
+
+    "Mover archivos innecesarios a basurero": "DTIC-MAINT-001"
 };
 ```
 
@@ -1062,14 +1132,71 @@ Explica en español cómo:
    - Database access control
 
 5. **Validar la configuración**
-   - Health checks
-   - Integration tests
-   - Performance tests
+    - Health checks
+    - Integration tests
+    - Performance tests
+
+6. **Desplegar el sistema y restaurar respaldo** Para desplegar el sistema y restaurar el último respaldo, debes usar el script app-run.sh
 
 Proporciona archivos de configuración completos y scripts de deployment.
 ```
 
-### 9. Entidades CRUD y Stores Genéricos
+### 9. Documentación del Sistema DTIC Bitácoras
+
+**ID:** `DTIC-DOCS-SYS-001` | **Categoría:** `documentacion/sistema` | **Prioridad:** `1`
+
+```markdown
+**IDIOMA: ESPAÑOL**
+**CONTEXTO: Documentación DTIC Bitácoras (Sistema completo)**
+**TAREA: Documentar el sistema DTIC Bitácoras**
+**MÓDULOS: Arquitectura, Componentes, API, Base de Datos, Frontend, Backend**
+**PLANTILLA_ID: DTIC-DOCS-SYS-001**
+
+## Especificaciones de Documentación
+Documenta el sistema DTIC Bitácoras de manera completa y estructurada.
+
+### Arquitectura General
+- **Stack Tecnológico:** React + TypeScript (Frontend), Node.js + Express (Backend), PostgreSQL (Base de Datos), Docker (Contenedorización)
+- **Autenticación:** JWT con refresh tokens (8 horas expiración)
+- **Permisos:** viewer → technician → admin → super_admin
+- **Entidades Principales:** Técnicos, Recursos, Usuarios, Tareas, Usuarios_Asignados
+
+### Componentes del Sistema
+
+#### Frontend (React + TypeScript)
+- **Páginas:** Dashboard, Calendario, Reportes, EstadoProyecto, Login, EntityPage (CRUD)
+- **Componentes:** EntityForm, EntityLayout, ProfileModal, Navbar, etc.
+- **Stores:** authStore, genericEntityStore, useEntityManagement
+- **Configuración:** entities.yml
+
+#### Backend (Node.js + Express)
+- **Rutas:** auth.js, recursos.js, tareas.js, tecnicos.js, usuarios_asignados.js
+- **Middleware:** auth.js, audit.js
+- **Base de Datos:** PostgreSQL con pool de conexiones
+
+#### Base de Datos
+- **Esquema:** Tablas para tecnicos, recursos, usuarios, tareas, usuarios_asignados
+- **Relaciones:** Claves foráneas y constraints
+
+### Documentación Existente
+Utiliza la información en el directorio _docs para complementar:
+- Implementaciones específicas (asignación de recursos, etc.)
+- Correcciones y verificaciones
+- Guías de testing
+
+### Estructura de Documentación
+1. **Introducción y Arquitectura**
+2. **Componentes Frontend**
+3. **APIs Backend**
+4. **Esquema de Base de Datos**
+5. **Configuración y Deployment**
+6. **Guías de Desarrollo y Testing**
+7. **Historial de Cambios**
+
+Proporciona documentación completa y actualizada del sistema.
+```
+
+### 11. Entidades CRUD y Stores Genéricos
 
 **ID:** `DTIC-CRUD-001` | **Categoría:** `desarrollo/crud` | **Prioridad:** `2`
 
@@ -1541,7 +1668,7 @@ Utiliza los patrones establecidos para stores y hooks.
 Proporciona código completo con ejemplos de uso.
 ```
 
-### 10. Dashboard y Reportes
+### 12. Dashboard y Reportes
 
 **ID:** `DTIC-DASH-001` | **Categoría:** `reportes/dashboard` | **Prioridad:** `2`
 
@@ -1914,7 +2041,7 @@ Utiliza los patrones de Dashboard existentes.
 Proporciona ejemplos con datos realistas y configuraciones exportables.
 ```
 
-### 11. Documentación y Workflow de Desarrollo
+### 13. Documentación y Workflow de Desarrollo
 
 **ID:** `DTIC-DOC-001` | **Categoría:** `documentacion/workflow` | **Prioridad:** `1`
 
@@ -2126,6 +2253,55 @@ Utiliza los patrones de documentación establecidos.
 Proporciona scripts automatizados para facilitar el proceso.
 ```
 
+### 14. Mantenimiento y Limpieza del Sistema
+
+**ID:** `DTIC-MAINT-001` | **Categoría:** `mantenimiento/cleanup` | **Prioridad:** `2`
+
+```markdown
+**IDIOMA: ESPAÑOL**
+**CONTEXTO: Mantenimiento DTIC Bitácoras (Limpieza y organización de archivos)**
+**TAREA: Realizar mantenimiento y limpieza del sistema**
+**MÓDULOS: Archivos, Documentación, Estructura del proyecto**
+**PLANTILLA_ID: DTIC-MAINT-001**
+
+## Especificaciones de Mantenimiento
+Realiza tareas de mantenimiento y limpieza en el sistema DTIC Bitácoras.
+
+### Tareas de Limpieza
+- Identificar archivos obsoletos o redundantes
+- Mover archivos innecesarios al directorio _basurero
+- Organizar documentación consolidada
+- Limpiar código comentado o no utilizado
+- Optimizar estructura de directorios
+
+### Directorios a Revisar
+- **_docs:** Archivos de documentación que pueden ser consolidados
+- **_basurero:** Destino para archivos archivados
+- **_tareasTerminadas:** Historial de tareas completadas
+- **Código fuente:** Limpieza de archivos temporales
+
+### Criterios para Archivar
+- Documentación específica reemplazada por documentación general
+- Archivos de implementación temporal
+- Código de prueba o desarrollo obsoleto
+- Backups antiguos no necesarios
+
+### Procedimiento de Mantenimiento
+1. **Análisis:** Revisar archivos y determinar obsolescencia
+2. **Backup:** Crear respaldo antes de mover
+3. **Movimiento:** Transferir archivos a _basurero
+4. **Verificación:** Confirmar integridad del sistema
+5. **Documentación:** Registrar cambios realizados
+
+### Seguridad y Precauciones
+- No eliminar archivos críticos del sistema
+- Mantener historial de cambios
+- Verificar dependencias antes de mover
+- Documentar razones de archivado
+
+Proporciona listado completo de archivos movidos y justificación de cada movimiento.
+```
+
 ---
 
 ## Guía de Uso Automático
@@ -2181,3 +2357,131 @@ Esta estructura permite:
 - ✅ Matching flexible con algoritmos de puntuación
 
 El sistema puede ahora interpretar cualquier prompt relacionado con DTIC Bitácoras y seleccionar automáticamente la plantilla más apropiada sin intervención manual.
+
+### 15. Actualización de Documentación
+
+**ID:** `DTIC-DOCS-UPD-001` | **Categoría:** `documentacion/actualizacion` | **Prioridad:** `2`
+
+```markdown
+**IDIOMA: ESPAÑOL**
+**CONTEXTO: Actualización DTIC Bitácoras (Documentación y flujos de trabajo)**
+**TAREA: Actualizar documentación del sistema**
+**MÓDULOS: Documentación, Flujos de trabajo, Integración de información**
+**PLANTILLA_ID: DTIC-DOCS-UPD-001**
+
+## Especificaciones de Actualización
+Actualizar la documentación del sistema DTIC Bitácoras incorporando nueva información relevante.
+
+### Fuentes de Información
+- Directorio `_flujos`: Flujos de trabajo operativos
+- Directorio `_docs`: Documentación existente
+- Código fuente: Implementaciones actuales
+- Requisitos del sistema: Funcionalidades nuevas
+
+### Proceso de Actualización
+
+#### 1. Análisis de Información Nueva
+- Revisar archivos en `_flujos` para contenido relevante
+- Identificar información faltante en documentación actual
+- Evaluar necesidad de nuevas secciones o actualizaciones
+
+#### 2. Integración de Contenido
+- Incorporar flujos de trabajo en secciones apropiadas
+- Actualizar esquemas de base de datos con nuevas tablas
+- Expandir documentación de APIs con nuevos endpoints
+- Mejorar secciones de configuración y deployment
+
+#### 3. Estructura de Documentación
+- Mantener consistencia en formato y estilo
+- Actualizar índices y referencias cruzadas
+- Verificar enlaces internos y externos
+- Actualizar versiones y fechas
+
+#### 4. Validación y Verificación
+- Revisar completitud de información
+- Verificar exactitud técnica
+- Validar ejemplos de código
+- Comprobar consistencia con implementación actual
+
+### Secciones a Actualizar
+- **Arquitectura General**: Nuevos componentes o flujos
+- **APIs Backend**: Nuevos endpoints y funcionalidades
+- **Base de Datos**: Nuevos esquemas y relaciones
+- **Configuración**: Nuevas opciones y procedimientos
+- **Flujos de Trabajo**: Nueva sección completa
+
+### Mejoras de Documentación
+- Claridad en explicaciones
+- Ejemplos más detallados
+- Diagramas y esquemas actualizados
+- Referencias cruzadas mejoradas
+
+Proporciona documentación actualizada completa con todas las mejoras integradas.
+```
+
+### 16. Documentación de Entidades del Sistema
+
+**ID:** `DTIC-DOCS-ENT-001` | **Categoría:** `documentacion/entidades` | **Prioridad:** `2`
+
+```markdown
+**IDIOMA: ESPAÑOL**
+**CONTEXTO: Documentación DTIC Bitácoras (Entidades y configuraciones)**
+**TAREA: Documentar entidades del sistema**
+**MÓDULOS: Entidades, Configuración YAML, Relaciones, Funcionalidades**
+**PLANTILLA_ID: DTIC-DOCS-ENT-001**
+
+## Especificaciones de Documentación de Entidades
+Documentar todas las entidades del sistema DTIC Bitácoras basándose en la configuración YAML.
+
+### Análisis de Configuración
+- Revisar archivo `_entidades/entidades.yml`
+- Identificar todas las entidades definidas
+- Analizar campos, funcionalidades y relaciones
+
+### Estructura de Documentación
+
+#### 1. Entidades Principales
+- **Usuarios**: Consumidores finales de servicios
+- **Técnicos**: Operadores y administradores
+- **Recursos**: Hardware, software y activos
+- **Tareas**: Actividades de mantenimiento y soporte
+
+#### 2. Entidades de Relación
+- **Recurso_Asignaciones**: Vinculación recursos-usuarios
+- **Tarea_Recursos**: Vinculación tareas-recursos
+- **Usuario_Tareas**: Asignaciones de tareas
+
+#### 3. Entidades de Auditoría
+- **Recurso_Historial**: Cambios en recursos
+- **Tarea_Historial**: Progreso de tareas
+- **Logs_Sistema**: Auditoría general
+
+#### 4. Entidades de Configuración
+- **Departamentos**: Estructura organizacional
+- **Categorías_Recursos**: Clasificación de recursos
+- **Prioridades_Tareas**: Niveles de urgencia
+- **Configuraciones_Sistema**: Parámetros globales
+
+### Detalles por Entidad
+Para cada entidad documentar:
+- **Descripción**: Propósito y rol en el sistema
+- **Campos clave**: Nombre, tipo y función
+- **Funcionalidades**: Operaciones CRUD y específicas
+- **Estados**: Valores posibles y significados
+- **Relaciones**: Conexiones con otras entidades
+- **Roles**: Permisos y accesos asociados
+
+### Integración con Documentación
+- Actualizar sección de base de datos con esquemas detallados
+- Mejorar documentación de APIs con referencias a entidades
+- Actualizar diagramas de relaciones entre entidades
+- Incluir ejemplos de uso basados en configuración
+
+### Validación y Consistencia
+- Verificar que todas las entidades estén documentadas
+- Comprobar consistencia entre YAML y documentación
+- Validar referencias cruzadas entre entidades
+- Asegurar completitud de campos y funcionalidades
+
+Proporciona documentación completa y actualizada de todas las entidades del sistema.
+```
