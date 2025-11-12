@@ -3149,6 +3149,26 @@ Proporciona documentación completa y detallada de operaciones exitosas de resta
 
 **Status:** Completed
 
+### 2025-11-12: System Shutdown with Backup Using app-run.sh
+
+**Issue:** System closure with backup using app-run.sh script
+
+**Details:** The DTIC Bitácoras system was properly closed with its respective backup using the app-run.sh script. This ensures data integrity and system stability for the next startup.
+
+**Process:**
+1. Executed `./app-run.sh bd-backup` - Created database backup successfully
+2. Executed `./app-run.sh stop` - Stopped all Docker containers and cleaned up resources
+
+**Backup Created:** `backups/dtic_bitacoras_backup_20251112_043153.sql` (36K, 1152 lines)
+
+**System Status:** All containers stopped and resources cleaned up
+
+**Files Changed:** None (system operation)
+
+**Date:** 2025-11-12
+
+**Status:** Completed
+
 ### 2025-11-12: New Request - Resources Section Location Column Update
 
 **Issue:** Update Resources section Location column to show Related Users
