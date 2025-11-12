@@ -3114,6 +3114,31 @@ Proporciona documentación completa y detallada de operaciones exitosas de resta
 **Date:** 2025-11-12
 
 **Status:** Completed
+
+### 2025-11-12: Documentation, Versioning, and Commit Task Completed
+
+**Issue:** Documentation, versioning, and commit task for system changes
+
+**Details:** Completed the 4-phase workflow for documentation and versioning: created task record in _tareasTerminadas, checked version numbers for consistency, created verification file in _estados, and updated prompts file to record this request. Ready for final commit.
+
+**Files Changed:**
+- `_tareasTerminadas/20251112_042013_documentar_versionar_registrar_tareas_terminadas_commitear.md`: Created
+- `_estados/20251112_042050.md`: Created
+- `_prompts/prompts-dtic-bitacoras.md`: Updated with this entry
+
+**Date:** 2025-11-12
+
+**Status:** Completed
+
+### 2025-11-12: New Request - Resources Section Location Column Update
+
+**Issue:** Update Resources section Location column to show Related Users
+
+**Request Details:** En la sección Recursos, la columna Ubicación debe mostrar ahora los Usuarios Relacionados, siguiendo la misma lógica y comportamiento que se utiliza en la sección Tareas, específicamente en la columna Recursos.
+
+**Description:** The Location column in the Resources section needs to display Related Users, following the same logic and behavior used in the Tasks section, specifically in the Resources column.
+
+**Status:** New Request / Pending Implementation
 ```
 
 ### 20. System Documentation and Versioning Tasks
