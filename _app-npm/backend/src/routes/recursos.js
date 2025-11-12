@@ -1,12 +1,6 @@
 const express = require('express');
 const { body, param, query, validationResult } = require('express-validator');
-const { Pool } = require('pg');
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+const { executeQuery } = require('../database');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -14,21 +8,10 @@ const router = express.Router();
 // Middleware de autenticación (temporalmente comentado para desarrollo)
 // router.use(auth);
 
-// Función helper para ejecutar queries
-const executeQuery = async (query, params = []) => {
-  try {
-    const result = await pool.query(query, params);
-    return result;
-  } catch (error) {
-    console.error('Database query error:', error);
-    throw error;
-  }
-};
-
 // Función helper para generar DTIC ID para recursos
 const generateDTICId = async (prefix = 'REC') => {
   const query = `
-    SELECT generate_dtic_id($1) as new_id
+    SELECT dtic.generate_dtic_id($1) as new_id
   `;
   const result = await executeQuery(query, [prefix]);
   return result.rows[0].new_id;
@@ -67,10 +50,11 @@ router.get('/', [
         r.id, r.dtic_id, r.name, r.description, r.category, r.status,
         r.location, r.technical_specs, r.serial_number, r.model,
         r.created_at, r.updated_at,
-        COUNT(DISTINCT ra.user_id) as assigned_users_count,
+        COALESCE(json_agg(DISTINCT jsonb_build_object('id', u.id, 'first_name', u.first_name, 'last_name', u.last_name, 'full_name', CONCAT(u.first_name, ' ', u.last_name))) FILTER (WHERE ra.user_id IS NOT NULL), '[]'::json) as assigned_users,
         COALESCE(json_agg(DISTINCT jsonb_build_object('id', t.id, 'title', t.title, 'status', t.status)) FILTER (WHERE t.id IS NOT NULL), '[]'::json) as related_tasks
       FROM dtic.recursos r
       LEFT JOIN dtic.recurso_asignaciones ra ON ra.recurso_id = r.id AND ra.activo = true
+      LEFT JOIN dtic.usuarios_asignados u ON u.id = ra.user_id
       LEFT JOIN dtic.tarea_recursos tr ON tr.recurso_id = r.id AND tr.activo = true
       LEFT JOIN dtic.tareas t ON t.id = tr.tarea_id
       WHERE 1=1
@@ -195,7 +179,7 @@ router.get('/:id', [
         CONCAT(u.first_name, ' ', u.last_name) as full_name,
         ra.assigned_at, ra.assigned_by
       FROM dtic.recurso_asignaciones ra
-      JOIN dtic.usuarios_relacionados u ON u.id = ra.user_id
+      JOIN dtic.usuarios_asignados u ON u.id = ra.user_id
       WHERE ra.recurso_id = $1 AND ra.activo = true
       ORDER BY ra.assigned_at DESC
     `;
@@ -213,7 +197,7 @@ router.get('/:id', [
           CONCAT(u.first_name, ' ', u.last_name) as usuario_name
         FROM dtic.recurso_historial h
         LEFT JOIN dtic.tecnicos t ON t.id = h.tecnico_id
-        LEFT JOIN dtic.usuarios_relacionados u ON u.id = h.usuario_id
+        LEFT JOIN dtic.usuarios_asignados u ON u.id = h.usuario_id
         WHERE h.recurso_id = $1
         ORDER BY h.created_at DESC
         LIMIT 20
@@ -476,7 +460,7 @@ router.post('/:id/asignar', [
     }
 
     // Verificar que el usuario existe
-    const usuarioQuery = 'SELECT * FROM dtic.usuarios_relacionados WHERE id = $1';
+    const usuarioQuery = 'SELECT * FROM dtic.usuarios_asignados WHERE id = $1';
     const usuarioResult = await executeQuery(usuarioQuery, [usuario_id]);
 
     if (usuarioResult.rows.length === 0) {
@@ -563,7 +547,7 @@ router.post('/:id/desasignar', [
     const assignmentQuery = `
       SELECT ra.*, u.first_name, u.last_name
       FROM dtic.recurso_asignaciones ra
-      JOIN dtic.usuarios_relacionados u ON u.id = ra.user_id
+      JOIN dtic.usuarios_asignados u ON u.id = ra.user_id
       WHERE ra.recurso_id = $1 AND ra.user_id = $2 AND ra.activo = true
     `;
     const assignmentResult = await executeQuery(assignmentQuery, [id, usuario_id]);

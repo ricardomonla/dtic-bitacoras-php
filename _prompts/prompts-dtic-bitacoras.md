@@ -475,6 +475,25 @@ const ejemplosClasificacion = {
 
     "En Tareas al editar no puedo agregar nuevos recursos relacionados": "DTIC-TASK-RESOURCES-001"
     };
+
+### 2025-11-12: Documentation, Versioning, and Commit Task Completed
+
+**Issue:** Documentation, versioning, and commit task for system changes
+
+**Details:** Completed the 4-phase workflow for documentation and versioning: created task record in _tareasTerminadas, updated version numbers across all relevant files, updated CHANGELOG.md with documentation changes, and updated system documentation. Ready for final commit.
+
+**Files Changed:**
+- `_tareasTerminadas/20251112_042402_documentar_sistema_versionar_registrar_tareas_terminadas_commitear.md`: Created
+- `_app-npm/backend/package.json`: Version updated to 1.4.2
+- `_app-npm/frontend/package.json`: Version updated to 1.4.2
+- `_app-npm/frontend/src/components/layout/Navbar.tsx`: Version badge updated to v1.4.2
+- `_app-npm/CHANGELOG.md`: New entry added for v1.4.2
+- `_docs/DOCUMENTACION_SISTEMA_DTIC_BITACORAS.md`: Version updated to 1.4.2
+- `_estados/20251112_042450.md`: Verification file created
+
+**Date:** 2025-11-12
+
+**Status:** Completed
 ```
 
 ---

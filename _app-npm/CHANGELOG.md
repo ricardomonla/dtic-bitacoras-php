@@ -5,6 +5,27 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2025-11-12
+
+### Documentation
+- **System Documentation Update**: Complete update of system documentation in _docs directory with current architecture, components, APIs, and database schema
+- **Version Consistency**: Updated all version references across package.json files, Navbar component, and documentation
+- **Workflow Documentation**: Enhanced documentation of DTIC-DOC-001 workflow for documentation and versioning tasks
+- **Task Completion Records**: New task completion record created in _tareasTerminadas directory
+- **System State Verification**: Verification file created in _estados directory documenting system state post-documentation
+
+### Changed
+- **Version Increment**: Patch version increment from 1.4.1 to 1.4.2 for documentation improvements
+- **Prompts Optimization**: Updated _prompts/prompts-dtic-bitacoras.md with new template and request recording
+- **Documentation Workflow**: Complete execution of 4-phase documentation workflow (Tasks → Versioning → Verification → Commit)
+
+### Technical Details
+- **Package Versions**: Updated backend and frontend package.json versions to 1.4.2
+- **UI Version Display**: Updated Navbar component to display correct version badge
+- **Documentation Files**: Comprehensive update of system documentation with current state and architecture
+- **Task Records**: New timestamped task completion file following institutional format
+- **Verification Process**: System verification completed with state documentation
+
 ## [1.4.1] - 2025-11-12
 
 ### Changed

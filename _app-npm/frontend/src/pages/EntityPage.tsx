@@ -106,6 +106,36 @@ const formatAssignedResources = (entity: any) => {
   )
 }
 
+const formatRelatedUsers = (entity: any) => {
+  const assignedUsers = entity.assigned_users || []
+
+  if (assignedUsers.length === 0) {
+    return (
+      <span className="text-muted small">
+        <i className="fas fa-user me-1"></i>
+        Sin usuarios relacionados
+      </span>
+    )
+  }
+
+  const firstUser = assignedUsers[0]
+  const remainingCount = assignedUsers.length - 1
+
+  return (
+    <div className="d-flex align-items-center">
+      <span className="badge bg-light text-dark me-2">
+        <i className="fas fa-user me-1"></i>
+        {firstUser.full_name || `${firstUser.first_name} ${firstUser.last_name}`}
+      </span>
+      {remainingCount > 0 && (
+        <small className="text-muted">
+          y {remainingCount} usuario{remainingCount !== 1 ? 's' : ''} más
+        </small>
+      )}
+    </div>
+  )
+}
+
 
 // CSS para animaciones y estética mejorada
 const styles = `
@@ -1097,6 +1127,8 @@ const EntityRow = ({ entity, config, onAction, utils, entityKey }: any) => {
           cellValue = formatStatusPriority(entity)
         } else if (column.key === 'assigned_resources' && entityKey === 'tareas') {
           cellValue = formatAssignedResources(entity)
+        } else if (column.key === 'assigned_users' && entityKey === 'recursos') {
+          cellValue = formatRelatedUsers(entity)
         } else if (column.key === 'status_category' && entityKey === 'recursos') {
           // Special case for combined status-category column with styled badges
           cellValue = formatStatusCategory(entity)
