@@ -13,11 +13,21 @@ y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2
 - **API Endpoints**: Updated API routes from `/api/usuarios_asignados` to `/api/usuarios_relacionados`
 - **UI Text**: Updated user interface text from "asignados" to "relacionados" in all user-related components and pages
 
+### Documentation
+- **Recursos Module Documentation**: Complete documentation of all changes made to the Recursos module following DTIC-DOC-001 workflow
+- **Unified Columns**: Documentation of standardized columns (Estado/Categoría, Modelo/Serie) and interface cleanup
+- **Tareas Relacionadas Column**: Documentation of new many-to-many relationship functionality between tasks and resources
+- **Backend Modifications**: Documentation of new APIs, database schema changes, and validation logic
+- **Color Styling**: Documentation of applied color schemes for better visual hierarchy
+
 ### Technical Details
 - **Database**: Migrated table name and updated all foreign key references and indexes
 - **Backend**: Renamed route file from `usuarios_asignados.js` to `usuarios_relacionados.js` and updated all internal references
 - **Frontend**: Updated entity configuration, hooks, and components to use new terminology and API endpoints
-- **Version Update**: System version incremented to 1.4.1 (patch version for terminology improvement)
+- **Documentation Workflow**: Complete DTIC-DOC-001 workflow execution with task completion, verification, and version update
+- **Bitácora Creation**: New bitácora file created following institutional format (bitacora_251112.md)
+- **System Verification**: Comprehensive verification of all Recursos module functionalities
+- **Version Update**: System version incremented to 1.4.1 (patch version for terminology and documentation improvements)
 
 ## [1.3.0] - 2025-11-07
 

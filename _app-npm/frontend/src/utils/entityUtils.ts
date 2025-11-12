@@ -1,4 +1,5 @@
 // Utilidades compartidas para formateo y configuración de entidades
+import React from 'react'
 
 export interface BadgeConfig {
   text: string
@@ -87,6 +88,52 @@ export const recursoConfig: EntityConfig = {
       'maintenance': 'Mantenimiento',
       'retired': 'Retirado'
     }[status] || status),
+
+    statusCategory: (entity: any) => {
+      const statusText = ({
+        'available': 'Disponible',
+        'assigned': 'Asignado',
+        'maintenance': 'Mantenimiento',
+        'retired': 'Retirado'
+      } as Record<string, string>)[entity.status] || entity.status;
+
+      const categoryText = ({
+        'hardware': 'Hardware',
+        'software': 'Software',
+        'network': 'Redes',
+        'security': 'Seguridad',
+        'tools': 'Herramientas',
+        'facilities': 'Instalaciones'
+      } as Record<string, string>)[entity.category] || entity.category;
+
+      return `${statusText} - ${categoryText}`;
+    },
+
+    modeloSerie: (entity: any) => {
+      const model = entity.model || '';
+      const serie = entity.serial_number || '';
+      if (model && serie) return `${model} - ${serie}`;
+      if (model) return model;
+      if (serie) return serie;
+      return '-';
+    },
+
+    formatRelatedTasks: (entity: any) => {
+      const relatedTasks = entity.related_tasks || []
+
+      if (!Array.isArray(relatedTasks) || relatedTasks.length === 0) {
+        return 'Sin tareas relacionadas'
+      }
+
+      const firstTask = relatedTasks[0]
+      const remainingCount = relatedTasks.length - 1
+
+      let result = firstTask.title || 'Sin título'
+      if (remainingCount > 0) {
+        result += ` y ${remainingCount} tarea${remainingCount !== 1 ? 's' : ''} más`
+      }
+      return result
+    },
 
     date: (date: string) => new Date(date).toLocaleDateString('es-AR')
   },

@@ -28,6 +28,52 @@ const formatStatusPriority = (entity: any) => {
   )
 }
 
+const formatStatusCategory = (entity: any) => {
+  const statusBadges = {
+    'available': { text: 'Disponible', class: 'bg-success' },
+    'assigned': { text: 'Asignado', class: 'bg-info' },
+    'maintenance': { text: 'Mantenimiento', class: 'bg-warning' },
+    'retired': { text: 'Retirado', class: 'bg-secondary' }
+  };
+  const statusBadge = statusBadges[entity.status] || { text: entity.status, class: 'bg-secondary' };
+
+  const categoryText = ({
+    'hardware': 'Hardware',
+    'software': 'Software',
+    'network': 'Redes',
+    'security': 'Seguridad',
+    'tools': 'Herramientas',
+    'facilities': 'Instalaciones'
+  } as Record<string, string>)[entity.category] || entity.category;
+
+  // Define category colors similar to EntityPage.tsx getCellStyle
+  const getCategoryStyle = (category: string) => {
+    switch (category) {
+      case 'hardware': return { backgroundColor: '#e3f2fd', color: '#1565c0' };
+      case 'software': return { backgroundColor: '#f3e5f5', color: '#7b1fa2' };
+      case 'network': return { backgroundColor: '#e8f5e8', color: '#2e7d32' };
+      case 'security': return { backgroundColor: '#fff3e0', color: '#ef6c00' };
+      case 'tools': return { backgroundColor: '#fce4ec', color: '#c2185b' };
+      case 'facilities': return { backgroundColor: '#f1f8e9', color: '#558b2f' };
+      default: return { backgroundColor: '#6c757d', color: 'white' };
+    }
+  };
+
+  return (
+    <div className="d-flex flex-column gap-1">
+      <span className={`badge ${statusBadge.class} badge-sm`}>
+        {statusBadge.text}
+      </span>
+      <span
+        className="badge badge-sm"
+        style={getCategoryStyle(entity.category)}
+      >
+        {categoryText}
+      </span>
+    </div>
+  );
+}
+
 const formatAssignedResources = (entity: any) => {
   // Esta función se implementará cuando tengamos los datos de recursos asignados
   // Por ahora retorna un placeholder
@@ -59,6 +105,7 @@ const formatAssignedResources = (entity: any) => {
     </div>
   )
 }
+
 
 // CSS para animaciones y estética mejorada
 const styles = `
@@ -1038,10 +1085,6 @@ const EntityPage = () => {
 
 // Generic Entity Row Component
 const EntityRow = ({ entity, config, onAction, utils, entityKey }: any) => {
-  // console.log('EntityRow - Rendering entity:', entity)
-  // console.log('EntityRow - Config:', config)
-  // console.log('EntityRow - Utils:', utils)
-  // console.log('EntityRow - entityKey:', entityKey)
 
   return (
     <tr>
@@ -1054,19 +1097,25 @@ const EntityRow = ({ entity, config, onAction, utils, entityKey }: any) => {
           cellValue = formatStatusPriority(entity)
         } else if (column.key === 'assigned_resources' && entityKey === 'tareas') {
           cellValue = formatAssignedResources(entity)
-        } else if (column.formatter && utils && utils[column.formatter]) {
-          const formattedValue = utils[column.formatter](entity[column.key])
-          // console.log('EntityRow - Formatted value:', formattedValue)
-
-          // If formatter returns JSX (like badges), use it directly
-          if (React.isValidElement(formattedValue)) {
-            cellValue = formattedValue
-          } else {
-            cellValue = formattedValue || '-'
-          }
+        } else if (column.key === 'status_category' && entityKey === 'recursos') {
+          // Special case for combined status-category column with styled badges
+          cellValue = formatStatusCategory(entity)
+        } else if (column.key === 'modelo_serie' && entityKey === 'recursos') {
+          // Special case for combined model-serial column
+          const formattedValue = utils.formatValue(column.formatter, entity)
+          cellValue = formattedValue || '-'
+        } else if (column.key === 'related_tasks' && entityKey === 'recursos') {
+          // Special case for related tasks column
+          const formattedValue = utils.formatValue(column.formatter, entity)
+          cellValue = formattedValue || '-'
+        } else if (column.formatter && utils) {
+          // For combined formatters that need the full entity object
+          const combinedFormatters = ['statusCategory', 'modeloSerie', 'formatRelatedTasks']
+          const valueToPass = combinedFormatters.includes(column.formatter) ? entity : entity[column.key]
+          const formattedValue = utils.formatValue(column.formatter, valueToPass)
+          cellValue = formattedValue || '-'
         } else {
           cellValue = entity[column.key] || '-'
-          // console.log('EntityRow - Raw value:', cellValue)
         }
 
         // Safeguard: Ensure cellValue is not an object (except valid React elements)

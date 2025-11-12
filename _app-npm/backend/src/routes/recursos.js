@@ -68,9 +68,11 @@ router.get('/', [
         r.location, r.technical_specs, r.serial_number, r.model,
         r.created_at, r.updated_at,
         COUNT(DISTINCT ra.user_id) as assigned_users_count,
-        0 as active_tasks_count
+        COALESCE(json_agg(DISTINCT jsonb_build_object('id', t.id, 'title', t.title, 'status', t.status)) FILTER (WHERE t.id IS NOT NULL), '[]'::json) as related_tasks
       FROM dtic.recursos r
       LEFT JOIN dtic.recurso_asignaciones ra ON ra.recurso_id = r.id AND ra.activo = true
+      LEFT JOIN dtic.tarea_recursos tr ON tr.recurso_id = r.id AND tr.activo = true
+      LEFT JOIN dtic.tareas t ON t.id = tr.tarea_id
       WHERE 1=1
     `;
 
@@ -102,7 +104,7 @@ router.get('/', [
       query += " AND " + conditions.join(" AND ");
     }
 
-    query += " GROUP BY r.id ORDER BY r.created_at DESC";
+    query += " GROUP BY r.id, r.dtic_id, r.name, r.description, r.category, r.status, r.location, r.technical_specs, r.serial_number, r.model, r.created_at, r.updated_at ORDER BY r.created_at DESC";
 
     // Paginación
     const offset = (page - 1) * limit;
