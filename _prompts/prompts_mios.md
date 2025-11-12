@@ -7,4 +7,7 @@ Consulta los últimos 5 archivos del directorio _tareasTerminadas.
 Una vez que hayas recopilado toda la información, realizá las preguntas que consideres necesarias para definir los próximos pasos y continuar con el proceso de versionado del sistema.
 
 Vamos a documentar el sistema. Ya existe información previa en el directorio _docs.
+
+El últmimo backup es _app-npm/backups/dtic_bitacoras_backup_20251107_171026.sql y debes restaurarlo con el script luego verifica si ya está el recurso srvv-KOHA.
+
 Utiliza el archivo _prompts/prompts-dtic-bitacoras.md, actualízalo y optimízalo si es necesario para dejar registrada esta solicitud.

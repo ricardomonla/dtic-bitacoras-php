@@ -49,7 +49,7 @@ const formatAssignedResources = (entity: any) => {
     <div className="d-flex align-items-center">
       <span className="badge bg-light text-dark me-2">
         <i className="fas fa-box me-1"></i>
-        {firstResource.name || firstResource}
+        {typeof firstResource === 'string' ? firstResource : firstResource.name || 'Sin nombre'}
       </span>
       {remainingCount > 0 && (
         <small className="text-muted">
@@ -1067,6 +1067,11 @@ const EntityRow = ({ entity, config, onAction, utils, entityKey }: any) => {
         } else {
           cellValue = entity[column.key] || '-'
           // console.log('EntityRow - Raw value:', cellValue)
+        }
+
+        // Safeguard: Ensure cellValue is not an object (except valid React elements)
+        if (typeof cellValue === 'object' && cellValue !== null && !React.isValidElement(cellValue)) {
+          cellValue = 'N/A'
         }
 
         // Apply color styling for specific columns based on entity type

@@ -1184,7 +1184,7 @@ FRONTEND_URL=http://localhost:5173
 ```bash
 VITE_API_URL=http://localhost:3001
 VITE_ENVIRONMENT=development
-VITE_VERSION=1.3.3
+VITE_VERSION=1.3.4
 ```
 
 ### 5.2 Docker Compose

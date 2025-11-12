@@ -22,6 +22,7 @@
 #   ./app-run.sh restart      # Reiniciar aplicación (no interactivo)
 #   ./app-run.sh status       # Mostrar estado detallado (no interactivo)
 #   ./app-run.sh bd-backup    # Crear backup de base de datos (no interactivo)
+#   ./app-run.sh bd-restore   # Restaurar base de datos desde backup (no interactivo)
 #
 # Variables de entorno:
 #   APP_TIMEOUT_CHECK=30      # Timeout para verificar servicios (segundos)
@@ -407,10 +408,14 @@ show_menu() {
         ((option_num++))
         echo -e "${YELLOW}${option_num})${NC} 💾 Crear backup de BD"
         ((option_num++))
+        echo -e "${YELLOW}${option_num})${NC} 🔄 Restaurar BD desde backup"
+        ((option_num++))
     else
         echo -e "${GREEN}${option_num})${NC} ▶️  Iniciar aplicación"
         ((option_num++))
         echo -e "${YELLOW}${option_num})${NC} 💾 Crear backup de BD"
+        ((option_num++))
+        echo -e "${YELLOW}${option_num})${NC} 🔄 Restaurar BD desde backup"
         ((option_num++))
     fi
 
@@ -641,6 +646,89 @@ backup_database() {
     fi
 }
 
+# Función para restaurar base de datos desde backup
+restore_database() {
+    log "💾 Iniciando proceso de restauración de base de datos..."
+
+    # Verificar que la aplicación esté ejecutándose
+    if ! check_app_running; then
+        error "❌ La aplicación no está ejecutándose. Inicia la aplicación antes de restaurar."
+        return 1
+    fi
+
+    # Ruta del archivo de backup
+    local backup_file="backups/dtic_bitacoras_backup_20251107_171026.sql"
+
+    # Verificar que el archivo existe
+    if [ ! -f "$backup_file" ]; then
+        error "❌ Archivo de backup no encontrado: $backup_file"
+        return 1
+    fi
+
+    # Verificar conexión a PostgreSQL
+    if ! check_db_connection; then
+        error "❌ No se puede conectar a la base de datos. Verifica que PostgreSQL esté funcionando."
+        return 1
+    fi
+
+    # Obtener credenciales de la base de datos
+    local db_name="dtic_bitacoras"
+    local db_user="dtic_user"
+    local db_password="dtic_password"
+
+    log "🔐 Conectando a PostgreSQL para restaurar..."
+    log "📄 Archivo de backup: $backup_file"
+    log "🗄️  Base de datos: $db_name"
+    log "👤 Usuario: $db_user"
+
+    # Copiar archivo de backup al contenedor
+    local temp_backup_name="restore_backup.sql"
+    log "📁 Copiando archivo de backup al contenedor..."
+    if ! docker cp "$backup_file" dtic_bitacoras_postgres:/tmp/"$temp_backup_name"; then
+        error "❌ Error al copiar el archivo de backup al contenedor"
+        return 1
+    fi
+
+    # Preparar base de datos para restauración (drop y recreate)
+    log "🗄️ Preparando base de datos para restauración..."
+    if ! docker exec -e PGPASSWORD="$db_password" dtic_bitacoras_postgres psql -h localhost -p 5432 -U "$db_user" -d postgres -c "DROP DATABASE IF EXISTS $db_name;"; then
+        error "❌ Error al eliminar la base de datos existente"
+        # Limpiar archivo temporal
+        docker exec dtic_bitacoras_postgres rm -f "/tmp/$temp_backup_name" 2>/dev/null || true
+        return 1
+    fi
+
+    if ! docker exec -e PGPASSWORD="$db_password" dtic_bitacoras_postgres psql -h localhost -p 5432 -U "$db_user" -d postgres -c "CREATE DATABASE $db_name;"; then
+        error "❌ Error al crear la base de datos"
+        # Limpiar archivo temporal
+        docker exec dtic_bitacoras_postgres rm -f "/tmp/$temp_backup_name" 2>/dev/null || true
+        return 1
+    fi
+
+    # Ejecutar restauración
+    log "⏳ Ejecutando restauración desde backup..."
+    if docker exec -e PGPASSWORD="$db_password" dtic_bitacoras_postgres psql -h localhost -p 5432 -U "$db_user" -d "$db_name" -f "/tmp/$temp_backup_name"; then
+        success "✅ Restauración completada exitosamente"
+
+        # Verificar que la restauración fue exitosa
+        log "🔍 Verificando restauración..."
+        if docker exec -e PGPASSWORD="$db_password" dtic_bitacoras_postgres psql -h localhost -p 5432 -U "$db_user" -d "$db_name" -c "SELECT 1;" &>/dev/null; then
+            success "✅ Base de datos restaurada y verificada correctamente"
+        else
+            warning "⚠️ La restauración se completó pero la verificación falló"
+        fi
+
+        # Limpiar archivo temporal
+        docker exec dtic_bitacoras_postgres rm -f "/tmp/$temp_backup_name"
+        return 0
+    else
+        error "❌ Error durante la restauración"
+        # Limpiar archivo temporal
+        docker exec dtic_bitacoras_postgres rm -f "/tmp/$temp_backup_name"
+        return 1
+    fi
+}
+
 # Función para reiniciar aplicación
 restart_app() {
     log "🔄 Reiniciando aplicación DTIC Bitácoras..."
@@ -762,6 +850,10 @@ parse_command() {
             INTERACTIVE_MODE=false
             COMMAND="backup"
             ;;
+        bd-restore)
+            INTERACTIVE_MODE=false
+            COMMAND="restore"
+            ;;
         *)
             INTERACTIVE_MODE=true
             ;;
@@ -802,6 +894,10 @@ main() {
                 check_dependencies || exit 1
                 backup_database
                 ;;
+            restore)
+                check_dependencies || exit 1
+                restore_database
+                ;;
         esac
     else
         # Modo interactivo (comportamiento original)
@@ -820,11 +916,11 @@ main() {
             # Determinar rango de opciones válido
             local max_option
             if check_app_running; then
-                max_option=5  # 1:detener, 2:reiniciar, 3:backup, 4:estado, 5:salir
-                read -p "Seleccione una opción (1-5): " choice
+                max_option=6  # 1:detener, 2:reiniciar, 3:backup, 4:restore, 5:estado, 6:salir
+                read -p "Seleccione una opción (1-6): " choice
             else
-                max_option=4  # 1:iniciar, 2:backup, 3:estado, 4:salir
-                read -p "Seleccione una opción (1-4): " choice
+                max_option=5  # 1:iniciar, 2:backup, 3:restore, 4:estado, 5:salir
+                read -p "Seleccione una opción (1-5): " choice
             fi
 
             case $choice in
@@ -850,12 +946,21 @@ main() {
                     if check_app_running; then
                         backup_database
                     else
-                        show_detailed_status
+                        restore_database
                     fi
                     echo ""
                     read -p "Presione Enter para continuar..."
                     ;;
                 4)
+                    if check_app_running; then
+                        restore_database
+                    else
+                        show_detailed_status
+                    fi
+                    echo ""
+                    read -p "Presione Enter para continuar..."
+                    ;;
+                5)
                     if check_app_running; then
                         show_detailed_status
                     else
@@ -866,7 +971,7 @@ main() {
                     echo ""
                     read -p "Presione Enter para continuar..."
                     ;;
-                5)
+                6)
                     if check_app_running; then
                         echo ""
                         log "¡Hasta luego!"

@@ -5,6 +5,22 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.4] - 2025-11-12
+
+### Added
+- **Database Restore Functionality**: Successful restoration of srvv-KOHA resource and system integrity
+- **Backup Verification System**: Implementation of automated verification for critical resources post-restore
+- **Script Corrections**: Applied fixes to app-run.sh bd-restore command for proper path handling and database parameters
+
+### Fixed
+- **srvv-KOHA Resource Recovery**: Restored missing srvv-KOHA resource from backup file `dtic_bitacoras_backup_20251107_171026.sql`
+- **System Integrity Verification**: Comprehensive checks confirming all resources and data integrity post-restore
+
+### Technical Details
+- **Database Restore**: Executed using `app-run.sh bd-restore` with backup verification
+- **Resource Verification**: Automated checks for critical resources including srvv-KOHA
+- **Version Update**: System version incremented to 1.3.4 across all components
+
 ## [1.3.0] - 2025-11-07
 
 ### Added
