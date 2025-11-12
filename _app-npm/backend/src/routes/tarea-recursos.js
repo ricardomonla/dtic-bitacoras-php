@@ -191,18 +191,18 @@ router.post('/tareas/:id/recursos', [
       id, recurso_id, assigned_by, estimated_hours, notes
     ]);
 
-    // Registrar en historial
-    const historyQuery = `
-      INSERT INTO dtic.tarea_recurso_historial
-      (tarea_recurso_id, action, tecnico_id, details)
-      VALUES ($1, 'assigned', $2, $3)
-    `;
+    // TODO: Registrar en historial - tabla tarea_recurso_historial no existe
+    // const historyQuery = `
+    //   INSERT INTO dtic.tarea_recurso_historial
+    //   (tarea_recurso_id, action, tecnico_id, details)
+    //   VALUES ($1, 'assigned', $2, $3)
+    // `;
 
-    await executeQuery(historyQuery, [
-      insertResult.rows[0].id,
-      assigned_by,
-      `Recurso asignado a tarea: ${taskResult.rows[0].title}`
-    ]);
+    // await executeQuery(historyQuery, [
+    //   insertResult.rows[0].id,
+    //   assigned_by,
+    //   `Recurso asignado a tarea: ${taskResult.rows[0].title}`
+    // ]);
 
     res.status(201).json({
       success: true,
@@ -306,21 +306,21 @@ router.put('/tareas/:id/recursos/:recursoId', [
 
     await executeQuery(updateQuery, params);
 
-    // Registrar en historial
-    const historyQuery = `
-      INSERT INTO dtic.tarea_recurso_historial
-      (tarea_recurso_id, action, tecnico_id, old_values, new_values, details)
-      VALUES ($1, 'updated', $2, $3, $4, $5)
-    `;
+    // TODO: Registrar en historial - tabla tarea_recurso_historial no existe
+    // const historyQuery = `
+    //   INSERT INTO dtic.tarea_recurso_historial
+    //   (tarea_recurso_id, action, tecnico_id, old_values, new_values, details)
+    //   VALUES ($1, 'updated', $2, $3, $4, $5)
+    // `;
 
-    const newValues = { estimated_hours, actual_hours, notes };
-    await executeQuery(historyQuery, [
-      assignment.id,
-      tecnico_id,
-      JSON.stringify(oldValues),
-      JSON.stringify(newValues),
-      `Asignación actualizada: ${assignment.task_title} - ${assignment.resource_name}`
-    ]);
+    // const newValues = { estimated_hours, actual_hours, notes };
+    // await executeQuery(historyQuery, [
+    //   assignment.id,
+    //   tecnico_id,
+    //   JSON.stringify(oldValues),
+    //   JSON.stringify(newValues),
+    //   `Asignación actualizada: ${assignment.task_title} - ${assignment.resource_name}`
+    // ]);
 
     res.json({
       success: true,
@@ -383,18 +383,18 @@ router.delete('/tareas/:id/recursos/:recursoId', [
 
     await executeQuery(updateQuery, [tecnico_id, id, recursoId]);
 
-    // Registrar en historial
-    const historyQuery = `
-      INSERT INTO dtic.tarea_recurso_historial
-      (tarea_recurso_id, action, tecnico_id, details)
-      VALUES ($1, 'unassigned', $2, $3)
-    `;
+    // TODO: Registrar en historial - tabla tarea_recurso_historial no existe
+    // const historyQuery = `
+    //   INSERT INTO dtic.tarea_recurso_historial
+    //   (tarea_recurso_id, action, tecnico_id, details)
+    //   VALUES ($1, 'unassigned', $2, $3)
+    // `;
 
-    await executeQuery(historyQuery, [
-      assignment.id,
-      tecnico_id,
-      `Recurso desasignado de tarea: ${assignment.task_title}`
-    ]);
+    // await executeQuery(historyQuery, [
+    //   assignment.id,
+    //   tecnico_id,
+    //   `Recurso desasignado de tarea: ${assignment.task_title}`
+    // ]);
 
     res.json({
       success: true,

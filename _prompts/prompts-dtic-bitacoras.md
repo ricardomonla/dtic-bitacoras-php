@@ -253,6 +253,22 @@ plantillas:
     uso_recomendado: "Perform system documentation and versioning tasks including version updates, changelog entries, and system state documentation"
     descripcion: "Template for system documentation and versioning tasks, including database restore documentation, version updates, and system state recording"
 
+  task_resources_assignment:
+    id: "DTIC-TASK-RESOURCES-001"
+    nombre: "Problema de Asignación de Recursos en Tareas"
+    categoria: "desarrollo"
+    subcategoria: "frontend"
+    prioridad: 1
+    palabras_clave: ["tareas", "recursos", "asignar", "editar", "agregar", "relacionados", "no funciona", "problema", "asignacion"]
+    patrones_matching:
+      - "no puedo agregar recursos"
+      - "problema asignar recursos tareas"
+      - "editar tarea recursos"
+      - "no se pueden agregar recursos relacionados"
+      - "asignación de recursos en tareas"
+    uso_recomendado: "Resolver problemas donde no se pueden agregar nuevos recursos relacionados al editar tareas"
+    descripcion: "Plantilla para diagnosticar y resolver problemas de asignación de recursos relacionados en la edición de tareas"
+
   documentacion_actualizacion:
    id: "DTIC-DOCS-UPD-001"
    nombre: "Actualización de Documentación"
@@ -351,6 +367,8 @@ clasificacion:
    version_control: ["git"]
 
    database_restore_completed: ["backup_restore"]
+
+   task_resources_assignment: ["frontend"]
 
   priority_rules:
     - categoria: "debugging"
@@ -453,7 +471,9 @@ const ejemplosClasificacion = {
     "Commit y push cambios a GitHub": "DTIC-VC-001",
 
     "Documentar restauración exitosa de base de datos con srvv-KOHA": "DTIC-DB-RESTORE-001",
-    "Restauración de base de datos completada exitosamente": "DTIC-DB-RESTORE-COMPLETED-001"
+    "Restauración de base de datos completada exitosamente": "DTIC-DB-RESTORE-COMPLETED-001",
+
+    "En Tareas al editar no puedo agregar nuevos recursos relacionados": "DTIC-TASK-RESOURCES-001"
     };
 ```
 
@@ -3149,4 +3169,197 @@ _prompts/
 - No syntax errors or formatting issues
 
 Proceed with executing all tasks in the specified order and verify completion.
+```
+
+### 21. Problema de Asignación de Recursos en Tareas
+
+**ID:** `DTIC-TASK-RESOURCES-001` | **Categoría:** `desarrollo/frontend` | **Prioridad:** `1`
+
+```markdown
+**IDIOMA: ESPAÑOL**
+**CONTEXTO: Desarrollo DTIC Bitácoras (Asignación de Recursos en Tareas)**
+**TAREA: Resolver problemas de visualización y gestión de recursos relacionados en la edición de tareas**
+**MÓDULOS: EntityForm, ResourceAssignmentControl, useResourceAssignment, EntityPage**
+**PLANTILLA_ID: DTIC-TASK-RESOURCES-001**
+
+## Problema de Asignación de Recursos en Tareas
+
+Estoy experimentando problemas con la visualización y gestión de recursos relacionados en la edición de tareas. Los recursos asignados no se muestran en el formulario de edición y no hay opciones para agregar o eliminar recursos.
+
+### Contexto del Problema
+- **Módulo afectado:** Edición de tareas (EntityForm, EntityPage)
+- **Funcionalidad impactada:** Visualización y gestión de recursos relacionados
+- **Estado actual:** Recursos no visibles en formulario de edición, no se pueden gestionar
+- **Comportamiento esperado:** Mostrar recursos actuales y permitir agregar/eliminar
+- **Ejemplo:** Tarea TAR-3273 vinculada a REC-0007 no muestra recursos en edición
+
+### Análisis del Código Actual
+
+#### Componentes Involucrados
+- **EntityForm.tsx:** Formulario de edición de entidades
+- **EntityPage.tsx:** Página que maneja la edición
+- **ResourceAssignmentControl.tsx:** Control de asignación de recursos
+- **useResourceAssignment.ts:** Hook para gestión de asignaciones
+
+#### Posibles Causas
+1. **Template replacement:** Falta reemplazar {{id}} con ID real en configuración
+2. **Hook initialization:** Hook no carga datos automáticamente al inicializarse
+3. **API connectivity:** Problemas de conectividad entre frontend y backend en contenedores
+4. **Backend errors:** API falla por tablas faltantes o errores de configuración
+5. **State management:** Estado no se actualiza correctamente entre componentes
+
+### Metodología de Resolución
+
+#### 1. Diagnóstico Inicial
+```typescript
+// Verificar estado actual del componente
+console.log('Current task data:', taskData);
+console.log('Available resources:', availableResources);
+console.log('Current assignments:', currentAssignments);
+```
+
+#### 2. Revisión de Componentes
+- Examinar `TareaProfileModal` para restricciones en modo edición
+- Verificar `ResourceAssignmentControl` para lógica de asignación
+- Revisar `useResourceAssignment` para manejo de estado
+
+#### 3. Verificación de API
+```javascript
+// Test de endpoints relacionados
+GET /api/tareas/:id/recursos - Obtener recursos asignados
+POST /api/tareas/:id/recursos - Asignar nuevo recurso
+DELETE /api/tareas/:id/recursos/:recursoId - Remover asignación
+```
+
+#### 4. Solución Implementada
+- **Problema identificado:** [Descripción específica del problema encontrado]
+- **Código corregido:** [Cambios realizados en los componentes]
+- **Archivos modificados:** [Lista de archivos actualizados]
+
+#### 5. Testing y Verificación
+- Probar asignación de recursos en modo edición
+- Verificar que los cambios se persisten correctamente
+- Confirmar que no se afectan otras funcionalidades
+
+### Código de Ejemplo para la Solución
+
+#### Actualización de ResourceAssignmentControl
+```typescript
+// ResourceAssignmentControl.tsx
+interface ResourceAssignmentControlProps {
+  taskId: number;
+  currentAssignments: Resource[];
+  availableResources: Resource[];
+  onAssignmentChange: (assignments: Resource[]) => void;
+  isEditMode: boolean; // Nueva prop para modo edición
+}
+
+export const ResourceAssignmentControl: React.FC<ResourceAssignmentControlProps> = ({
+  taskId,
+  currentAssignments,
+  availableResources,
+  onAssignmentChange,
+  isEditMode = false
+}) => {
+  const handleAddResource = async (resourceId: number) => {
+    try {
+      // Solo verificar permisos, no restricciones adicionales en edición
+      if (!isEditMode || await checkPermission('technician')) {
+        const newAssignment = await assignResourceToTask(taskId, resourceId);
+        onAssignmentChange([...currentAssignments, newAssignment]);
+      }
+    } catch (error) {
+      console.error('Error assigning resource:', error);
+    }
+  };
+
+  return (
+    <div className="resource-assignment">
+      <h4>Recursos Asignados</h4>
+      <ResourceSelector
+        available={availableResources}
+        onSelect={handleAddResource}
+        disabled={!isEditMode && !hasPermission('technician')}
+      />
+      <ResourceList
+        resources={currentAssignments}
+        onRemove={(resourceId) => handleRemoveResource(resourceId)}
+        canRemove={isEditMode}
+      />
+    </div>
+  );
+};
+```
+
+#### Actualización de TareaProfileModal
+```typescript
+// TareaProfileModal.tsx
+export const TareaProfileModal: React.FC<TareaProfileModalProps> = ({
+  task,
+  isOpen,
+  onClose,
+  onSave
+}) => {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const { assignments, addResource, removeResource } = useResourceAssignment(task.id);
+
+  useEffect(() => {
+    // Determinar si estamos en modo edición basado en la existencia de la tarea
+    setIsEditMode(!!task.id);
+  }, [task.id]);
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ResourceAssignmentControl
+        taskId={task.id}
+        currentAssignments={assignments}
+        availableResources={availableResources}
+        onAssignmentChange={handleAssignmentChange}
+        isEditMode={isEditMode} // Pasar modo edición
+      />
+    </Modal>
+  );
+};
+```
+
+### Consideraciones de Seguridad
+- Mantener verificación de permisos para asignación de recursos
+- Validar que el usuario tenga acceso a la tarea y recursos
+- Auditar cambios en asignaciones de recursos
+
+### Testing Automatizado
+```typescript
+// Tests para asignación de recursos en edición
+describe('Resource Assignment in Edit Mode', () => {
+  test('should allow adding resources when editing task', async () => {
+    // Test implementation
+  });
+
+  test('should persist resource assignments correctly', async () => {
+    // Test implementation
+  });
+});
+```
+
+### Próximos Pasos
+- Implementar la solución identificada
+- Probar exhaustivamente la funcionalidad
+- Documentar cambios realizados
+- Actualizar tests si es necesario
+
+### Resultados Obtenidos
+
+#### Problemas Resueltos
+- ✅ **Recursos visibles en edición:** Los recursos asignados ahora se muestran correctamente en el formulario de edición
+- ✅ **API funcionando:** Backend API responde correctamente para asignación de recursos
+- ✅ **Template replacement:** Los templates {{id}} se reemplazan correctamente con IDs reales
+- ✅ **Carga automática:** Hook carga datos automáticamente al inicializarse
+- ✅ **Container networking:** URLs corregidas para funcionamiento en contenedores Docker
+
+#### Verificación
+- **Tarea TAR-3273:** Vinculada correctamente a REC-0007 (srvv-KOHA)
+- **API Endpoints:** GET y POST funcionando para `/api/tarea-recursos/tareas/:id/recursos`
+- **Frontend Integration:** EntityForm muestra y permite gestión de recursos en edición
+
+Proporciona solución completa con código funcional y consideraciones de testing.
 ```

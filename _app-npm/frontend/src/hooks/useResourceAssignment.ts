@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import toast from 'react-hot-toast'
 
 export interface AssignedResource {
@@ -44,6 +44,8 @@ export const useResourceAssignment = (
   entityType: 'tarea' | 'usuario' | 'tecnico' | 'recurso',
   entityId: number
 ): UseResourceAssignment => {
+  // Use relative paths for Vite proxy
+  const API_BASE = '/api'
   const [state, setState] = useState<UseResourceAssignmentState>({
     assignedResources: [],
     availableResources: [],
@@ -71,21 +73,21 @@ export const useResourceAssignment = (
       // Build endpoint based on entity type
       switch (entityType) {
         case 'tarea':
-          endpoint = `/api/tarea-recursos/tareas/${entityId}/recursos`
+          endpoint = `${API_BASE}/tarea-recursos/tareas/${entityId}/recursos`
           break
         case 'usuario':
-          endpoint = `/api/usuario-recursos/usuarios/${entityId}/recursos`
+          endpoint = `${API_BASE}/usuario-recursos/usuarios/${entityId}/recursos`
           break
         case 'tecnico':
-          endpoint = `/api/tecnico-recursos/tecnicos/${entityId}/recursos`
+          endpoint = `${API_BASE}/tecnico-recursos/tecnicos/${entityId}/recursos`
           break
         case 'recurso':
-          endpoint = `/api/recursos-asignados/recursos/${entityId}/asignaciones`
+          endpoint = `${API_BASE}/recursos-asignados/recursos/${entityId}/asignaciones`
           break
         default:
-          endpoint = `/api/tarea-recursos/tareas/${entityId}/recursos`
+          endpoint = `${API_BASE}/tarea-recursos/tareas/${entityId}/recursos`
       }
-      
+
       const response = await fetch(endpoint)
       
       if (!response.ok) {
@@ -143,7 +145,7 @@ export const useResourceAssignment = (
   // Load available resources for assignment
   const loadAvailableResources = useCallback(async () => {
     try {
-      const response = await fetch('/api/recursos?status=available')
+      const response = await fetch(`${API_BASE}/recursos?status=available`)
       
       if (!response.ok) {
         throw new Error(`Error al cargar recursos disponibles: ${response.status}`)
@@ -183,19 +185,19 @@ export const useResourceAssignment = (
       
       switch (entityType) {
         case 'tarea':
-          endpoint = `/api/tarea-recursos/tareas/${entityId}/recursos`
+          endpoint = `${API_BASE}/tarea-recursos/tareas/${entityId}/recursos`
           requestBody = { recurso_id: resourceId }
           break
         case 'usuario':
-          endpoint = `/api/usuario-recursos/usuarios/${entityId}/recursos`
+          endpoint = `${API_BASE}/usuario-recursos/usuarios/${entityId}/recursos`
           requestBody = { resource_id: resourceId }
           break
         case 'tecnico':
-          endpoint = `/api/tecnico-recursos/tecnicos/${entityId}/recursos`
+          endpoint = `${API_BASE}/tecnico-recursos/tecnicos/${entityId}/recursos`
           requestBody = { resource_id: resourceId }
           break
         case 'recurso':
-          endpoint = `/api/recursos-asignados/recursos/${entityId}/asignaciones`
+          endpoint = `${API_BASE}/recursos-asignados/recursos/${entityId}/asignaciones`
           requestBody = { entity_type: 'tarea', entity_id: entityId, resource_id: resourceId }
           break
         default:
@@ -252,19 +254,19 @@ export const useResourceAssignment = (
       
       switch (entityType) {
         case 'tarea':
-          endpoint = `/api/tarea-recursos/tareas/${entityId}/recursos/${resourceId}`
+          endpoint = `${API_BASE}/tarea-recursos/tareas/${entityId}/recursos/${resourceId}`
           requestBody = {}
           break
         case 'usuario':
-          endpoint = `/api/usuario-recursos/usuarios/${entityId}/recursos/${resourceId}`
+          endpoint = `${API_BASE}/usuario-recursos/usuarios/${entityId}/recursos/${resourceId}`
           requestBody = {}
           break
         case 'tecnico':
-          endpoint = `/api/tecnico-recursos/tecnicos/${entityId}/recursos/${resourceId}`
+          endpoint = `${API_BASE}/tecnico-recursos/tecnicos/${entityId}/recursos/${resourceId}`
           requestBody = {}
           break
         case 'recurso':
-          endpoint = `/api/recursos-asignados/recursos/${resourceId}/asignaciones`
+          endpoint = `${API_BASE}/recursos-asignados/recursos/${resourceId}/asignaciones`
           requestBody = { entity_type: entityType, entity_id: entityId }
           break
         default:
@@ -325,6 +327,11 @@ export const useResourceAssignment = (
         return '/api/tarea-recursos'
     }
   }
+
+  // Auto-load data when hook is initialized
+  useEffect(() => {
+    refreshAssignments()
+  }, [refreshAssignments])
 
   return {
     // State

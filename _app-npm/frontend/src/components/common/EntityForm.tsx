@@ -199,8 +199,26 @@ export const EntityForm = <T extends Record<string, any>>({
           )
         }
 
-        const { entityType, entityId } = field.resourceAssignmentConfig
-        const resourceAssignment = useResourceAssignment(entityType, entityId)
+        const { entityType } = field.resourceAssignmentConfig
+        let entityId = field.resourceAssignmentConfig.entityId
+
+        // Replace template variables in entityId
+        if (typeof entityId === 'string' && entityId.includes('{{id}}')) {
+          const actualId = initialData?.id
+          if (actualId) {
+            entityId = actualId.toString()
+          } else {
+            // For new entities without ID, don't show resource assignment
+            return (
+              <div className="alert alert-info">
+                <i className="fas fa-info-circle me-2"></i>
+                La asignación de recursos estará disponible después de guardar la entidad
+              </div>
+            )
+          }
+        }
+
+        const resourceAssignment = useResourceAssignment(entityType, parseInt(entityId.toString()))
         
         return (
           <ResourceAssignmentControl

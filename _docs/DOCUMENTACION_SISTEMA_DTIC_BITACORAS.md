@@ -1333,7 +1333,7 @@ echo "🗄️ Base de datos: localhost:3306"
 {
   "status": "OK",
   "timestamp": "2025-11-12T02:20:47.703Z",
-  "version": "1.3.3"
+  "version": "1.4.0"
 }
 ```
 

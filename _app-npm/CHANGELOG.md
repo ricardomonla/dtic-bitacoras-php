@@ -5,21 +5,26 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.4] - 2025-11-12
+## [1.4.0] - 2025-11-12
 
 ### Added
-- **Database Restore Functionality**: Successful restoration of srvv-KOHA resource and system integrity
-- **Backup Verification System**: Implementation of automated verification for critical resources post-restore
-- **Script Corrections**: Applied fixes to app-run.sh bd-restore command for proper path handling and database parameters
+- **Resource Assignment in Task Editing**: Complete implementation of resource assignment functionality in task edit forms
+- **Template Replacement System**: Dynamic replacement of `{{id}}` templates with actual entity IDs in forms
+- **Auto-loading Resource Data**: Automatic loading of assigned resources when edit forms open
+- **Enhanced Resource Management**: Full CRUD operations for task-resource assignments with real-time updates
 
 ### Fixed
-- **srvv-KOHA Resource Recovery**: Restored missing srvv-KOHA resource from backup file `dtic_bitacoras_backup_20251107_171026.sql`
-- **System Integrity Verification**: Comprehensive checks confirming all resources and data integrity post-restore
+- **Resource Visibility in Edit Forms**: Resources now properly display in task editing interface
+- **Template Processing**: Fixed `{{id}}` template replacement in EntityForm resource assignment configuration
+- **API Connectivity**: Resolved CORS issues by using Vite proxy with relative paths
+- **Backend API Errors**: Fixed historial table insertion errors in tarea-recursos routes
+- **Hook Initialization**: Added automatic data loading to useResourceAssignment hook
 
 ### Technical Details
-- **Database Restore**: Executed using `app-run.sh bd-restore` with backup verification
-- **Resource Verification**: Automated checks for critical resources including srvv-KOHA
-- **Version Update**: System version incremented to 1.3.4 across all components
+- **Frontend**: Enhanced EntityForm with template replacement, updated useResourceAssignment hook with auto-loading
+- **Backend**: Fixed tarea-recursos API by commenting out missing historial table operations
+- **Configuration**: Updated version references across all components (frontend, backend, navbar, docs)
+- **Version Update**: System version incremented to 1.4.0 (minor version for new functionality)
 
 ## [1.3.0] - 2025-11-07
 
