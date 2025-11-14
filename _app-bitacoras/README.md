@@ -830,7 +830,7 @@ El proyecto se desarrolló siguiendo una metodología estructurada:
 **Desarrollado por:** Lic. Ricardo MONLA
 **Institución:** Universidad Tecnológica Nacional - Facultad Regional La Rioja
 **Departamento:** Departamento de Servidores, Dirección de TIC
-**Proyecto:** Sistema DTIC Bitácoras v1.2.0
+**Proyecto:** Sistema DTIC Bitácoras v1.5.0
 **Fecha:** Noviembre 2025
 
 ### Contacto
@@ -861,5 +861,5 @@ Para soporte técnico o consultas sobre el desarrollo del sistema, contactar al 
 **Desarrollado por:** Lic. Ricardo MONLA
 **Institución:** Universidad Tecnológica Nacional - Facultad Regional La Rioja
 **Departamento:** Departamento de Servidores, Dirección de TIC
-**Proyecto:** Sistema DTIC Bitácoras v1.2.0
+**Proyecto:** Sistema DTIC Bitácoras v1.5.0
 **Última actualización:** Noviembre 2025

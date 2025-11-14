@@ -5,6 +5,11 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-11-14
+
+### Added
+- Added functionality to load resources from PDF files into the database. Successfully imported 233 resources from RECURSOS.pdf. Updated prompts with new DTIC-PDF-IMPORT-001 template for PDF data import operations.
+
 ## [1.4.3] - 2025-11-14
 
 ### Fixed
