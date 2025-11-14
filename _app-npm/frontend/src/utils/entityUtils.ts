@@ -118,6 +118,19 @@ export const recursoConfig: EntityConfig = {
       return '-';
     },
 
+    recursoModeloSerie: (entity: any) => {
+      const name = entity.name || '';
+      const model = entity.model || '';
+      const serie = entity.serial_number || '';
+      let modelSerie = '';
+      if (model && serie) modelSerie = `${model} - ${serie}`;
+      else if (model) modelSerie = model;
+      else if (serie) modelSerie = serie;
+      else modelSerie = '-';
+
+      return `${name}\n${modelSerie}`;
+    },
+
     formatRelatedTasks: (entity: any) => {
       const relatedTasks = entity.related_tasks || []
 

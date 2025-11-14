@@ -13,3 +13,5 @@ El últmimo backup es _app-npm/backups/dtic_bitacoras_backup_20251107_171026.sql
 Documentar, Versionar, Registrar Tareas terminadas y Commitear.
 
 Utiliza el archivo _prompts/prompts-dtic-bitacoras.md, actualízalo y optimízalo si es necesario para dejar registrada esta solicitud.
+
+Si es necesario, actualizá y optimizá el archivo _prompts/prompts-dtic-bitacoras.md para registrar esta solicitud.

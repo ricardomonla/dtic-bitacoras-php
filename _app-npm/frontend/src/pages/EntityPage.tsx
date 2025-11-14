@@ -1136,6 +1136,22 @@ const EntityRow = ({ entity, config, onAction, utils, entityKey }: any) => {
           // Special case for combined model-serial column
           const formattedValue = utils.formatValue(column.formatter, entity)
           cellValue = formattedValue || '-'
+        } else if (column.key === 'recurso_modelo_serie' && entityKey === 'recursos') {
+          // Special case for combined resource name and model-serial column
+          const name = entity.name || '-'
+          const model = entity.model || ''
+          const serie = entity.serial_number || ''
+          let modelSerie = '-'
+          if (model && serie) modelSerie = `${model} - ${serie}`
+          else if (model) modelSerie = model
+          else if (serie) modelSerie = serie
+
+          cellValue = (
+            <div className="d-flex flex-column">
+              <span className="fw-bold">{name}</span>
+              <small className="text-muted">{modelSerie}</small>
+            </div>
+          )
         } else if (column.key === 'related_tasks' && entityKey === 'recursos') {
           // Special case for related tasks column
           const formattedValue = utils.formatValue(column.formatter, entity)

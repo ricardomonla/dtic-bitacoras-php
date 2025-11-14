@@ -3178,6 +3178,25 @@ Proporciona documentación completa y detallada de operaciones exitosas de resta
 **Description:** The Location column in the Resources section needs to display Related Users, following the same logic and behavior used in the Tasks section, specifically in the Resources column.
 
 **Status:** New Request / Pending Implementation
+
+### 2025-11-13: Resources Module Column Unification - Recurso and Modelo/Serie
+
+**Issue:** Unify "Recurso" and "Modelo/Serie" columns into one in Resources module
+
+**Request Details:** En el módulo Recursos, unificá las columnas Recurso y Modelo/Serie en una sola. En la tabla, mostrás la información en dos líneas: En la primera línea, el nombre del recurso. En la segunda línea, el modelo y la serie.
+
+**Changes Implemented:**
+- **entityUtils.ts:** Added `recursoModeloSerie` formatter function
+- **EntityPage.tsx:** Added special handling for `recurso_modelo_serie` column to display name and model/serie in two lines
+- **entities.yml:** Replaced separate "name" and "modelo_serie" columns with single "recurso_modelo_serie" column
+- **Display:** Name on first line (bold), model and serial on second line (muted text)
+
+**Files Modified:**
+- `_app-npm/frontend/src/utils/entityUtils.ts`
+- `_app-npm/frontend/src/pages/EntityPage.tsx`
+- `_app-npm/frontend/src/config/entities.yml`
+
+**Status:** Completed
 ```
 
 ### 20. System Documentation and Versioning Tasks
