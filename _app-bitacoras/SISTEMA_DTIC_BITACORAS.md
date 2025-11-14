@@ -1333,7 +1333,7 @@ echo "🗄️ Base de datos: localhost:3306"
 {
   "status": "OK",
   "timestamp": "2025-11-12T02:20:47.703Z",
-  "version": "1.4.0"
+  "version": "1.6.0"
 }
 ```
 
@@ -1701,6 +1701,9 @@ docker-compose ps
 
 ## 8. HISTORIAL DE CAMBIOS
 
+### v1.6.0 (2025-11-14)
+- ✅ **Version Update:** Updated to version 1.6.0
+
 ### v1.4.3 (2025-11-14)
 - ✅ **Corrección Crítica de Tabla de Usuarios:** Tabla `usuarios_asignados` renombrada a `usuarios_relacionados` en base de datos
 - ✅ **Actualización de APIs:** Todas las referencias de tabla actualizadas en código backend
@@ -1796,5 +1799,5 @@ https://github.com/rmonla/dtic-bitacoras-php
 
 **Documento generado automáticamente por DTIC-DOCS-SYS-001**
 **Última actualización:** 2025-11-14
-**Versión del Sistema:** 1.4.3
+**Versión del Sistema:** 1.6.0
 **Estado:** FINAL - Documentación Completa con Corrección de Tabla de Usuarios

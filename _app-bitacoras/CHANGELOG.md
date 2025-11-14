@@ -5,6 +5,16 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto se adhiere al [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2025-11-14
+
+### Added
+- **Backup and Restore UI Functionality**: Complete implementation of backup and restore user interface for database operations
+- **Frontend UI**: New backup and restore controls integrated into the Sistema page with intuitive user interface
+- **Backend API Endpoints**: New `/api/system/backup` and `/api/system/restore` endpoints for secure database operations
+- **Admin Access Controls**: Restricted access to backup and restore operations for admin users only with proper authentication
+- **Docker Integration**: Seamless integration with Docker containerized PostgreSQL database for backup and restore operations
+- **Error Handling**: Comprehensive error handling and user feedback for backup and restore operations with detailed logging
+
 ## [1.5.0] - 2025-11-14
 
 ### Added

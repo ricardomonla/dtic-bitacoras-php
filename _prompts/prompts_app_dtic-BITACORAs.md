@@ -1,6 +1,6 @@
 ---
 title: "DTIC-BITACORAs Template Framework"
-version: "1.3.0"
+version: "1.6.0"
 author: "[DTIC Organization]"
 description: "A specialized framework for automatic template selection and automation in the DTIC-BITACORAs bitácoras management system."
 language: "es"
@@ -387,7 +387,63 @@ plantillas:
      uso_recomendado: "Documentar operaciones exitosas de restauración de base de datos"
      descripcion: "Plantilla para documentar restauraciones exitosas de base de datos con detalles de proceso y verificación"
 
-    # CLASIFICACIÓN AUTOMÁTICA
+   pdf_import:
+      id: "DTIC-PDF-IMPORT-001"
+      nombre: "Importación de Datos desde PDF"
+      categoria: "datos"
+      subcategoria: "importacion"
+      prioridad: 2
+      palabras_clave: ["pdf", "importar", "extraer", "texto", "parsing", "mapeo", "base de datos", "error handling", "duplicados", "conexion", "multi-line", "estructurado"]
+      patrones_matching:
+        - "importar datos pdf"
+        - "extraer texto pdf"
+        - "cargar pdf a base de datos"
+        - "parsing pdf"
+        - "mapeo schema pdf"
+        - "insertar datos pdf"
+        - "manejo errores pdf"
+        - "duplicados pdf"
+        - "conexion bd pdf"
+        - "multi-line entries pdf"
+      uso_recomendado: "Importar datos desde archivos PDF a la base de datos con manejo de errores y validaciones"
+      descripcion: "Plantilla para el proceso completo de importación de datos desde PDF: extracción de texto, parsing a datos estructurados, mapeo a schema de base de datos, inserción con error handling, y manejo de entradas multi-línea, duplicados y problemas de conexión"
+
+   system_administration:
+      id: "DTIC-SYSTEM-001"
+      nombre: "Modificaciones del Sistema"
+      categoria: "sistema"
+      subcategoria: "administracion"
+      prioridad: 1
+      palabras_clave: ["sistema", "administracion", "modificaciones", "configuracion", "usuarios", "permisos", "seguridad", "gestion", "ajustes", "parametros"]
+      patrones_matching:
+        - "modificar sistema"
+        - "administrar sistema"
+        - "configurar sistema"
+        - "gestionar usuarios"
+        - "cambiar permisos"
+        - "ajustar configuracion"
+        - "seguridad sistema"
+        - "parametros sistema"
+      uso_recomendado: "Realizar modificaciones y administración del sistema DTIC Bitácoras, incluyendo configuración, usuarios y permisos"
+      descripcion: "Plantilla para tareas de administración y modificaciones del sistema, incluyendo gestión de usuarios, permisos, configuraciones de seguridad y ajustes de parámetros del sistema"
+
+   backup_restore_operations:
+     id: "DTIC-BACKUP-RESTORE-001"
+     nombre: "Backup and Restore Operations"
+     categoria: "datos"
+     subcategoria: "backup_restore"
+     prioridad: 1
+     palabras_clave: ["backup", "restore", "database", "system administration"]
+     patrones_matching:
+       - "backup operations"
+       - "restore database"
+       - "system backup"
+       - "database restore"
+       - "backup and restore"
+     uso_recomendado: "Perform backup and restore operations for the DTIC Bitácoras system"
+     descripcion: "Template for backup and restore operations including database backups, system state preservation, and restoration procedures"
+
+     # CLASIFICACIÓN AUTOMÁTICA
 clasificacion:
   categorias:
    desarrollo: ["frontend", "backend", "crud"]
@@ -407,6 +463,8 @@ clasificacion:
    database_restore_completed: ["backup_restore"]
 
    task_resources_assignment: ["frontend"]
+
+   sistema: ["administracion"]
 
   priority_rules:
     - categoria: "debugging"
@@ -703,6 +761,9 @@ Esta política aplica a:
 
 ## Version History
 
+- **Version 1.6.0:** 2025-11-14 - Added DTIC-BACKUP-RESTORE-001 template for backup and restore operations
+- **Version 1.5.0:** 2025-11-14 - Nueva plantilla DTIC-SYSTEM-001 para modificaciones y administración del sistema, incluyendo gestión de usuarios, permisos, configuraciones de seguridad y ajustes de parámetros.
+- **Version 1.4.0:** 2025-11-14 - Nueva plantilla DTIC-PDF-IMPORT-001 para importación de datos desde archivos PDF a la base de datos, incluyendo extracción de texto, parsing estructurado, mapeo de schema, inserción con error handling y manejo de multi-line entries, duplicados y problemas de conexión.
 - **Version 1.3.0:** 2025-11-14 - Nueva plantilla DTIC-SYSTEM-DOCS-001 para documentación completa del sistema. Inclusión de requerimiento persistente para documentar CHANGELOG.md, README.md y SISTEMA_DTIC_BITACORAS.md.
 - **Version 1.2.0:** 2025-11-14 - Política de comunicación en español implementada como requisito crítico y obligatorio. Refuerzo de directivas de idioma para todas las interacciones con el usuario.
 - **Version 1.1.0:** 2025-11-14 - Comprehensive template integration from prompts-dtic-bitacoras.md, added detailed technical templates, classification algorithms, and resolved issues log
