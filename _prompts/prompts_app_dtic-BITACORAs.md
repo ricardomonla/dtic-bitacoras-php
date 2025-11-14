@@ -1,6 +1,6 @@
 ---
 title: "DTIC-BITACORAs Template Framework"
-version: "1.2.0"
+version: "1.3.0"
 author: "[DTIC Organization]"
 description: "A specialized framework for automatic template selection and automation in the DTIC-BITACORAs bitácoras management system."
 language: "es"
@@ -286,6 +286,27 @@ plantillas:
     uso_recomendado: "Resolver problemas donde no se pueden agregar nuevos recursos relacionados al editar tareas"
     descripcion: "Plantilla para diagnosticar y resolver problemas de asignación de recursos relacionados en la edición de tareas"
 
+  system_documentation:
+    id: "DTIC-SYSTEM-DOCS-001"
+    nombre: "Documentación Completa del Sistema DTIC Bitácoras"
+    categoria: "documentacion"
+    subcategoria: "sistema"
+    prioridad: 1
+    palabras_clave: ["documentar", "sistema", "changelog", "readme", "sistema_dtic_bitacoras", "documentacion", "completa", "arquitectura", "componentes", "apis", "base_datos"]
+    patrones_matching:
+      - "documentar sistema"
+      - "actualizar documentacion"
+      - "changelog completo"
+      - "readme actualizado"
+      - "sistema_dtic_bitacoras.md"
+      - "documentacion completa"
+      - "arquitectura del sistema"
+      - "componentes documentados"
+      - "apis documentadas"
+      - "base de datos documentada"
+    uso_recomendado: "Documentar completamente el sistema DTIC Bitácoras en los archivos CHANGELOG.md, README.md y SISTEMA_DTIC_BITACORAS.md"
+    descripcion: "Plantilla para documentación completa del sistema incluyendo arquitectura, componentes, APIs, base de datos y funcionalidades"
+
   documentacion_actualizacion:
    id: "DTIC-DOCS-UPD-001"
    nombre: "Actualización de Documentación"
@@ -376,7 +397,7 @@ clasificacion:
    configuracion: ["deployment"]
    optimizacion: ["performance"]
    debugging: ["error_solving"]
-   documentacion: ["workflow", "sistema", "actualizacion", "entidades"]
+   documentacion: ["workflow", "sistema", "actualizacion", "entidades", "system_documentation"]
    general: ["general"]
 
    mantenimiento: ["cleanup"]
@@ -682,6 +703,7 @@ Esta política aplica a:
 
 ## Version History
 
+- **Version 1.3.0:** 2025-11-14 - Nueva plantilla DTIC-SYSTEM-DOCS-001 para documentación completa del sistema. Inclusión de requerimiento persistente para documentar CHANGELOG.md, README.md y SISTEMA_DTIC_BITACORAS.md.
 - **Version 1.2.0:** 2025-11-14 - Política de comunicación en español implementada como requisito crítico y obligatorio. Refuerzo de directivas de idioma para todas las interacciones con el usuario.
 - **Version 1.1.0:** 2025-11-14 - Comprehensive template integration from prompts-dtic-bitacoras.md, added detailed technical templates, classification algorithms, and resolved issues log
 - **Version 1.0.0:** 2025-11-14 - Initial DTIC-BITACORAs framework implementation
